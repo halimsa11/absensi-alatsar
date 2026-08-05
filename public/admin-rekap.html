@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Rekap Kehadiran</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white shadow-sm">
+    <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-lg font-bold tracking-tight">📊 Rekap Kehadiran Hari Ini</h1>
+        <p id="tanggalHariIni" class="text-slate-400 text-xs"></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="/admin-siswa.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition shadow-sm">
+          + Tambah Siswa
+        </a>
+        <a href="/" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition shadow-sm">
+          Menu Utama
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-6 py-10 w-full space-y-6">
+
+    <div class="flex justify-between items-center">
+      <h2 class="text-base font-bold text-slate-900">Daftar Siswa yang Sudah Absen</h2>
+      <button onclick="loadDataRekap()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl transition shadow-sm">
+        🔄 Refresh Data
+      </button>
+    </div>
+
+    <!-- Tabel Rekap -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-xs uppercase font-bold tracking-wider">
+              <th class="py-4 px-6 w-16 text-center">No</th>
+              <th class="py-4 px-6">Nama Siswa</th>
+              <th class="py-4 px-6">NISN</th>
+              <th class="py-4 px-6">Jam Masuk</th>
+              <th class="py-4 px-6">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody id="tabelRekap" class="divide-y divide-slate-100 text-sm font-medium">
+            <tr>
+              <td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-6 text-xs text-slate-400 font-medium">
+    &copy; 2026 Sistem Absensi Sekolah • Admin Panel
+  </footer>
+
+  <script>
+    const optionsTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('tanggalHariIni').innerText = new Date().toLocaleDateString('id-ID', optionsTanggal);
+
+    async function loadDataRekap() {
+      const tabelRekap = document.getElementById('tabelRekap');
+      try {
+        const response = await fetch('/api/absen/hari-ini');
+        const result = await response.json();
+
+        if (!result.success || result.data.length === 0) {
+          tabelRekap.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400 font-normal">Belum ada data kehadiran siswa hari ini.</td></tr>`;
+          return;
+        }
+
+        tabelRekap.innerHTML = '';
+        result.data.forEach((item, index) => {
+          const jamFormatted = new Date(item.jamMasuk).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const isTepatWaktu = item.keterangan.includes('Tepat Waktu');
+          
+          const badgeClass = isTepatWaktu 
+            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-semibold px-3 py-1 rounded-full text-xs inline-block' 
+            : 'bg-amber-50 text-amber-700 border border-amber-200/60 font-semibold px-3 py-1 rounded-full text-xs inline-block';
+
+          tabelRekap.innerHTML += `
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="py-4 px-6 text-center text-slate-400 font-semibold">${index + 1}</td>
+              <td class="py-4 px-6 text-slate-900 font-bold">${item.namaSiswa}</td>
+              <td class="py-4 px-6 font-mono text-slate-600 text-xs">${item.nisn}</td>
+              <td class="py-4 px-6 font-mono text-slate-600 text-xs">${jamFormatted} WIB</td>
+              <td class="py-4 px-6"><span class="${badgeClass}">${item.keterangan}</span></td>
+            </tr>
+          `;
+        });
+      } catch (error) {
+        tabelRekap.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-rose-500 font-normal">Gagal memuat data rekap dari server.</td></tr>`;
+      }
+    }
+
+    loadDataRekap();
+  </script>
+</body>
+</html>

@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public')); // Agar server bisa membaca file HTML di folder public
 
 // ==========================================
 // 1. ROOT ENDPOINT (Cek Status Server)
@@ -26,7 +27,6 @@ app.get('/', (req, res) => {
 // ==========================================
 // 2. API KELAS (Lihat & Tambah Kelas)
 // ==========================================
-// Lihat semua kelas
 app.get('/api/classes', async (req, res) => {
   try {
     const data = await db.select().from(classes);
@@ -36,11 +36,9 @@ app.get('/api/classes', async (req, res) => {
   }
 });
 
-// Tambah kelas baru
 app.post('/api/classes', async (req, res) => {
   try {
     const { name, academicYear } = req.body;
-
     if (!name || !academicYear) {
       return res.status(400).json({ 
         success: false, 
@@ -64,9 +62,8 @@ app.post('/api/classes', async (req, res) => {
 });
 
 // ==========================================
-// 3. API SISWA (Lihat & Tambah Siswa)
+// 3. API SISWA (Lihat & Tambah Siswa dari Admin)
 // ==========================================
-// Lihat semua siswa beserta data kelasnya
 app.get('/api/students', async (req, res) => {
   try {
     const data = await db
@@ -86,15 +83,13 @@ app.get('/api/students', async (req, res) => {
   }
 });
 
-// Tambah siswa baru
 app.post('/api/students', async (req, res) => {
   try {
     const { nisn, fullName, classId } = req.body;
-
     if (!nisn || !fullName || !classId) {
       return res.status(400).json({ 
         success: false, 
-        message: 'NISN, Nama Lengkap (fullName), dan ID Kelas (classId) wajib diisi!' 
+        message: 'NISN, Nama Lengkap, dan ID Kelas wajib diisi!' 
       });
     }
 
@@ -114,26 +109,26 @@ app.post('/api/students', async (req, res) => {
 });
 
 // ==========================================
-// 4. API ABSENSI (Core Logic: 08:00 - 14:30)
+// 4. API ABSENSI (Core Logic: Validasi & Keterlambatan)
 // ==========================================
 app.post('/api/absen', async (req, res) => {
   try {
-    const { nisn } = req.body;
+    const { fullName } = req.body;
 
-    if (!nisn) {
-      return res.status(400).json({ success: false, message: 'NISN wajib diisi!' });
+    if (!fullName) {
+      return res.status(400).json({ success: false, message: 'Nama siswa wajib diisi!' });
     }
 
-    // A. Cari siswa berdasarkan NISN
+    // A. Cari siswa berdasarkan Nama Lengkap yang dipilih dari database
     const [siswa] = await db
       .select()
       .from(students)
-      .where(eq(students.nisn, nisn));
+      .where(eq(students.fullName, fullName));
 
     if (!siswa) {
       return res.status(404).json({ 
         success: false, 
-        message: 'Siswa dengan NISN tersebut tidak ditemukan!' 
+        message: 'Nama siswa tidak ditemukan di database! Silakan hubungi admin.' 
       });
     }
 
@@ -141,16 +136,12 @@ app.post('/api/absen', async (req, res) => {
     const sekarang = new Date();
     const tanggalHariIni = sekarang.toISOString().split('T')[0];
     
-    // Hitung total menit saat ini dari jam 00:00
     const jamSekarang = sekarang.getHours();
     const menitSekarang = sekarang.getMinutes();
     const totalMenit = jamSekarang * 60 + menitSekarang;
     
-    // Konversi batas waktu ke menit:
-    // 08:00 = 8 * 60 = 480 menit
-    // 14:30 = 14 * 60 + 30 = 870 menit
-    const batasJamMasuk = 8 * 60; 
-    const batasJamPulang = 14 * 60 + 30;
+    const batasJamMasuk = 8 * 60; // 08:00 WIB
+    const batasJamPulang = 14 * 60 + 30; // 14:30 WIB
 
     // C. Validasi Batas Akhir Jam Sekolah (14:30)
     if (totalMenit > batasJamPulang) {
@@ -185,7 +176,7 @@ app.post('/api/absen', async (req, res) => {
     }
 
     // F. Simpan Rekap Absensi ke Database
-    const [hasilAbsen] = await db
+    await db
       .insert(attendances)
       .values({
         studentId: siswa.id,
@@ -215,7 +206,6 @@ app.post('/api/absen', async (req, res) => {
 // ==========================================
 // 5. API REKAP & RIWAYAT ABSENSI
 // ==========================================
-// Lihat absen khusus HARI INI
 app.get('/api/absen/hari-ini', async (req, res) => {
   try {
     const tanggalHariIni = new Date().toISOString().split('T')[0];
@@ -240,31 +230,8 @@ app.get('/api/absen/hari-ini', async (req, res) => {
   }
 });
 
-// Lihat SEMUA riwayat absensi
-app.get('/api/absen/riwayat', async (req, res) => {
-  try {
-    const riwayat = await db
-      .select({
-        id: attendances.id,
-        tanggal: attendances.date,
-        namaSiswa: students.fullName,
-        nisn: students.nisn,
-        jamMasuk: attendances.checkInTime,
-        status: attendances.status,
-        keterangan: attendances.notes
-      })
-      .from(attendances)
-      .innerJoin(students, eq(attendances.studentId, students.id))
-      .orderBy(desc(attendances.date), desc(attendances.checkInTime));
-
-    res.json({ success: true, total: riwayat.length, data: riwayat });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
 // ==========================================
-// 6. JALANKAN SERVER
+// 6. NYALAKAN SERVER (Wajib di baris paling bawah)
 // ==========================================
 app.listen(PORT, () => {
   console.log(`=========================================`);

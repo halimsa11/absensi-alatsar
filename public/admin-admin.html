@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Admin Absensi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
+
+  <header class="bg-slate-900 text-white shadow-sm">
+    <div class="max-w-md mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-base font-bold">🛡️ Login Admin</h1>
+      <a href="/" class="text-xs text-slate-400 hover:text-white transition">← Menu Utama</a>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto px-6 py-12 w-full space-y-6">
+    <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
+
+    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
+      <div class="text-center mb-6">
+        <h2 class="text-xl font-bold text-slate-900">Masukkan Password Admin</h2>
+        <p class="text-xs text-slate-500 mt-1">Area terbatas khusus pengelola sistem</p>
+      </div>
+
+      <form id="formLoginAdmin" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Password Admin</label>
+          <input 
+            type="password" 
+            id="inputPassword" 
+            placeholder="Masukkan password admin..." 
+            class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 bg-slate-50/50 font-medium" 
+            required 
+          />
+        </div>
+
+        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">
+          Masuk ke Panel Admin
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="text-center py-6 text-xs text-slate-400 font-medium">
+    &copy; 2026 Sistem Absensi Sekolah
+  </footer>
+
+  <script>
+    document.getElementById('formLoginAdmin').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const password = document.getElementById('inputPassword').value;
+      const alertBox = document.getElementById('alertBox');
+
+      // Password admin (bisa kamu ubah nanti di sini)
+      if (password === 'admin123') {
+        // Setelah sukses login admin, arahkan ke halaman input siswa (atau bisa dibikin halaman dashboard admin pilihan menu)
+        window.location.href = '/admin-siswa.html';
+      } else {
+        alertBox.className = 'p-4 rounded-2xl text-sm font-medium shadow-sm block bg-rose-50 text-rose-800 border border-rose-200';
+        alertBox.innerText = '❌ Password admin salah! Akses ditolak.';
+      }
+    });
+  </script>
+</body>
+</html>
