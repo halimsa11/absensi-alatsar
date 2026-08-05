@@ -1,18 +1,23 @@
 {
   "name": "absensi-siswa",
   "version": "1.0.0",
-  "type": "module", 
+  "type": "module",
   "main": "src/index.js",
   "scripts": {
+    "dev": "nodemon src/index.js",
+   "start": "node src/index.js",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "cors": "^2.8.6",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.30.0",
+    "express": "^5.2.1",
     "postgres": "^3.4.4"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.20.0"
+    "drizzle-kit": "^0.20.0",
+    "nodemon": "^3.1.14"
   }
 }
