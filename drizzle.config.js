@@ -1,10 +1,11 @@
 import 'dotenv/config';
 
+/** @type { import("drizzle-kit").Config } */
 export default {
   schema: './src/db/schema.js',
-  out: './src/db/migrations',
-  dialect: 'postgresql',
+  out: './drizzle',
+  driver: 'pg', // 
   dbCredentials: {
-    url: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL,
   },
 };

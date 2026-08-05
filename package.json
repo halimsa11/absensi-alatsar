@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/index.js",
    "start": "node src/index.js",
-    "db:push": "drizzle-kit push",
+    "db:push": "drizzle-kit push:pg",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
