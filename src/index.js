@@ -1,52 +1,15 @@
 import 'dotenv/config'; // MENGIMPOR ENV AGAR TERHUBUNG KE NEON
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { db } from './db/index.js';
 import * as schema from './db/schema.js';
 import { eq, desc, gte, lte, and } from 'drizzle-orm';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-
-// Menyajikan file statis dari folder public (otomatis membaca public/index.html saat route '/')
-app.use(express.static(path.join(__dirname, '../public')));
-
-// Fungsi untuk memasukkan data contoh jika tabel masih kosong
-async function seedInitialData() {
-  try {
-    const targetClassTable = schema.classes || schema.classesTable;
-    const targetStudentTable = schema.students || schema.studentsTable;
-
-    const existingClasses = await db.select().from(targetClassTable);
-    if (existingClasses.length === 0) {
-      await db.insert(targetClassTable).values([
-        { id: 10, name: 'Kelas 10', academicYear: '2025/2026' },
-        { id: 11, name: 'Kelas 11', academicYear: '2025/2026' },
-        { id: 12, name: 'Kelas 12', academicYear: '2025/2026' }
-      ]);
-      console.log('✅ Data contoh kelas berhasil ditambahkan.');
-    }
-
-    const existingStudents = await db.select().from(targetStudentTable);
-    if (existingStudents.length === 0) {
-      await db.insert(targetStudentTable).values([
-        { nisn: '123456', fullName: 'Contoh Santri 1', classId: 10 },
-        { nisn: '654321', fullName: 'Contoh Santri 2', classId: 12 }
-      ]);
-      console.log('✅ Data contoh santri berhasil ditambahkan.');
-    }
-  } catch (err) {
-    console.log('Catatan seeding data:', err.message);
-  }
-}
 
 // Endpoint untuk mengambil daftar kelas
 app.get('/api/classes', async (req, res) => {
@@ -163,7 +126,7 @@ app.post('/api/attendance', async (req, res) => {
   }
 });
 
-// Endpoint untuk mengambil data rekap kehadiran (Mendukung Filter Tanggal/History)
+// Endpoint untuk mengambil data rekap kehadiran
 app.get('/api/absen/hari-ini', async (req, res) => {
   try {
     const targetAttendanceTable = schema.attendances || schema.attendance;
@@ -275,21 +238,11 @@ app.get('/api/ortu/rekap/:studentId', async (req, res) => {
   }
 });
 
-// Route Fallback untuk menyajikan index.html jika diakses via route non-API
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next();
-  }
-  res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
-// Hanya jalankan app.listen saat dijalankan di lingkungan lokal
+// Hanya jalankan app.listen di lokal
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, async () => {
+  app.listen(PORT, () => {
     console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
-    await seedInitialData();
   });
 }
 
-// Export app untuk serverless Vercel
 export default app;
