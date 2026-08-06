@@ -26,12 +26,12 @@
     <div id="viewLogin" class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80 max-w-md mx-auto space-y-6">
       <div class="text-center space-y-1">
         <h2 class="text-xl font-bold text-slate-900">Masuk Portal Wali Santri</h2>
-        <p class="text-xs text-slate-500">Masukkan NIS dan Password untuk melihat log rekap anak Anda.</p>
+        <p class="text-xs text-slate-500">Masukkan NISN/NIS dan Password untuk melihat log rekap anak Anda.</p>
       </div>
 
       <form id="formLoginOrtu" class="space-y-4" autocomplete="off">
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">NIS Santri</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">NIS / NISN Santri</label>
           <input type="text" id="loginNis" placeholder="Contoh: 008123456" required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-slate-800 font-medium text-slate-800" />
         </div>
 
@@ -129,7 +129,7 @@
         if (res.ok && result.success) {
           activeStudent = result.data;
           document.getElementById('dispNamaSantri').innerText = activeStudent.fullName;
-          document.getElementById('dispDetailSantri').innerText = `NIS: ${activeStudent.nisn || activeStudent.nis || '-'} | ${activeStudent.className}`;
+          document.getElementById('dispDetailSantri').innerText = `NISN: ${activeStudent.nisn || '-'} | Kelas: ${activeStudent.className}`;
           
           document.getElementById('viewLogin').classList.add('hidden');
           document.getElementById('viewRekap').classList.remove('hidden');
@@ -162,13 +162,18 @@
         if (result.success && result.data.length > 0) {
           let logs = result.data;
 
-          // Filter tanggal jika input tanggal terisi
+          // Filter berdasarkan tanggal pilihan user
           if (selectedDate) {
             logs = logs.filter(item => {
-              const itemTime = item.time || item.date;
-              if (!itemTime) return false;
-              const itemDateStr = new Date(itemTime).toISOString().split('T')[0];
-              return itemDateStr === selectedDate;
+              const rawTime = item.checkInTime || item.time || item.date;
+              if (!rawTime) return false;
+              const d = new Date(rawTime);
+              // Format YYYY-MM-DD lokal
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, '0');
+              const dd = String(d.getDate()).padStart(2, '0');
+              const localDateStr = `${yyyy}-${mm}-${dd}`;
+              return localDateStr === selectedDate;
             });
           }
 
@@ -179,7 +184,8 @@
 
           tbody.innerHTML = '';
           logs.forEach((item, index) => {
-            const rawTime = item.time || item.date;
+            // PERBAIKAN: mengambil properti checkInTime yang dikirim backend
+            const rawTime = item.checkInTime || item.time || item.date;
             
             let tgl = '-';
             let jamFormat = '-';
@@ -187,17 +193,20 @@
             if (rawTime) {
               const objDate = new Date(rawTime);
               
-              tgl = objDate.toLocaleDateString('id-ID', { 
-                weekday: 'short', 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric' 
-              });
+              if (!isNaN(objDate.getTime())) {
+                tgl = objDate.toLocaleDateString('id-ID', { 
+                  weekday: 'short', 
+                  day: 'numeric', 
+                  month: 'short', 
+                  year: 'numeric' 
+                });
 
-              jamFormat = objDate.toLocaleTimeString('id-ID', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              }).replace(':', '.') + ' WIB';
+                jamFormat = objDate.toLocaleTimeString('id-ID', { 
+                  hour: '2-digit', 
+                  minute: '2-digit',
+                  hour12: false
+                }).replace(':', '.') + ' WIB';
+              }
             }
 
             const status = item.status || 'Hadir';
