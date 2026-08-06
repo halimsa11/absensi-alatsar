@@ -271,6 +271,11 @@ app.get('/api/ortu/rekap/:studentId', async (req, res) => {
 app.listen(PORT, async () => {
   console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
   await seedInitialData();
+
+  // Tambahkan route ini di src/index.js
+app.get('/', (req, res) => {
+  res.redirect('/ortu.html'); // Atau ganti ke '/admin-rekap.html'
+});
 });
 // Tambahkan baris ini di paling bawah src/index.js
 export default app;
