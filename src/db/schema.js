@@ -22,12 +22,13 @@ export const classes = pgTable('classes', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// Tabel Siswa
+// Tabel Siswa (Sudah ditambah kolom password untuk ortu)
 export const students = pgTable('students', {
   id: serial('id').primaryKey(),
   nisn: varchar('nisn', { length: 20 }).notNull().unique(),
   fullName: varchar('full_name', { length: 100 }).notNull(),
   classId: integer('class_id').references(() => classes.id).notNull(),
+  password: varchar('password', { length: 255 }).default('123456'), // Password default ortu
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

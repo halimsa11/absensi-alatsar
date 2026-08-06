@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { db } from './db/index.js';
 import * as schema from './db/schema.js';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm'; // Import digabung menjadi satu
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -147,7 +147,7 @@ app.post('/api/attendance', async (req, res) => {
     await db.insert(targetAttendanceTable).values({
       studentId: parseInt(studentId),
       status: statusAkhir,
-      jamMasuk: sekarang
+      checkInTime: sekarang
     });
 
     res.json({ success: true, message: 'Absensi berhasil dicatat!' });
@@ -157,7 +157,6 @@ app.post('/api/attendance', async (req, res) => {
   }
 });
 
-// Endpoint untuk mengambil data rekap kehadiran
 // Endpoint untuk mengambil data rekap kehadiran hari ini
 app.get('/api/absen/hari-ini', async (req, res) => {
   try {
@@ -169,7 +168,7 @@ app.get('/api/absen/hari-ini', async (req, res) => {
         id: targetAttendanceTable.id,
         namaSiswa: targetStudentTable.fullName,
         nisn: targetStudentTable.nisn,
-        jamMasuk: targetAttendanceTable.checkInTime, // Menggunakan checkInTime dari schema
+        jamMasuk: targetAttendanceTable.checkInTime,
         keterangan: targetAttendanceTable.status
       })
       .from(targetAttendanceTable)
@@ -184,6 +183,72 @@ app.get('/api/absen/hari-ini', async (req, res) => {
   } catch (err) {
     console.error('Error saat mengambil rekap:', err);
     res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 1. API Login Orang Tua (Verifikasi NISN + Password)
+app.post('/api/ortu/login', async (req, res) => {
+  try {
+    const { nisn, password } = req.body;
+
+    if (!nisn || !password) {
+      return res.status(400).json({ success: false, message: 'NISN dan Password wajib diisi!' });
+    }
+
+    const studentList = await db.select().from(schema.students).where(eq(schema.students.nisn, nisn.toString().trim()));
+    
+    if (studentList.length === 0) {
+      return res.status(404).json({ success: false, message: 'NISN santri tidak ditemukan!' });
+    }
+
+    const student = studentList[0];
+    const validPassword = student.password || '123456'; // Default 123456 jika belum diset
+
+    if (password !== validPassword) {
+      return res.status(401).json({ success: false, message: 'Password salah!' });
+    }
+
+    // Ambil nama kelas jika ada
+    let className = 'Kelas -';
+    if (student.classId) {
+      const cls = await db.select().from(schema.classes).where(eq(schema.classes.id, student.classId));
+      if (cls.length > 0) className = cls[0].name;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: student.id,
+        nisn: student.nisn,
+        fullName: student.fullName,
+        className: className
+      }
+    });
+  } catch (err) {
+    console.error('Error login ortu:', err);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server.' });
+  }
+});
+
+// 2. API Riwayat Absensi Khusus 1 Santri (Berdasarkan Student ID)
+app.get('/api/ortu/rekap/:studentId', async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const logs = await db.select({
+      id: schema.attendances.id,
+      date: schema.attendances.date,
+      time: schema.attendances.checkInTime, // Menggunakan checkInTime dari schema
+      status: schema.attendances.status
+    })
+    .from(schema.attendances)
+    .where(eq(schema.attendances.studentId, parseInt(studentId)))
+    .orderBy(desc(schema.attendances.date), desc(schema.attendances.checkInTime));
+
+    res.json({ success: true, data: logs });
+  } catch (err) {
+    console.error('Error rekap ortu:', err);
+    res.status(500).json({ success: false, message: 'Gagal mengambil riwayat absensi.' });
   }
 });
 
