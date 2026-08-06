@@ -12,6 +12,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+// 1. ROUTE ROOT / HOMEPAGE (Ditaruh di bagian atas middleware/routes)
+app.get('/', (req, res) => {
+  res.redirect('/ortu.html'); // Mengarahkan otomatis ke portal orang tua
+});
+
 // Fungsi untuk memasukkan data contoh jika tabel masih kosong
 async function seedInitialData() {
   try {
@@ -162,7 +167,7 @@ app.get('/api/absen/hari-ini', async (req, res) => {
     const targetAttendanceTable = schema.attendances || schema.attendance;
     const targetStudentTable = schema.students;
     const targetClassTable = schema.classes;
-    const { date } = req.query; // Membaca query parameter ?date=YYYY-MM-DD
+    const { date } = req.query;
 
     let whereCondition = undefined;
 
@@ -268,14 +273,11 @@ app.get('/api/ortu/rekap/:studentId', async (req, res) => {
   }
 });
 
+// Jalankan server lokal
 app.listen(PORT, async () => {
   console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
   await seedInitialData();
+});
 
-  // Tambahkan route ini di src/index.js
-app.get('/', (req, res) => {
-  res.redirect('/ortu.html'); // Atau ganti ke '/admin-rekap.html'
-});
-});
-// Tambahkan baris ini di paling bawah src/index.js
+// Export app untuk Vercel Serverless
 export default app;
