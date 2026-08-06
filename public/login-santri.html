@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Santri - Absensi</title>
+  <title>Portal Santri - Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
@@ -12,45 +12,33 @@
   <header class="bg-slate-900 text-white shadow-sm">
     <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
       <div>
-        <h1 class="text-lg font-bold tracking-tight">👤 Portal Santri</h1>
-        <p class="text-slate-400 text-xs">Silakan lakukan absensi kehadiranmu</p>
+        <h1 class="text-lg font-bold tracking-tight">🔑 Login Portal Santri</h1>
+        <p class="text-slate-400 text-xs">Masukkan NISN untuk masuk ke portal absensi</p>
       </div>
       <div class="flex items-center gap-2">
-        <a href="/" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Keluar</a>
+        <a href="/" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Menu Utama</a>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-xl mx-auto px-6 py-12 w-full space-y-6">
+  <main class="max-w-md mx-auto px-6 py-12 w-full space-y-6">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
       <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <span>📌</span> Form Kehadiran Santri
+        <span>👤</span> Masuk Santri
       </h2>
       
-      <!-- Ditambahkan autocomplete="off" agar aman dari riwayat browser -->
-      <form id="formAbsensi" class="space-y-4" autocomplete="off">
+      <form id="formLogin" class="space-y-4" autocomplete="off">
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Pilih Nama Santri</label>
-          <select id="selectSantri" autocomplete="off" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-slate-800 font-medium text-slate-800" required>
-            <option value="">-- Memuat daftar santri... --</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Keterangan Kehadiran</label>
-          <select id="selectStatus" autocomplete="off" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-slate-800 font-medium text-slate-800" required>
-            <option value="Hadir">Hadir</option>
-            <option value="Sakit">Sakit</option>
-            <option value="Alfa">Alfa</option>
-          </select>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor NIS</label>
+          <input type="text" id="inputNisn" placeholder="Masukkan NIS" required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-slate-800 font-medium text-slate-800" />
         </div>
 
         <div class="pt-2">
-          <button type="submit" id="btnKirim" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">
-            Kirim Absensi
+          <button type="submit" id="btnLogin" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">
+            Masuk Portal
           </button>
         </div>
       </form>
@@ -69,77 +57,48 @@
       box.innerText = message;
     }
 
-    function cekBatasWaktu() {
-      const sekarang = new Date();
-      const jam = sekarang.getHours();
-      const menit = sekarang.getMinutes();
-      const totalMenitSekarang = jam * 60 + menit;
-      const batasTutupMenit = 14 * 60 + 30; // 14.30
-
-      if (totalMenitSekarang > batasTutupMenit) {
-        showAlert('⚠️ Waktu absen telah ditutup. Anda tidak dapat melakukan absensi lewat dari pukul 14.30.', false);
-        document.getElementById('formAbsensi').style.opacity = '0.5';
-        document.getElementById('selectSantri').disabled = true;
-        document.getElementById('selectStatus').disabled = true;
-        document.getElementById('btnKirim').disabled = true;
-        document.getElementById('btnKirim').innerText = 'Absensi Ditutup';
-        return false;
-      }
-      return true;
+    // Jika santri sudah login sebelumnya, langsung lempar ke santri.html
+    if (localStorage.getItem('santriSession')) {
+      window.location.href = '/santri.html';
     }
 
-    async function loadDropdownSantri() {
-      const select = document.getElementById('selectSantri');
+    document.getElementById('formLogin').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nisnInput = document.getElementById('inputNisn').value.trim();
+      const btn = document.getElementById('btnLogin');
+
+      btn.disabled = true;
+      btn.innerText = 'Memeriksa NISN...';
+
       try {
         const res = await fetch('/api/students');
         const result = await res.json();
-        
-        if (result.success && result.data.length > 0) {
-          select.innerHTML = '<option value="">-- Pilih Nama Santri --</option>';
-          result.data.forEach(santri => {
-            let infoKelas = '';
-            if (santri.classId == 10) infoKelas = ' (Kelas 10)';
-            else if (santri.classId == 11) infoKelas = ' (Kelas 11)';
-            else if (santri.classId == 12) infoKelas = ' (Kelas 12)';
 
-            select.innerHTML += `<option value="${santri.id}">${santri.fullName}${infoKelas}</option>`;
-          });
+        if (result.success && Array.isArray(result.data)) {
+          const foundSantri = result.data.find(s => String(s.nisn).trim() === nisnInput);
+
+          if (foundSantri) {
+            showAlert('✅ NIS Ditemukan! Mengalihkan ke halaman absensi...');
+            localStorage.setItem('santriSession', JSON.stringify(foundSantri));
+            setTimeout(() => {
+              window.location.href = '/santri.html';
+            }, 800);
+          } else {
+            showAlert('⚠️ NISN tidak terdaftar! Silakan periksa NISN kamu atau hubungi Staf.', false);
+            btn.disabled = false;
+            btn.innerText = 'Masuk Portal';
+          }
         } else {
-          select.innerHTML = '<option value="">Belum ada data santri</option>';
+          showAlert('❌ Gagal memuat data santri dari server.', false);
+          btn.disabled = false;
+          btn.innerText = 'Masuk Portal';
         }
       } catch (err) {
-        select.innerHTML = '<option value="">Gagal memuat data santri</option>';
-      }
-    }
-
-    document.getElementById('formAbsensi').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!cekBatasWaktu()) return;
-
-      const studentId = document.getElementById('selectSantri').value;
-      const status = document.getElementById('selectStatus').value;
-
-      try {
-        const res = await fetch('/api/attendance', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ studentId: parseInt(studentId), status })
-        });
-        const result = await res.json();
-
-        if (res.ok && result.success) {
-          showAlert('✅ Absensi berhasil dicatat dan masuk ke rekap!');
-          document.getElementById('formAbsensi').reset();
-        } else {
-          showAlert(`⚠️ ${result.message || 'Gagal mencatat absensi'}`, false);
-        }
-      } catch (err) {
-        showAlert('❌ Gagal terhubung ke server.', false);
+        showAlert('❌ Terjadi kesalahan koneksi ke server.', false);
+        btn.disabled = false;
+        btn.innerText = 'Masuk Portal';
       }
     });
-
-    cekBatasWaktu();
-    loadDropdownSantri();
   </script>
 </body>
 </html>
