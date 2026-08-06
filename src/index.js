@@ -272,3 +272,5 @@ app.listen(PORT, async () => {
   console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
   await seedInitialData();
 });
+// Tambahkan baris ini di paling bawah src/index.js
+export default app;
