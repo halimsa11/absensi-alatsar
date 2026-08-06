@@ -1,21 +1,23 @@
 import 'dotenv/config'; // MENGIMPOR ENV AGAR TERHUBUNG KE NEON
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { db } from './db/index.js';
 import * as schema from './db/schema.js';
 import { eq, desc, gte, lte, and } from 'drizzle-orm';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
 
-// 1. ROUTE ROOT / HOMEPAGE (Ditaruh di bagian atas middleware/routes)
-app.get('/', (req, res) => {
-  res.redirect('/ortu.html'); // Mengarahkan otomatis ke portal orang tua
-});
+// Menyajikan file statis dari folder public (otomatis membaca public/index.html saat route '/')
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Fungsi untuk memasukkan data contoh jika tabel masih kosong
 async function seedInitialData() {
@@ -273,11 +275,21 @@ app.get('/api/ortu/rekap/:studentId', async (req, res) => {
   }
 });
 
-// Jalankan server lokal
-app.listen(PORT, async () => {
-  console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
-  await seedInitialData();
+// Route Fallback untuk menyajikan index.html jika diakses via route non-API
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Export app untuk Vercel Serverless
+// Hanya jalankan app.listen saat dijalankan di lingkungan lokal
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, async () => {
+    console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
+    await seedInitialData();
+  });
+}
+
+// Export app untuk serverless Vercel
 export default app;
