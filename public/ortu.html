@@ -61,10 +61,19 @@
 
       <!-- Tabel Rekap 1 Santri -->
       <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex justify-between items-center">
-          <h3 class="text-sm font-bold text-slate-900">Riwayat Absensi Kehadiran</h3>
-          <button onclick="loadRekapSantri()" class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-3 py-1.5 rounded-xl hover:bg-indigo-100 transition">🔄 Refresh Log</button>
+        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Riwayat Absensi Kehadiran</h3>
+            <p class="text-xs text-slate-500">Cari riwayat kehadiran berdasarkan tanggal</p>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <input type="date" id="filterTanggalOrtu" onchange="loadRekapSantri()" class="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-800 text-slate-800" />
+            <button onclick="resetFilterTanggal()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-1.5 rounded-xl transition">Semua</button>
+            <button onclick="loadRekapSantri()" class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-3 py-1.5 rounded-xl hover:bg-indigo-100 transition">🔄 Refresh</button>
+          </div>
         </div>
+
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
@@ -143,13 +152,33 @@
       if (!activeStudent) return;
 
       const tbody = document.getElementById('tabelLogOrtu');
+      const selectedDate = document.getElementById('filterTanggalOrtu').value;
+      tbody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-slate-400">Memuat log kehadiran...</td></tr>';
+
       try {
         const res = await fetch(`/api/ortu/rekap/${activeStudent.id}`);
         const result = await res.json();
 
         if (result.success && result.data.length > 0) {
+          let logs = result.data;
+
+          // Filter tanggal jika input tanggal terisi
+          if (selectedDate) {
+            logs = logs.filter(item => {
+              const itemTime = item.time || item.date;
+              if (!itemTime) return false;
+              const itemDateStr = new Date(itemTime).toISOString().split('T')[0];
+              return itemDateStr === selectedDate;
+            });
+          }
+
+          if (logs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="py-12 text-center text-slate-400 font-normal">Tidak ada riwayat absensi untuk tanggal ini.</td></tr>`;
+            return;
+          }
+
           tbody.innerHTML = '';
-          result.data.forEach((item, index) => {
+          logs.forEach((item, index) => {
             const rawTime = item.time || item.date;
             
             let tgl = '-';
@@ -204,9 +233,15 @@
       }
     }
 
+    function resetFilterTanggal() {
+      document.getElementById('filterTanggalOrtu').value = '';
+      loadRekapSantri();
+    }
+
     function logoutOrtu() {
       activeStudent = null;
       document.getElementById('formLoginOrtu').reset();
+      document.getElementById('filterTanggalOrtu').value = '';
       document.getElementById('viewRekap').classList.add('hidden');
       document.getElementById('viewLogin').classList.remove('hidden');
     }

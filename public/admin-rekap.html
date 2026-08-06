@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rekap Absensi - Admin</title>
+  <title>Rekap & History Absensi - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
@@ -12,8 +12,8 @@
   <header class="bg-slate-900 text-white shadow-sm">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <div>
-        <h1 class="text-lg font-bold tracking-tight">📋 Rekap Absensi Santri</h1>
-        <p class="text-slate-400 text-xs">Monitoring Kehadiran Seluruh Santri Hari Ini</p>
+        <h1 class="text-lg font-bold tracking-tight">📋 Rekap & History Absensi Santri</h1>
+        <p class="text-slate-400 text-xs">Monitoring Kehadiran Harian & Riwayat Tanggal</p>
       </div>
       <div class="flex items-center gap-2">
         <a href="/admin-siswa.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Kelola Santri</a>
@@ -27,16 +27,23 @@
 
     <!-- Panel Filter & Rekap -->
     <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
-      <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-bold text-slate-900">Daftar Kehadiran Hari Ini</h2>
-          <p class="text-xs text-slate-500">Pilih filter kelas untuk mempersempit tampilan data</p>
+          <h2 class="text-base font-bold text-slate-900">Data Kehadiran Santri</h2>
+          <p class="text-xs text-slate-500">Pilih tanggal dan kelas untuk melihat riwayat absensi</p>
         </div>
 
-        <!-- Filter Kelas & Tombol Refresh -->
-        <div class="flex items-center gap-3">
+        <!-- Filter Tanggal, Filter Kelas & Tombol Refresh -->
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Filter Tanggal / History -->
           <div class="flex items-center gap-2">
-            <label for="filterKelas" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Filter Kelas:</label>
+            <label for="filterTanggal" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Tanggal:</label>
+            <input type="date" id="filterTanggal" onchange="loadRekapData()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-800 text-slate-800" />
+          </div>
+
+          <!-- Filter Kelas -->
+          <div class="flex items-center gap-2">
+            <label for="filterKelas" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Kelas:</label>
             <select id="filterKelas" onchange="filterDataRekap()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-800 text-slate-800">
               <option value="semua">Semua Kelas</option>
               <option value="10">Kelas 10</option>
@@ -45,7 +52,7 @@
             </select>
           </div>
 
-          <button onclick="loadRekapHariIni()" class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-3.5 py-2 rounded-xl hover:bg-indigo-100 transition">
+          <button onclick="loadRekapData()" class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-3.5 py-2 rounded-xl hover:bg-indigo-100 transition">
             🔄 Refresh
           </button>
         </div>
@@ -81,18 +88,23 @@
   <script>
     let allRekapData = [];
 
+    // Set nilai default tanggal hari ini (YYYY-MM-DD)
+    document.getElementById('filterTanggal').value = new Date().toISOString().split('T')[0];
+
     function showAlert(message, isSuccess = true) {
       const box = document.getElementById('alertBox');
       box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
       box.innerText = message;
     }
 
-    async function loadRekapHariIni() {
+    async function loadRekapData() {
       const tbody = document.getElementById('tabelRekap');
+      const selectedDate = document.getElementById('filterTanggal').value;
+
       tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap absensi...</td></tr>';
 
       try {
-        const res = await fetch('/api/absen/hari-ini');
+        const res = await fetch(`/api/absen/hari-ini?date=${selectedDate}`);
         const result = await res.json();
 
         if (result.success) {
@@ -113,7 +125,6 @@
       const filteredData = allRekapData.filter(item => {
         if (selectedClass === 'semua') return true;
 
-        // Mencocokkan classId (10, 11, 12) atau string nama kelas ("Kelas 10")
         const matchClassId = item.classId && String(item.classId) === String(selectedClass);
         const matchClassName = item.className && item.className.toString().includes(selectedClass);
 
@@ -121,7 +132,7 @@
       });
 
       if (filteredData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400 font-normal">Tidak ada data absensi untuk filter kelas ini.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400 font-normal">Tidak ada data absensi untuk filter tanggal & kelas ini.</td></tr>`;
         return;
       }
 
@@ -168,7 +179,8 @@
       });
     }
 
-    loadRekapHariIni();
+    // Load data awal berdasarkan tanggal hari ini
+    loadRekapData();
   </script>
 </body>
 </html>

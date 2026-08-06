@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { db } from './db/index.js';
 import * as schema from './db/schema.js';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, gte, lte, and } from 'drizzle-orm';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -156,12 +156,24 @@ app.post('/api/attendance', async (req, res) => {
   }
 });
 
-// Endpoint untuk mengambil data rekap kehadiran hari ini (JOIN DENGAN TABEL CLASSES)
+// Endpoint untuk mengambil data rekap kehadiran (Mendukung Filter Tanggal/History)
 app.get('/api/absen/hari-ini', async (req, res) => {
   try {
     const targetAttendanceTable = schema.attendances || schema.attendance;
     const targetStudentTable = schema.students;
     const targetClassTable = schema.classes;
+    const { date } = req.query; // Membaca query parameter ?date=YYYY-MM-DD
+
+    let whereCondition = undefined;
+
+    if (date) {
+      const startOfDay = new Date(`${date}T00:00:00.000Z`);
+      const endOfDay = new Date(`${date}T23:59:59.999Z`);
+      whereCondition = and(
+        gte(targetAttendanceTable.checkInTime, startOfDay),
+        lte(targetAttendanceTable.checkInTime, endOfDay)
+      );
+    }
 
     const rekapList = await db
       .select({
@@ -175,7 +187,9 @@ app.get('/api/absen/hari-ini', async (req, res) => {
       })
       .from(targetAttendanceTable)
       .leftJoin(targetStudentTable, eq(targetAttendanceTable.studentId, targetStudentTable.id))
-      .leftJoin(targetClassTable, eq(targetStudentTable.classId, targetClassTable.id));
+      .leftJoin(targetClassTable, eq(targetStudentTable.classId, targetClassTable.id))
+      .where(whereCondition)
+      .orderBy(desc(targetAttendanceTable.checkInTime));
 
     const formattedData = rekapList.map(item => ({
       ...item,
