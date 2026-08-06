@@ -3,47 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Staf - Rekap Kehadiran Santri</title>
+  <title>Rekap Absensi - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
+
   <!-- Header -->
   <header class="bg-slate-900 text-white shadow-sm">
-    <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <div>
-        <h1 class="text-lg font-bold tracking-tight">📊 Rekap Kehadiran Santri</h1>
-        <p id="tanggalHariIni" class="text-slate-400 text-xs"></p>
+        <h1 class="text-lg font-bold tracking-tight">📋 Rekap Absensi Santri</h1>
+        <p class="text-slate-400 text-xs">Monitoring Kehadiran Seluruh Santri Hari Ini</p>
       </div>
       <div class="flex items-center gap-2">
-        <a href="/admin-siswa.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">+ Tambah Santri</a>
-        <a href="/" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Menu Utama</a>
+        <a href="/admin-siswa.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Kelola Santri</a>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-4xl mx-auto px-6 py-10 w-full space-y-6">
-    <div class="flex justify-between items-center">
-      <h2 class="text-base font-bold text-slate-900">Daftar Santri yang Sudah Absen Hari Ini</h2>
-      <button onclick="loadDataRekap()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl transition shadow-sm">🔄 Refresh Data</button>
-    </div>
+  <main class="max-w-6xl mx-auto px-6 py-10 w-full space-y-6">
+    <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
-    <!-- Tabel Rekap -->
+    <!-- Panel Filter & Rekap -->
     <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+      <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-900">Daftar Kehadiran Hari Ini</h2>
+          <p class="text-xs text-slate-500">Pilih filter kelas untuk mempersempit tampilan data</p>
+        </div>
+
+        <!-- Filter Kelas & Tombol Refresh -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
+            <label for="filterKelas" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Filter Kelas:</label>
+            <select id="filterKelas" onchange="filterDataRekap()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-800 text-slate-800">
+              <option value="semua">Semua Kelas</option>
+              <option value="10">Kelas 10</option>
+              <option value="11">Kelas 11</option>
+              <option value="12">Kelas 12</option>
+            </select>
+          </div>
+
+          <button onclick="loadRekapHariIni()" class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-3.5 py-2 rounded-xl hover:bg-indigo-100 transition">
+            🔄 Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabel Data Rekap -->
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-xs uppercase font-bold tracking-wider">
               <th class="py-4 px-6 w-16 text-center">No</th>
+              <th class="py-4 px-6">NIS / NISN</th>
               <th class="py-4 px-6">Nama Santri</th>
-              <th class="py-4 px-6">NIS / ID</th>
               <th class="py-4 px-6">Jam Masuk</th>
               <th class="py-4 px-6">Keterangan</th>
             </tr>
           </thead>
           <tbody id="tabelRekap" class="divide-y divide-slate-100 text-sm font-medium">
             <tr>
-              <td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap kehadiran...</td>
+              <td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap absensi...</td>
             </tr>
           </tbody>
         </table>
@@ -53,64 +75,100 @@
 
   <!-- Footer -->
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Sistem Absensi Santri • Staf Panel
+    &copy; 2026 Sistem Absensi Santri • Admin Rekap
   </footer>
 
   <script>
-    const optionsTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('tanggalHariIni').innerText = new Date().toLocaleDateString('id-ID', optionsTanggal);
+    let allRekapData = [];
 
-    async function loadDataRekap() {
-      const tabelRekap = document.getElementById('tabelRekap');
+    function showAlert(message, isSuccess = true) {
+      const box = document.getElementById('alertBox');
+      box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
+      box.innerText = message;
+    }
+
+    async function loadRekapHariIni() {
+      const tbody = document.getElementById('tabelRekap');
+      tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap absensi...</td></tr>';
+
       try {
-        const response = await fetch('/api/absen/hari-ini');
-        const result = await response.json();
+        const res = await fetch('/api/absen/hari-ini');
+        const result = await res.json();
 
-        if (!result.success || !result.data || result.data.length === 0) {
-          tabelRekap.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400 font-normal">Belum ada data kehadiran santri hari ini.</td></tr>`;
-          return;
+        if (result.success) {
+          allRekapData = result.data || [];
+          filterDataRekap();
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-rose-500">Gagal mengambil data rekap absensi.</td></tr>';
         }
-
-        tabelRekap.innerHTML = '';
-        result.data.forEach((item, index) => {
-          const jamFormatted = item.jamMasuk ? new Date(item.jamMasuk).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '-';
-          const ket = item.keterangan || 'Hadir';
-          
-          // Logika Penentuan Warna Badge Keterangan
-          let badgeClass = 'bg-slate-100 text-slate-600 border border-slate-200'; // Default / Abu-abu
-
-          const statusLower = ket.toLowerCase();
-          if (statusLower === 'hadir') {
-            badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
-          } else if (statusLower.includes('terlambat')) {
-            badgeClass = 'bg-orange-50 text-orange-700 border border-orange-200/60';
-          } else if (statusLower === 'sakit') {
-            badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200/60';
-          } else if (statusLower === 'izin') {
-            badgeClass = 'bg-sky-50 text-sky-700 border border-sky-200/60';
-          } else if (statusLower === 'alfa' || statusLower === 'alpa') {
-            // Dibuat abu-abu lembut tanpa aksen warna mencolok
-            badgeClass = 'bg-slate-100 text-slate-500 border border-slate-200/80';
-          }
-
-          tabelRekap.innerHTML += `
-            <tr class="hover:bg-slate-50/60 transition">
-              <td class="py-4 px-6 text-center text-slate-400 font-semibold">${index + 1}</td>
-              <td class="py-4 px-6 text-slate-900 font-bold">${item.namaSiswa || 'Tanpa Nama'}</td>
-              <td class="py-4 px-6 font-mono text-slate-600 text-xs">${item.nisn || '-'}</td>
-              <td class="py-4 px-6 font-mono text-slate-600 text-xs">${jamFormatted} WIB</td>
-              <td class="py-4 px-6">
-                <span class="${badgeClass} font-semibold px-3 py-1 rounded-full text-xs inline-block">${ket}</span>
-              </td>
-            </tr>
-          `;
-        });
-      } catch (error) {
-        tabelRekap.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-rose-500 font-normal">Gagal memuat rekap kehadiran dari server.</td></tr>`;
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-rose-500">Gagal terhubung ke server.</td></tr>';
       }
     }
 
-    loadDataRekap();
+    function filterDataRekap() {
+      const tbody = document.getElementById('tabelRekap');
+      const selectedClass = document.getElementById('filterKelas').value;
+
+      const filteredData = allRekapData.filter(item => {
+        if (selectedClass === 'semua') return true;
+
+        // Mencocokkan classId (10, 11, 12) atau string nama kelas ("Kelas 10")
+        const matchClassId = item.classId && String(item.classId) === String(selectedClass);
+        const matchClassName = item.className && item.className.toString().includes(selectedClass);
+
+        return matchClassId || matchClassName;
+      });
+
+      if (filteredData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400 font-normal">Tidak ada data absensi untuk filter kelas ini.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      filteredData.forEach((item, index) => {
+        const nis = item.nisn || item.nis || '-';
+        const nama = item.namaSiswa || item.fullName || '-';
+        const kelasInfo = item.className ? ` <span class="text-xs text-slate-400 font-normal">(${item.className})</span>` : '';
+        
+        let jamFormat = '-';
+        if (item.jamMasuk || item.checkInTime) {
+          const rawTime = item.jamMasuk || item.checkInTime;
+          const objDate = new Date(rawTime);
+          jamFormat = objDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.') + ' WIB';
+        }
+
+        const status = item.keterangan || item.status || 'Hadir';
+
+        let badgeClass = 'bg-slate-100 text-slate-500 border border-slate-200/80';
+        const statusLower = status.toLowerCase();
+        if (statusLower === 'hadir') {
+          badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
+        } else if (statusLower.includes('terlambat')) {
+          badgeClass = 'bg-orange-50 text-orange-700 border border-orange-200/60';
+        } else if (statusLower === 'sakit') {
+          badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200/60';
+        } else if (statusLower === 'izin') {
+          badgeClass = 'bg-sky-50 text-sky-700 border border-sky-200/60';
+        } else if (statusLower === 'alfa' || statusLower === 'alpa') {
+          badgeClass = 'bg-rose-50 text-rose-700 border border-rose-200/60';
+        }
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50/60 transition">
+            <td class="py-4 px-6 text-center text-slate-400 font-semibold">${index + 1}</td>
+            <td class="py-4 px-6 font-mono text-slate-600 text-xs">${nis}</td>
+            <td class="py-4 px-6 text-slate-800 font-medium">${nama}${kelasInfo}</td>
+            <td class="py-4 px-6 font-mono text-slate-600 text-xs">${jamFormat}</td>
+            <td class="py-4 px-6">
+              <span class="${badgeClass} font-semibold px-3 py-1 rounded-full text-xs inline-block">${status}</span>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    loadRekapHariIni();
   </script>
 </body>
 </html>

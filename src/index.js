@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { db } from './db/index.js';
 import * as schema from './db/schema.js';
-import { eq, desc } from 'drizzle-orm'; // Import digabung menjadi satu
+import { eq, desc } from 'drizzle-orm';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,8 +31,8 @@ async function seedInitialData() {
     const existingStudents = await db.select().from(targetStudentTable);
     if (existingStudents.length === 0) {
       await db.insert(targetStudentTable).values([
-        { nisn: 123456, fullName: 'Contoh Santri 1', classId: 10 },
-        { nisn: 654321, fullName: 'Contoh Santri 2', classId: 12 }
+        { nisn: '123456', fullName: 'Contoh Santri 1', classId: 10 },
+        { nisn: '654321', fullName: 'Contoh Santri 2', classId: 12 }
       ]);
       console.log('✅ Data contoh santri berhasil ditambahkan.');
     }
@@ -73,7 +73,6 @@ app.post('/api/students', async (req, res) => {
     const targetClassTable = schema.classes;
     const targetStudentTable = schema.students;
 
-    // Cek apakah classId valid dan ada di tabel classes
     const existingClass = await db.select().from(targetClassTable).where(eq(targetClassTable.id, parseInt(classId)));
     
     if (existingClass.length === 0) {
@@ -116,7 +115,7 @@ app.delete('/api/students/:id', async (req, res) => {
   }
 });
 
-// Endpoint untuk menyimpan data absensi dengan validasi jam (08:00 - 14:30)
+// Endpoint untuk menyimpan data absensi
 app.post('/api/attendance', async (req, res) => {
   try {
     const { studentId, status } = req.body;
@@ -157,22 +156,26 @@ app.post('/api/attendance', async (req, res) => {
   }
 });
 
-// Endpoint untuk mengambil data rekap kehadiran hari ini
+// Endpoint untuk mengambil data rekap kehadiran hari ini (JOIN DENGAN TABEL CLASSES)
 app.get('/api/absen/hari-ini', async (req, res) => {
   try {
     const targetAttendanceTable = schema.attendances || schema.attendance;
     const targetStudentTable = schema.students;
+    const targetClassTable = schema.classes;
 
     const rekapList = await db
       .select({
         id: targetAttendanceTable.id,
         namaSiswa: targetStudentTable.fullName,
         nisn: targetStudentTable.nisn,
+        classId: targetStudentTable.classId,
+        className: targetClassTable.name,
         jamMasuk: targetAttendanceTable.checkInTime,
         keterangan: targetAttendanceTable.status
       })
       .from(targetAttendanceTable)
-      .leftJoin(targetStudentTable, eq(targetAttendanceTable.studentId, targetStudentTable.id));
+      .leftJoin(targetStudentTable, eq(targetAttendanceTable.studentId, targetStudentTable.id))
+      .leftJoin(targetClassTable, eq(targetStudentTable.classId, targetClassTable.id));
 
     const formattedData = rekapList.map(item => ({
       ...item,
@@ -186,7 +189,7 @@ app.get('/api/absen/hari-ini', async (req, res) => {
   }
 });
 
-// 1. API Login Orang Tua (Verifikasi NISN + Password)
+// API Login Orang Tua
 app.post('/api/ortu/login', async (req, res) => {
   try {
     const { nisn, password } = req.body;
@@ -202,13 +205,12 @@ app.post('/api/ortu/login', async (req, res) => {
     }
 
     const student = studentList[0];
-    const validPassword = student.password || '123456'; // Default 123456 jika belum diset
+    const validPassword = student.password || '123456';
 
     if (password !== validPassword) {
       return res.status(401).json({ success: false, message: 'Password salah!' });
     }
 
-    // Ambil nama kelas jika ada
     let className = 'Kelas -';
     if (student.classId) {
       const cls = await db.select().from(schema.classes).where(eq(schema.classes.id, student.classId));
@@ -230,7 +232,7 @@ app.post('/api/ortu/login', async (req, res) => {
   }
 });
 
-// 2. API Riwayat Absensi Khusus 1 Santri (Berdasarkan Student ID)
+// API Riwayat Absensi Khusus 1 Santri
 app.get('/api/ortu/rekap/:studentId', async (req, res) => {
   try {
     const { studentId } = req.params;
@@ -238,7 +240,7 @@ app.get('/api/ortu/rekap/:studentId', async (req, res) => {
     const logs = await db.select({
       id: schema.attendances.id,
       date: schema.attendances.date,
-      time: schema.attendances.checkInTime, // Menggunakan checkInTime dari schema
+      time: schema.attendances.checkInTime,
       status: schema.attendances.status
     })
     .from(schema.attendances)
