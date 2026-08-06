@@ -162,13 +162,11 @@
         if (result.success && result.data.length > 0) {
           let logs = result.data;
 
-          // Filter berdasarkan tanggal pilihan user
           if (selectedDate) {
             logs = logs.filter(item => {
               const rawTime = item.checkInTime || item.time || item.date;
               if (!rawTime) return false;
               const d = new Date(rawTime);
-              // Format YYYY-MM-DD lokal
               const yyyy = d.getFullYear();
               const mm = String(d.getMonth() + 1).padStart(2, '0');
               const dd = String(d.getDate()).padStart(2, '0');
@@ -184,7 +182,6 @@
 
           tbody.innerHTML = '';
           logs.forEach((item, index) => {
-            // PERBAIKAN: mengambil properti checkInTime yang dikirim backend
             const rawTime = item.checkInTime || item.time || item.date;
             
             let tgl = '-';
