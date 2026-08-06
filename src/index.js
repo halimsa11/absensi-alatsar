@@ -11,6 +11,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Menyajikan file statis dari folder "public" (tempat index.html, ortu.html, dll. berada)
+// Jika file HTML kamu ada di root project, ubah 'public' menjadi '.'
+app.use(express.static('public'));
+
 // Endpoint untuk mengambil daftar kelas
 app.get('/api/classes', async (req, res) => {
   try {
@@ -129,9 +133,9 @@ app.post('/api/attendance', async (req, res) => {
 // Endpoint untuk mengambil data rekap kehadiran
 app.get('/api/absen/hari-ini', async (req, res) => {
   try {
-    const targetAttendanceTable = schema.attendances || schema.attendance;
-    const targetStudentTable = schema.students;
-    const targetClassTable = schema.classes;
+    const targetAttendanceTable = schema.attendances || schema.attendance || schema.attendanceTable;
+    const targetStudentTable = schema.students || schema.studentsTable;
+    const targetClassTable = schema.classes || schema.classesTable;
     const { date } = req.query;
 
     let whereCondition = undefined;
@@ -182,7 +186,10 @@ app.post('/api/ortu/login', async (req, res) => {
       return res.status(400).json({ success: false, message: 'NISN dan Password wajib diisi!' });
     }
 
-    const studentList = await db.select().from(schema.students).where(eq(schema.students.nisn, nisn.toString().trim()));
+    const targetStudentTable = schema.students || schema.studentsTable;
+    const targetClassTable = schema.classes || schema.classesTable;
+
+    const studentList = await db.select().from(targetStudentTable).where(eq(targetStudentTable.nisn, nisn.toString().trim()));
     
     if (studentList.length === 0) {
       return res.status(404).json({ success: false, message: 'NISN santri tidak ditemukan!' });
@@ -197,7 +204,7 @@ app.post('/api/ortu/login', async (req, res) => {
 
     let className = 'Kelas -';
     if (student.classId) {
-      const cls = await db.select().from(schema.classes).where(eq(schema.classes.id, student.classId));
+      const cls = await db.select().from(targetClassTable).where(eq(targetClassTable.id, student.classId));
       if (cls.length > 0) className = cls[0].name;
     }
 
@@ -216,20 +223,20 @@ app.post('/api/ortu/login', async (req, res) => {
   }
 });
 
-// API Riwayat Absensi Khusus 1 Santri
+// API Riwayat Absensi Khusus 1 Santri (Untuk Akses Orang Tua)
 app.get('/api/ortu/rekap/:studentId', async (req, res) => {
   try {
     const { studentId } = req.params;
+    const targetAttendanceTable = schema.attendances || schema.attendance || schema.attendanceTable;
 
     const logs = await db.select({
-      id: schema.attendances.id,
-      date: schema.attendances.date,
-      time: schema.attendances.checkInTime,
-      status: schema.attendances.status
+      id: targetAttendanceTable.id,
+      checkInTime: targetAttendanceTable.checkInTime,
+      status: targetAttendanceTable.status
     })
-    .from(schema.attendances)
-    .where(eq(schema.attendances.studentId, parseInt(studentId)))
-    .orderBy(desc(schema.attendances.date), desc(schema.attendances.checkInTime));
+    .from(targetAttendanceTable)
+    .where(eq(targetAttendanceTable.studentId, parseInt(studentId)))
+    .orderBy(desc(targetAttendanceTable.checkInTime));
 
     res.json({ success: true, data: logs });
   } catch (err) {
@@ -238,7 +245,7 @@ app.get('/api/ortu/rekap/:studentId', async (req, res) => {
   }
 });
 
-// Hanya jalankan app.listen di lokal
+// Hanya jalankan app.listen di lingkungan non-produksi (lokal)
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
