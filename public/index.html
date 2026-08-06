@@ -3,62 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu Utama - Sistem Absensi Sekolah</title>
+  <title>Menu Utama - Sistem Absensi Santri</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
-
-  <!-- Header -->
   <header class="bg-indigo-600 text-white shadow-sm">
     <div class="max-w-xl mx-auto px-6 py-4 text-center">
-      <h1 class="text-lg font-bold tracking-tight">🏫 Sistem Absensi Sekolah</h1>
+      <h1 class="text-lg font-bold tracking-tight">🏫 Sistem Absensi Santri</h1>
       <p class="text-indigo-100 text-xs">Silakan pilih akses masuk sesuai peranmu</p>
     </div>
   </header>
-
-  <!-- Main Content -->
   <main class="max-w-md mx-auto px-6 py-12 w-full space-y-6">
     <div class="text-center space-y-2 mb-6">
       <h2 class="text-2xl font-bold text-slate-900">Selamat Datang! 👋</h2>
       <p class="text-sm text-slate-500">Pilih menu di bawah untuk melanjutkan</p>
     </div>
-
-    <!-- Pilihan Menu -->
     <div class="space-y-4">
-      <!-- Tombol Masuk Siswa -->
-      <a href="/login-siswa.html" class="flex items-center justify-between p-5 bg-white hover:bg-indigo-50/50 border border-slate-200/80 rounded-3xl shadow-sm transition group">
+      <a href="/login-santri.html" class="flex items-center justify-between p-5 bg-white hover:bg-indigo-50/50 border border-slate-200/80 rounded-3xl shadow-sm transition group">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl group-hover:scale-105 transition shadow-inner">
-            👨‍🎓
-          </div>
+          <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl group-hover:scale-105 transition shadow-inner">📖</div>
           <div>
-            <h3 class="font-bold text-slate-900 text-base">Portal Siswa</h3>
+            <h3 class="font-bold text-slate-900 text-base">Portal Santri</h3>
             <p class="text-xs text-slate-500">Masuk dengan password untuk absen</p>
           </div>
         </div>
         <span class="text-slate-400 group-hover:text-indigo-600 font-bold transition">→</span>
       </a>
-
-      <!-- Tombol Masuk Admin -->
-      <a href="/login-admin.html" class="flex items-center justify-between p-5 bg-white hover:bg-slate-50 border border-slate-200/80 rounded-3xl shadow-sm transition group">
+      <a href="/login-staf.html" class="flex items-center justify-between p-5 bg-white hover:bg-slate-50 border border-slate-200/80 rounded-3xl shadow-sm transition group">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center text-xl group-hover:scale-105 transition shadow-inner">
-            🛡️
-          </div>
+          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center text-xl group-hover:scale-105 transition shadow-inner">🛡️</div>
           <div>
-            <h3 class="font-bold text-slate-900 text-base">Login Admin</h3>
-            <p class="text-xs text-slate-500">Kelola data siswa dan rekap kehadiran</p>
+            <h3 class="font-bold text-slate-900 text-base">Login Staf</h3>
+            <p class="text-xs text-slate-500">Kelola data santri dan rekap kehadiran</p>
           </div>
         </div>
         <span class="text-slate-400 group-hover:text-slate-900 font-bold transition">→</span>
       </a>
     </div>
   </main>
-
-  <!-- Footer -->
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Sistem Absensi Sekolah • Magang Project
+    &copy; 2026 Sistem Absensi Santri • Magang Project
   </footer>
-
 </body>
 </html>

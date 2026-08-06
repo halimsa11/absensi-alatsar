@@ -1,7 +1,13 @@
 import { pgTable, serial, varchar, timestamp, date, text, pgEnum, integer } from 'drizzle-orm/pg-core';
 
-// Enum untuk status kehadiran
+// Enum status disesuaikan dengan teks kapital yang dikirim dari server/app
 export const attendanceStatusEnum = pgEnum('attendance_status', [
+  'Hadir',
+  'Hadir (Terlambat)',
+  'Sakit',
+  'Izin',
+  'Alfa',
+  'Alpa',
   'hadir',
   'sakit',
   'izin',
@@ -29,9 +35,12 @@ export const students = pgTable('students', {
 export const attendances = pgTable('attendances', {
   id: serial('id').primaryKey(),
   studentId: integer('student_id').references(() => students.id).notNull(),
-  date: date('date').notNull(),
+  date: date('date').defaultNow().notNull(),
   checkInTime: timestamp('check_in_time').defaultNow().notNull(),
-  status: attendanceStatusEnum('status').default('hadir').notNull(),
+  status: attendanceStatusEnum('status').default('Hadir').notNull(),
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+// Export alias jika index.js memanggil schema.attendance
+export const attendance = attendances;

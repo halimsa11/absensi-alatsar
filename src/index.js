@@ -1,240 +1,187 @@
+import 'dotenv/config'; // MENGIMPOR ENV AGAR TERHUBUNG KE NEON
 import express from 'express';
 import cors from 'cors';
 import { db } from './db/index.js';
-import { classes, students, attendances } from './db/schema.js';
-import { eq, and, desc } from 'drizzle-orm';
-import 'dotenv/config';
+import * as schema from './db/schema.js';
+import { eq } from 'drizzle-orm';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // Agar server bisa membaca file HTML di folder public
+app.use(express.static('public'));
 
-// ==========================================
-// 1. ROOT ENDPOINT (Cek Status Server)
-// ==========================================
-app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: '🚀 Server Absensi Siswa Berjalan Normal!',
-    version: '1.0.0'
-  });
-});
-
-// ==========================================
-// 2. API KELAS (Lihat & Tambah Kelas)
-// ==========================================
-app.get('/api/classes', async (req, res) => {
+// Fungsi untuk memasukkan data contoh jika tabel masih kosong
+async function seedInitialData() {
   try {
-    const data = await db.select().from(classes);
-    res.json({ success: true, data });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+    const targetClassTable = schema.classes || schema.classesTable;
+    const targetStudentTable = schema.students || schema.studentsTable;
 
-app.post('/api/classes', async (req, res) => {
-  try {
-    const { name, academicYear } = req.body;
-    if (!name || !academicYear) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Nama kelas (name) dan tahun ajaran (academicYear) wajib diisi!' 
-      });
+    const existingClasses = await db.select().from(targetClassTable);
+    if (existingClasses.length === 0) {
+      await db.insert(targetClassTable).values([
+        { id: 10, name: 'Kelas 10', academicYear: '2025/2026' },
+        { id: 11, name: 'Kelas 11', academicYear: '2025/2026' },
+        { id: 12, name: 'Kelas 12', academicYear: '2025/2026' }
+      ]);
+      console.log('✅ Data contoh kelas berhasil ditambahkan.');
     }
 
-    const [newClass] = await db
-      .insert(classes)
-      .values({ name, academicYear })
-      .returning();
+    const existingStudents = await db.select().from(targetStudentTable);
+    if (existingStudents.length === 0) {
+      await db.insert(targetStudentTable).values([
+        { nisn: 123456, fullName: 'Contoh Santri 1', classId: 10 },
+        { nisn: 654321, fullName: 'Contoh Santri 2', classId: 12 }
+      ]);
+      console.log('✅ Data contoh santri berhasil ditambahkan.');
+    }
+  } catch (err) {
+    console.log('Catatan seeding data:', err.message);
+  }
+}
 
-    res.status(201).json({ 
-      success: true, 
-      message: 'Kelas berhasil ditambahkan!', 
-      data: newClass 
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+// Endpoint untuk mengambil daftar kelas
+app.get('/api/classes', async (req, res) => {
+  try {
+    const classesList = await db.select().from(schema.classes || schema.classesTable);
+    res.json({ success: true, data: classesList });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// ==========================================
-// 3. API SISWA (Lihat & Tambah Siswa dari Admin)
-// ==========================================
+// Endpoint untuk mengambil daftar seluruh santri
 app.get('/api/students', async (req, res) => {
   try {
-    const data = await db
-      .select({
-        id: students.id,
-        nisn: students.nisn,
-        fullName: students.fullName,
-        classId: students.classId,
-        className: classes.name
-      })
-      .from(students)
-      .leftJoin(classes, eq(students.classId, classes.id));
-
-    res.json({ success: true, data });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    const studentsList = await db.select().from(schema.students || schema.studentsTable);
+    res.json({ success: true, data: studentsList });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
+// Endpoint untuk menyimpan data santri baru
 app.post('/api/students', async (req, res) => {
   try {
     const { nisn, fullName, classId } = req.body;
+
     if (!nisn || !fullName || !classId) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'NISN, Nama Lengkap, dan ID Kelas wajib diisi!' 
-      });
+      return res.status(400).json({ success: false, message: 'Semua kolom wajib diisi!' });
     }
 
-    const [newStudent] = await db
-      .insert(students)
-      .values({ nisn, fullName, classId: Number(classId) })
-      .returning();
+    const nisnAngka = parseInt(nisn);
+    if (isNaN(nisnAngka)) {
+      return res.status(400).json({ success: false, message: 'NISN harus berupa angka!' });
+    }
 
-    res.status(201).json({ 
-      success: true, 
-      message: 'Data siswa berhasil ditambahkan!', 
-      data: newStudent 
+    const targetTable = schema.students || schema.studentsTable;
+
+    await db.insert(targetTable).values({
+      nisn: nisnAngka,
+      fullName: fullName,
+      classId: parseInt(classId) 
     });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+
+    res.json({ success: true, message: 'Data santri berhasil disimpan ke database!' });
+  } catch (err) {
+    console.error('Error saat menyimpan santri:', err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// ==========================================
-// 4. API ABSENSI (Core Logic: Validasi & Keterlambatan)
-// ==========================================
-app.post('/api/absen', async (req, res) => {
+// Endpoint untuk menghapus data santri beserta riwayat absensinya
+app.delete('/api/students/:id', async (req, res) => {
   try {
-    const { fullName } = req.body;
-
-    if (!fullName) {
-      return res.status(400).json({ success: false, message: 'Nama siswa wajib diisi!' });
-    }
-
-    // A. Cari siswa berdasarkan Nama Lengkap yang dipilih dari database
-    const [siswa] = await db
-      .select()
-      .from(students)
-      .where(eq(students.fullName, fullName));
-
-    if (!siswa) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Nama siswa tidak ditemukan di database! Silakan hubungi admin.' 
-      });
-    }
-
-    // B. Ambil Waktu Sekarang & Format Tanggal (YYYY-MM-DD)
-    const sekarang = new Date();
-    const tanggalHariIni = sekarang.toISOString().split('T')[0];
+    const studentId = parseInt(req.params.id);
+    const targetStudentTable = schema.students || schema.studentsTable;
+    const targetAttendanceTable = schema.attendance || schema.attendances || schema.attendanceTable;
     
-    const jamSekarang = sekarang.getHours();
-    const menitSekarang = sekarang.getMinutes();
-    const totalMenit = jamSekarang * 60 + menitSekarang;
+    if (targetAttendanceTable && targetAttendanceTable.studentId) {
+      await db.delete(targetAttendanceTable).where(eq(targetAttendanceTable.studentId, studentId));
+    }
     
-    const batasJamMasuk = 8 * 60; // 08:00 WIB
-    const batasJamPulang = 14 * 60 + 30; // 14:30 WIB
-
-    // C. Validasi Batas Akhir Jam Sekolah (14:30)
-    if (totalMenit > batasJamPulang) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Jam sekolah sudah berakhir (Batas 14:30 WIB). Absensi ditutup!' 
-      });
-    }
-
-    // D. Anti-Double Absen: Cek apakah siswa SUDAH ABSEN hari ini
-    const [absenHariIni] = await db
-      .select()
-      .from(attendances)
-      .where(
-        and(
-          eq(attendances.studentId, siswa.id),
-          eq(attendances.date, tanggalHariIni)
-        )
-      );
-
-    if (absenHariIni) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `Halo ${siswa.fullName}, kamu sudah melakukan absensi hari ini!` 
-      });
-    }
-
-    // E. Tentukan Keterangan: Tepat Waktu atau Terlambat (Batas 08:00)
-    let catatan = 'Tepat Waktu';
-    if (totalMenit > batasJamMasuk) {
-      catatan = 'Terlambat (Masuk di atas jam 08:00 WIB)';
-    }
-
-    // F. Simpan Rekap Absensi ke Database
-    await db
-      .insert(attendances)
-      .values({
-        studentId: siswa.id,
-        date: tanggalHariIni,
-        checkInTime: sekarang,
-        status: 'hadir',
-        notes: catatan
-      })
-      .returning();
-
-    res.status(201).json({
-      success: true,
-      message: `Absensi berhasil! Selamat datang, ${siswa.fullName}.`,
-      data: {
-        nama: siswa.fullName,
-        waktu: sekarang,
-        status: 'hadir',
-        keterangan: catatan
-      }
-    });
-
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    await db.delete(targetStudentTable).where(eq(targetStudentTable.id, studentId));
+    
+    res.json({ success: true, message: 'Data santri berhasil dihapus!' });
+  } catch (err) {
+    console.error('Error saat menghapus santri:', err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// ==========================================
-// 5. API REKAP & RIWAYAT ABSENSI
-// ==========================================
+// Endpoint untuk menyimpan data absensi dengan validasi jam (08:00 - 14:30)
+app.post('/api/attendance', async (req, res) => {
+  try {
+    const { studentId, status } = req.body;
+    
+    if (!studentId || !status) {
+      return res.status(400).json({ success: false, message: 'Data absensi tidak lengkap!' });
+    }
+
+    const sekarang = new Date();
+    const jam = sekarang.getHours();
+    const menit = sekarang.getMinutes();
+    const totalMenitSekarang = jam * 60 + menit;
+
+    const batasBukaMenit = 8 * 60;       // 08:00
+    const batasTutupMenit = 14 * 60 + 30; // 14:30
+
+    if (totalMenitSekarang > batasTutupMenit) {
+      return res.status(400).json({ success: false, message: 'Waktu absen telah ditutup (lewat jam 14.30).' });
+    }
+
+    let statusAkhir = status;
+    if (totalMenitSekarang > batasBukaMenit && status === 'Hadir') {
+      statusAkhir = 'Hadir (Terlambat)';
+    }
+
+    const targetAttendanceTable = schema.attendance || schema.attendances || schema.attendanceTable;
+    
+    await db.insert(targetAttendanceTable).values({
+      studentId: parseInt(studentId),
+      status: statusAkhir,
+      jamMasuk: sekarang
+    });
+
+    res.json({ success: true, message: 'Absensi berhasil dicatat!' });
+  } catch (err) {
+    console.error('Error saat menyimpan absensi:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Endpoint untuk mengambil data rekap kehadiran
+// Endpoint untuk mengambil data rekap kehadiran hari ini
 app.get('/api/absen/hari-ini', async (req, res) => {
   try {
-    const tanggalHariIni = new Date().toISOString().split('T')[0];
-    
-    const dataHariIni = await db
-      .select({
-        id: attendances.id,
-        namaSiswa: students.fullName,
-        nisn: students.nisn,
-        jamMasuk: attendances.checkInTime,
-        status: attendances.status,
-        keterangan: attendances.notes
-      })
-      .from(attendances)
-      .innerJoin(students, eq(attendances.studentId, students.id))
-      .where(eq(attendances.date, tanggalHariIni))
-      .orderBy(desc(attendances.checkInTime));
+    const targetAttendanceTable = schema.attendances || schema.attendance;
+    const targetStudentTable = schema.students;
 
-    res.json({ success: true, total: dataHariIni.length, data: dataHariIni });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    const rekapList = await db
+      .select({
+        id: targetAttendanceTable.id,
+        namaSiswa: targetStudentTable.fullName,
+        nisn: targetStudentTable.nisn,
+        jamMasuk: targetAttendanceTable.checkInTime, // Menggunakan checkInTime dari schema
+        keterangan: targetAttendanceTable.status
+      })
+      .from(targetAttendanceTable)
+      .leftJoin(targetStudentTable, eq(targetAttendanceTable.studentId, targetStudentTable.id));
+
+    const formattedData = rekapList.map(item => ({
+      ...item,
+      keterangan: item.keterangan || 'Hadir'
+    }));
+
+    res.json({ success: true, data: formattedData });
+  } catch (err) {
+    console.error('Error saat mengambil rekap:', err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// ==========================================
-// 6. NYALAKAN SERVER (Wajib di baris paling bawah)
-// ==========================================
-app.listen(PORT, () => {
-  console.log(`=========================================`);
-  console.log(`🚀 Server Absensi aktif di http://localhost:${PORT}`);
-  console.log(`=========================================`);
+app.listen(PORT, async () => {
+  console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
+  await seedInitialData();
 });
