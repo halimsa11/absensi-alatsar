@@ -70,15 +70,21 @@ app.post('/api/students', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Semua kolom wajib diisi!' });
     }
 
-    const nisnAngka = parseInt(nisn);
-    if (isNaN(nisnAngka)) {
-      return res.status(400).json({ success: false, message: 'NISN harus berupa angka!' });
+    const targetClassTable = schema.classes;
+    const targetStudentTable = schema.students;
+
+    // Cek apakah classId valid dan ada di tabel classes
+    const existingClass = await db.select().from(targetClassTable).where(eq(targetClassTable.id, parseInt(classId)));
+    
+    if (existingClass.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Kelas dengan ID ${classId} tidak ditemukan. Silakan pilih kelas yang valid!` 
+      });
     }
 
-    const targetTable = schema.students || schema.studentsTable;
-
-    await db.insert(targetTable).values({
-      nisn: nisnAngka,
+    await db.insert(targetStudentTable).values({
+      nisn: nisn.toString(),
       fullName: fullName,
       classId: parseInt(classId) 
     });
