@@ -65,17 +65,20 @@
 
   <script>
     // 1. Cek Sesi Login Santri
-    const sessionData = localStorage.getItem('santriSession');
+    const sessionData = localStorage.getItem('santriSession') || localStorage.getItem('siswaSession');
     if (!sessionData) {
       window.location.href = '/login-santri.html';
     }
 
     const currentSantri = JSON.parse(sessionData);
 
-    // Tampilkan data profil santri
+    // Tampilkan data profil santri (DISESUAIKAN: Menggunakan string "NIS")
     document.getElementById('dispNama').innerText = currentSantri.fullName || 'Santri';
-    const classInfo = currentSantri.classId ? `Kelas ${currentSantri.classId}` : 'Kelas -';
-    document.getElementById('dispDetail').innerText = `NISN: ${currentSantri.nisn || '-'} | ${classInfo}`;
+    const classInfo = currentSantri.className ? currentSantri.className : (currentSantri.classId ? `Kelas ${currentSantri.classId}` : 'Kelas -');
+    const nisValue = currentSantri.nis || currentSantri.nisn || '-';
+    
+    // Perbaikan utama ada di baris ini:
+    document.getElementById('dispDetail').innerText = `NIS: ${nisValue} | ${classInfo}`;
 
     function showAlert(message, isSuccess = true) {
       const box = document.getElementById('alertBox');
@@ -95,6 +98,7 @@
 
     function logoutSantri() {
       localStorage.removeItem('santriSession');
+      localStorage.removeItem('siswaSession');
       window.location.href = '/login-santri.html';
     }
 
@@ -120,8 +124,9 @@
         const result = await res.json();
 
         if (result.success && Array.isArray(result.data)) {
-          // Cari apakah NISN santri ini sudah ada di rekap hari ini
-          const recordHariIni = result.data.find(item => String(item.nisn) === String(currentSantri.nisn));
+          // Cari apakah NIS santri ini sudah ada di rekap hari ini
+          const userNis = String(currentSantri.nis || currentSantri.nisn || '');
+          const recordHariIni = result.data.find(item => String(item.nis || item.nisn || '') === userNis);
 
           if (recordHariIni) {
             lockForm(`✅ Anda sudah melakukan absensi hari ini dengan keterangan status: "${recordHariIni.keterangan}". Absensi hanya bisa dilakukan 1 kali per hari.`);
