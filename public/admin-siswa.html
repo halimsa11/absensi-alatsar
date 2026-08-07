@@ -17,7 +17,7 @@
       </div>
       <div class="flex items-center gap-2">
         <a href="/admin-rekap.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Lihat Rekap</a>
-        <a href="/" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Menu Utama</a>
+        <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Logout</button>
       </div>
     </div>
   </header>
@@ -26,7 +26,7 @@
   <main class="max-w-4xl mx-auto px-6 py-10 w-full space-y-8">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
-    <!-- Form Tambah Santri -->
+    <!-- Form Tambah Siswa -->
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
       <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
         <span>➕</span> Form Tambah Siswa Baru
@@ -61,7 +61,7 @@
       </form>
     </div>
 
-    <!-- Daftar Santri & Tombol Hapus -->
+    <!-- Daftar Siswa & Tombol Hapus -->
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -97,6 +97,11 @@
   </footer>
 
   <script>
+    function logoutStaf() {
+      localStorage.removeItem('stafSession');
+      window.location.href = '/login-staf.html';
+    }
+
     function showAlert(message, isSuccess = true) {
       const box = document.getElementById('alertBox');
       box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
@@ -112,7 +117,6 @@
         if (result.success && result.data.length > 0) {
           tbody.innerHTML = '';
           result.data.forEach((santri, index) => {
-            // Mengambil angka kelas secara langsung dari classId tanpa teks "umum"
             let namaKelas = santri.classId;
             if (santri.classId == 10) namaKelas = '10';
             else if (santri.classId == 11) namaKelas = '11';
@@ -122,7 +126,7 @@
               <tr class="hover:bg-slate-50/60 transition">
                 <td class="py-3 px-4 text-center text-slate-400 text-xs">${index + 1}</td>
                 <td class="py-3 px-4 text-slate-900 font-bold">${santri.fullName}</td>
-                <td class="py-3 px-4 font-mono text-slate-600 text-xs">${santri.nisn}</td>
+                <td class="py-3 px-4 font-mono text-slate-600 text-xs">${santri.nisn || santri.nis || '-'}</td>
                 <td class="py-3 px-4 text-slate-600 text-xs">${namaKelas}</td>
                 <td class="py-3 px-4 text-center">
                   <button onclick="hapusSantri(${santri.id}, '${santri.fullName}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-xl border border-rose-200 transition whitespace-nowrap">
@@ -141,7 +145,7 @@
     }
 
     async function hapusSantri(id, nama) {
-      if (!confirm(`Apakah kamu yakin ingin menghapus data siswai "${nama}"?`)) return;
+      if (!confirm(`Apakah kamu yakin ingin menghapus data siswa "${nama}"?`)) return;
 
       try {
         const res = await fetch(`/api/students/${id}`, { method: 'DELETE' });
@@ -171,7 +175,7 @@
         });
         const result = await res.json();
         if (res.ok && result.success) {
-          showAlert('✅ Data santri berhasil ditambahkan!');
+          showAlert('✅ Data siswa berhasil ditambahkan!');
           document.getElementById('formTambahSiswa').reset();
           loadDaftarSantri(); 
         } else {
