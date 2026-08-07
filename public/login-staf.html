@@ -7,12 +7,16 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
+  
   <header class="bg-slate-900 text-white shadow-sm">
     <div class="max-w-md mx-auto px-6 py-4 flex justify-between items-center">
       <h1 class="text-base font-bold">🛡️ Login Staf</h1>
-      <a href="/" class="text-xs text-slate-400 hover:text-white transition">← Menu Utama</a>
+      <a href="/" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1">
+        ← Menu Utama
+      </a>
     </div>
   </header>
+
   <main class="max-w-md mx-auto px-6 py-12 w-full space-y-6">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
@@ -28,7 +32,9 @@
       </form>
     </div>
   </main>
+
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">&copy; 2026 Sistem Absensi Santri</footer>
+
   <script>
     document.getElementById('formLoginStaf').addEventListener('submit', (e) => {
       e.preventDefault();
