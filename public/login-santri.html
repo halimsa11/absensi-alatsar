@@ -68,7 +68,7 @@
       const btn = document.getElementById('btnLogin');
 
       btn.disabled = true;
-      btn.innerText = 'Memeriksa NISN...';
+      btn.innerText = 'Memeriksa NIS...';
 
       try {
         const res = await fetch('/api/students');
@@ -84,7 +84,7 @@
               window.location.href = '/santri.html';
             }, 800);
           } else {
-            showAlert('⚠️ NISN tidak terdaftar! Silakan periksa NISN kamu atau hubungi Staf.', false);
+            showAlert('⚠️ NIS tidak terdaftar! Silakan periksa NIS kamu atau hubungi Staf.', false);
             btn.disabled = false;
             btn.innerText = 'Masuk Portal';
           }

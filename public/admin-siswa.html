@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Staf - Kelola Data Santri</title>
+  <title>Staf - Kelola Data Siswa</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
@@ -13,7 +13,7 @@
     <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
       <div>
         <h1 class="text-lg font-bold tracking-tight">🛡️ Panel Staf</h1>
-        <p class="text-slate-400 text-xs">Kelola, daftarkan, dan hapus data santri</p>
+        <p class="text-slate-400 text-xs">Kelola, daftarkan, dan hapus data siswa</p>
       </div>
       <div class="flex items-center gap-2">
         <a href="/admin-rekap.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Lihat Rekap</a>
@@ -29,17 +29,17 @@
     <!-- Form Tambah Santri -->
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
       <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <span>➕</span> Form Tambah Santri Baru
+        <span>➕</span> Form Tambah Siswa Baru
       </h2>
       
       <form id="formTambahSiswa" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor Induk Santri (NIS)</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor Induk Siswa (NIS)</label>
           <input type="number" id="inputNisn" placeholder="Contoh: 102345" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 bg-slate-50/50 font-medium" required />
         </div>
 
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nama Lengkap Santri</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nama Lengkap Siswa</label>
           <input type="text" id="inputNama" placeholder="Contoh: Halim Samodra" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 bg-slate-50/50 font-medium" required />
         </div>
 
@@ -65,7 +65,7 @@
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <span>📋</span> Daftar Seluruh Santri Terdaftar
+          <span>📋</span> Daftar Seluruh Siswa Terdaftar
         </h2>
         <button onclick="loadDaftarSantri()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3.5 py-2 rounded-xl transition">
           🔄 Refresh Data
@@ -77,14 +77,14 @@
           <thead>
             <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-xs uppercase font-bold tracking-wider">
               <th class="py-3 px-4 w-12 text-center">No</th>
-              <th class="py-3 px-4">Nama Santri</th>
+              <th class="py-3 px-4">Nama Siswa</th>
               <th class="py-3 px-4">NIS</th>
               <th class="py-3 px-4">Kelas</th>
               <th class="py-3 px-4 text-center w-28">Aksi</th>
             </tr>
           </thead>
           <tbody id="tabelDaftarSantri" class="divide-y divide-slate-100 text-sm font-medium">
-            <tr><td colspan="5" class="py-8 text-center text-slate-400">Memuat data santri...</td></tr>
+            <tr><td colspan="5" class="py-8 text-center text-slate-400">Memuat data Siswa...</td></tr>
           </tbody>
         </table>
       </div>
@@ -93,7 +93,7 @@
 
   <!-- Footer -->
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Sistem Absensi Santri • Staf Panel
+    &copy; 2026 Sistem Absensi Siswa • Staf Panel
   </footer>
 
   <script>
@@ -133,15 +133,15 @@
             `;
           });
         } else {
-          tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada santri yang terdaftar.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada siswa yang terdaftar.</td></tr>`;
         }
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-rose-500">Gagal memuat data santri.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-rose-500">Gagal memuat data siswa.</td></tr>`;
       }
     }
 
     async function hapusSantri(id, nama) {
-      if (!confirm(`Apakah kamu yakin ingin menghapus data santri "${nama}"?`)) return;
+      if (!confirm(`Apakah kamu yakin ingin menghapus data siswai "${nama}"?`)) return;
 
       try {
         const res = await fetch(`/api/students/${id}`, { method: 'DELETE' });

@@ -64,7 +64,7 @@
   </footer>
 
   <script>
-    // 1. Cek Sesi Login Santri
+    // 1. Cek Sesi Login Santri secara INSTAN
     const sessionData = localStorage.getItem('santriSession') || localStorage.getItem('siswaSession');
     if (!sessionData) {
       window.location.href = '/login-santri.html';
@@ -72,12 +72,10 @@
 
     const currentSantri = JSON.parse(sessionData);
 
-    // Tampilkan data profil santri (DISESUAIKAN: Menggunakan string "NIS")
+    // Render Data Profil Langsung (Tanpa nunggu API)
     document.getElementById('dispNama').innerText = currentSantri.fullName || 'Santri';
     const classInfo = currentSantri.className ? currentSantri.className : (currentSantri.classId ? `Kelas ${currentSantri.classId}` : 'Kelas -');
     const nisValue = currentSantri.nis || currentSantri.nisn || '-';
-    
-    // Perbaikan utama ada di baris ini:
     document.getElementById('dispDetail').innerText = `NIS: ${nisValue} | ${classInfo}`;
 
     function showAlert(message, isSuccess = true) {
@@ -117,26 +115,23 @@
       return true;
     }
 
-    // 3. Cek Apakah Santri Ini Sudah Absen Hari Ini (1x per hari)
+    // 3. Cek Apakah Santri Ini Sudah Absen Hari Ini (Di Background)
     async function cekSudahAbsenHariIni() {
       try {
         const res = await fetch('/api/absen/hari-ini');
         const result = await res.json();
 
         if (result.success && Array.isArray(result.data)) {
-          // Cari apakah NIS santri ini sudah ada di rekap hari ini
           const userNis = String(currentSantri.nis || currentSantri.nisn || '');
           const recordHariIni = result.data.find(item => String(item.nis || item.nisn || '') === userNis);
 
           if (recordHariIni) {
             lockForm(`✅ Anda sudah melakukan absensi hari ini dengan keterangan status: "${recordHariIni.keterangan}". Absensi hanya bisa dilakukan 1 kali per hari.`);
-            return true;
           }
         }
       } catch (err) {
         console.error('Gagal mengecek status absensi:', err);
       }
-      return false;
     }
 
     // 4. Submit Absensi
@@ -176,15 +171,10 @@
       }
     });
 
-    // Inisialisasi saat halaman dimuat
-    async function init() {
-      const sudahAbsen = await cekSudahAbsenHariIni();
-      if (!sudahAbsen) {
-        cekBatasWaktu();
-      }
+    // Inisialisasi cepat tanpa async blocking
+    if (cekBatasWaktu()) {
+      cekSudahAbsenHariIni();
     }
-
-    init();
   </script>
 </body>
 </html>
