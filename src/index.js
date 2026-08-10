@@ -62,9 +62,9 @@ app.post('/api/students', async (req, res) => {
       classId: parseInt(classId) 
     });
 
-    res.json({ success: true, message: 'Data santri berhasil disimpan ke database!' });
+    res.json({ success: true, message: 'Data siswa berhasil disimpan ke database!' });
   } catch (err) {
-    console.error('Error saat menyimpan santri:', err);
+    console.error('Error saat menyimpan siswa:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -82,9 +82,9 @@ app.delete('/api/students/:id', async (req, res) => {
     
     await db.delete(targetStudentTable).where(eq(targetStudentTable.id, studentId));
     
-    res.json({ success: true, message: 'Data santri berhasil dihapus!' });
+    res.json({ success: true, message: 'Data siswa berhasil dihapus!' });
   } catch (err) {
-    console.error('Error saat menghapus santri:', err);
+    console.error('Error saat menghapus siswa:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -183,7 +183,7 @@ app.post('/api/ortu/login', async (req, res) => {
     const { nisn, password } = req.body;
 
     if (!nisn || !password) {
-      return res.status(400).json({ success: false, message: 'NISN dan Password wajib diisi!' });
+      return res.status(400).json({ success: false, message: 'NIS dan Password wajib diisi!' });
     }
 
     const targetStudentTable = schema.students || schema.studentsTable;
@@ -192,7 +192,7 @@ app.post('/api/ortu/login', async (req, res) => {
     const studentList = await db.select().from(targetStudentTable).where(eq(targetStudentTable.nisn, nisn.toString().trim()));
     
     if (studentList.length === 0) {
-      return res.status(404).json({ success: false, message: 'NISN santri tidak ditemukan!' });
+      return res.status(404).json({ success: false, message: 'NIS siswa tidak ditemukan!' });
     }
 
     const student = studentList[0];
