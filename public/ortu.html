@@ -129,7 +129,7 @@
         if (res.ok && result.success) {
           activeStudent = result.data;
           document.getElementById('dispNamaSantri').innerText = activeStudent.fullName;
-          document.getElementById('dispDetailSantri').innerText = `NISN: ${activeStudent.nisn || '-'} | Kelas: ${activeStudent.className}`;
+          document.getElementById('dispDetailSantri').innerText = `NIS: ${activeStudent.nisn || '-'} | Kelas: ${activeStudent.className}`;
           
           document.getElementById('viewLogin').classList.add('hidden');
           document.getElementById('viewRekap').classList.remove('hidden');
