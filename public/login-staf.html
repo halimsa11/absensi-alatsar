@@ -11,8 +11,8 @@
   <header class="bg-slate-900 text-white shadow-sm">
     <div class="max-w-md mx-auto px-6 py-4 flex justify-between items-center">
       <h1 class="text-base font-bold">🛡️ Login Staf</h1>
-      <a href="/" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1">
-         Menu Utama
+      <a href="/index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1">
+        🏠 Menu Utama
       </a>
     </div>
   </header>
@@ -33,15 +33,26 @@
     </div>
   </main>
 
-  <footer class="text-center py-6 text-xs text-slate-400 font-medium">&copy; 2026 Sistem Absensi Santri</footer>
+  <footer class="text-center py-6 text-xs text-slate-400 font-medium">&copy; 2026 Sistem Absensi Siswa</footer>
 
   <script>
+    // 1. Cek jika staf sudah terautentikasi, langsung arahkan ke dashboard admin
+    const checkSession = localStorage.getItem('stafSession') || localStorage.getItem('stafToken');
+    if (checkSession) {
+      window.location.href = '/admin-siswa.html';
+    }
+
+    // 2. Event listener form login
     document.getElementById('formLoginStaf').addEventListener('submit', (e) => {
       e.preventDefault();
       const password = document.getElementById('inputPassword').value;
       const alertBox = document.getElementById('alertBox');
       
       if (password === 'staf') {
+        // Generate dan simpan token auth ke localStorage
+        const token = 'staf-session-' + Date.now();
+        localStorage.setItem('stafSession', token);
+        
         window.location.href = '/admin-siswa.html';
       } else {
         alertBox.className = 'p-4 rounded-2xl text-sm font-medium shadow-sm block bg-rose-50 text-rose-800 border border-rose-200';

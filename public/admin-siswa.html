@@ -16,6 +16,7 @@
         <p class="text-slate-400 text-xs">Kelola, daftarkan, dan hapus data siswa</p>
       </div>
       <div class="flex items-center gap-2">
+        <a href="/index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1">🏠 Menu Utama</a>
         <a href="/admin-rekap.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Lihat Rekap</a>
         <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Logout</button>
       </div>
@@ -97,11 +98,20 @@
   </footer>
 
   <script>
-    function logoutStaf() {
-      localStorage.removeItem('stafSession');
+    // 1. Proteksi Akses Sesi Staf (Auth Guard)
+    const checkSession = localStorage.getItem('stafSession') || localStorage.getItem('stafToken');
+    if (!checkSession) {
       window.location.href = '/login-staf.html';
     }
 
+    // 2. Fungsi Logout Staf
+    function logoutStaf() {
+      localStorage.removeItem('stafSession');
+      localStorage.removeItem('stafToken');
+      window.location.href = '/login-staf.html';
+    }
+
+    // 3. Helper Notifikasi Alert
     function showAlert(message, isSuccess = true) {
       const box = document.getElementById('alertBox');
       box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
@@ -109,6 +119,7 @@
       setTimeout(() => box.classList.add('hidden'), 4000);
     }
 
+    // 4. Memuat Daftar Seluruh Siswa
     async function loadDaftarSantri() {
       const tbody = document.getElementById('tabelDaftarSantri');
       try {
@@ -144,6 +155,7 @@
       }
     }
 
+    // 5. Menghapus Data Siswa
     async function hapusSantri(id, nama) {
       if (!confirm(`Apakah kamu yakin ingin menghapus data siswa "${nama}"?`)) return;
 
@@ -161,6 +173,7 @@
       }
     }
 
+    // 6. Submit Form Tambah Siswa Baru
     document.getElementById('formTambahSiswa').addEventListener('submit', async (e) => {
       e.preventDefault();
       const nisn = document.getElementById('inputNisn').value.trim();
@@ -186,6 +199,7 @@
       }
     });
 
+    // Eksekusi muat data
     loadDaftarSantri();
   </script>
 </body>
