@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rekap & History Absensi - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
 
@@ -15,15 +16,17 @@
       <div class="flex items-center gap-3">
         <img src="logo.png" alt="Logo Al-Atsar" onerror="this.style.display='none'" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
         <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50">📋 Rekap Absensi Siswa</h1>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50 flex items-center gap-2">
+            <i data-lucide="clipboard-list" class="w-5 h-5 text-emerald-300"></i> Rekap Absensi Siswa
+          </h1>
           <p class="text-emerald-100 text-xs">Monitoring Kehadiran Harian & Riwayat Tanggal</p>
         </div>
       </div>
 
       <!-- Tombol Navigasi Header -->
       <div class="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
-        <a href="admin-siswa.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl transition whitespace-nowrap">
-          Kelola Siswa
+        <a href="admin-siswa.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i> Kelola Siswa
         </a>
       </div>
     </div>
@@ -41,7 +44,6 @@
           <p class="text-xs text-slate-500">Pilih tanggal dan kelas untuk melihat riwayat absensi</p>
         </div>
 
-        <!-- Filter Tanggal, Filter Kelas & Tombol Refresh (Grid Rapi di Mobile) -->
         <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-3 w-full lg:w-auto">
           <!-- Filter Tanggal -->
           <div class="flex items-center justify-between sm:justify-start gap-2 bg-slate-50 p-2 sm:p-0 rounded-2xl border border-slate-200/80 sm:border-0">
@@ -61,12 +63,12 @@
           </div>
 
           <button onclick="loadRekapData()" class="w-full sm:w-auto justify-center text-xs bg-emerald-50 text-emerald-800 font-semibold px-4 py-2.5 rounded-xl hover:bg-emerald-100 transition flex items-center gap-1.5 active:scale-[0.98]">
-            🔄 Refresh
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
           </button>
         </div>
       </div>
 
-      <!-- Tabel Data Rekap (Scroll Horizontal Mulus di HP) -->
+      <!-- Tabel Data Rekap -->
       <div class="overflow-x-auto w-full">
         <table class="w-full text-left border-collapse min-w-[600px]">
           <thead>
@@ -88,7 +90,6 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">
     &copy; 2026 Sistem Absensi Siswa • Admin Rekap
   </footer>
@@ -96,18 +97,11 @@
   <script>
     let allRekapData = [];
 
-    // Set nilai default tanggal hari ini (Format YYYY-MM-DD Lokal)
     const now = new Date();
     const localYYYY = now.getFullYear();
     const localMM = String(now.getMonth() + 1).padStart(2, '0');
     const localDD = String(now.getDate()).padStart(2, '0');
     document.getElementById('filterTanggal').value = `${localYYYY}-${localMM}-${localDD}`;
-
-    function showAlert(message, isSuccess = true) {
-      const box = document.getElementById('alertBox');
-      box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
-      box.innerText = message;
-    }
 
     async function loadRekapData() {
       const tbody = document.getElementById('tabelRekap');
@@ -195,10 +189,11 @@
           </tr>
         `;
       });
+      lucide.createIcons();
     }
 
-    // Load data awal berdasarkan tanggal hari ini
     loadRekapData();
+    lucide.createIcons();
   </script>
 </body>
 </html>

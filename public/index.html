@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menu Utama - Sistem Absensi Santri</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   <!-- Header dengan Logo Al-Atsar Solo -->
@@ -20,7 +21,7 @@
 
   <main class="max-w-md mx-auto px-6 py-10 w-full space-y-6">
     <div class="text-center space-y-2 mb-6">
-      <h2 class="text-2xl font-bold text-slate-900">Selamat Datang! 👋</h2>
+      <h2 class="text-2xl font-bold text-slate-900">Selamat Datang!</h2>
       <p class="text-sm text-slate-500">Pilih menu di bawah untuk melanjutkan</p>
     </div>
 
@@ -28,23 +29,27 @@
       <!-- Menu Santri -->
       <a href="login-siswa.html" class="flex items-center justify-between p-5 bg-white hover:bg-emerald-50/50 border border-slate-200/80 rounded-3xl shadow-sm transition group">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center text-xl group-hover:scale-105 transition shadow-inner">📖</div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center group-hover:scale-105 transition shadow-inner">
+            <i data-lucide="book-open" class="w-6 h-6"></i>
+          </div>
           <div>
             <h3 class="font-bold text-slate-900 text-base">Login Siswa</h3>
           </div>
         </div>
-        <span class="text-slate-400 group-hover:text-emerald-800 font-bold transition">→</span>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-slate-400 group-hover:text-emerald-800 transition"></i>
       </a>
 
       <!-- Menu Staf -->
       <a href="login-staf.html" class="flex items-center justify-between p-5 bg-white hover:bg-slate-50 border border-slate-200/80 rounded-3xl shadow-sm transition group">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center text-xl group-hover:scale-105 transition shadow-inner">🛡️</div>
+          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center group-hover:scale-105 transition shadow-inner">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
           <div>
             <h3 class="font-bold text-slate-900 text-base">Login Staf</h3>
           </div>
         </div>
-        <span class="text-slate-400 group-hover:text-slate-900 font-bold transition">→</span>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-slate-400 group-hover:text-slate-900 transition"></i>
       </a>
     </div>
   </main>
@@ -52,5 +57,9 @@
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">
     &copy; 2026 Sistem Absensi Siswa Al Atsar
   </footer>
+
+  <script>
+    lucide.createIcons();
+  </script>
 </body>
-</html>ose
+</html>

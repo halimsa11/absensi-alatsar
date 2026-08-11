@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Staf - Kelola Data Siswa</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   
@@ -15,21 +16,23 @@
       <div class="flex items-center gap-3">
         <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
         <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50">🛡️ Panel Staf</h1>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-5 h-5 text-emerald-300"></i> Panel Staf
+          </h1>
           <p class="text-emerald-100 text-xs">Kelola, daftarkan, dan hapus data siswa</p>
         </div>
       </div>
 
       <!-- Tombol Navigasi Header -->
       <div class="flex items-center gap-2 w-full sm:w-auto justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
-        <a href="/index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center justify-center whitespace-nowrap">
-          Menu Utama
+        <a href="/index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="home" class="w-3.5 h-3.5"></i> Menu Utama
         </a>
-        <a href="/admin-rekap.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition whitespace-nowrap">
-          Lihat Rekap
+        <a href="/admin-rekap.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Lihat Rekap
         </a>
-        <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3 py-2 rounded-xl transition whitespace-nowrap">
-          Logout
+        <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
         </button>
       </div>
     </div>
@@ -42,7 +45,7 @@
     <!-- Form Tambah Siswa -->
     <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80">
       <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <span>➕</span> Form Tambah Siswa Baru
+        <i data-lucide="user-plus" class="w-5 h-5 text-emerald-700"></i> Form Tambah Siswa Baru
       </h2>
       
       <form id="formTambahSiswa" class="space-y-4">
@@ -67,8 +70,8 @@
         </div>
 
         <div class="pt-2">
-          <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">
-            Simpan Data ke Database
+          <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm flex items-center justify-center gap-2">
+            <i data-lucide="save" class="w-4 h-4"></i> Simpan Data ke Database
           </button>
         </div>
       </form>
@@ -78,10 +81,10 @@
     <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <span>📋</span> Daftar Seluruh Siswa Terdaftar
+          <i data-lucide="users" class="w-5 h-5 text-emerald-700"></i> Daftar Seluruh Siswa Terdaftar
         </h2>
-        <button onclick="loadDaftarSantri()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-medium px-3.5 py-2 rounded-xl transition">
-          🔄 Refresh Data
+        <button onclick="loadDaftarSantri()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Data
         </button>
       </div>
 
@@ -110,20 +113,17 @@
   </footer>
 
   <script>
-    // 1. Proteksi Akses Sesi Staf (Auth Guard)
     const checkSession = localStorage.getItem('stafSession') || localStorage.getItem('stafToken');
     if (!checkSession) {
       window.location.href = '/login-staf.html';
     }
 
-    // 2. Fungsi Logout Staf
     function logoutStaf() {
       localStorage.removeItem('stafSession');
       localStorage.removeItem('stafToken');
       window.location.href = '/login-staf.html';
     }
 
-    // 3. Helper Notifikasi Alert
     function showAlert(message, isSuccess = true) {
       const box = document.getElementById('alertBox');
       box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
@@ -131,7 +131,6 @@
       setTimeout(() => box.classList.add('hidden'), 4000);
     }
 
-    // 4. Memuat Daftar Seluruh Siswa
     async function loadDaftarSantri() {
       const tbody = document.getElementById('tabelDaftarSantri');
       try {
@@ -152,13 +151,14 @@
                 <td class="py-3 px-4 font-mono text-slate-600 text-xs">${santri.nisn || santri.nis || '-'}</td>
                 <td class="py-3 px-4 text-slate-600 text-xs">${namaKelas}</td>
                 <td class="py-3 px-4 text-center">
-                  <button onclick="hapusSantri(${santri.id}, '${santri.fullName}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-xl border border-rose-200 transition whitespace-nowrap">
-                    🗑️ Hapus
+                  <button onclick="hapusSantri(${santri.id}, '${santri.fullName}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-xl border border-rose-200 transition whitespace-nowrap flex items-center gap-1 mx-auto">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
                   </button>
                 </td>
               </tr>
             `;
           });
+          lucide.createIcons();
         } else {
           tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada siswa yang terdaftar.</td></tr>`;
         }
@@ -167,7 +167,6 @@
       }
     }
 
-    // 5. Menghapus Data Siswa
     async function hapusSantri(id, nama) {
       if (!confirm(`Apakah kamu yakin ingin menghapus data siswa "${nama}"?`)) return;
 
@@ -185,7 +184,6 @@
       }
     }
 
-    // 6. Submit Form Tambah Siswa Baru
     document.getElementById('formTambahSiswa').addEventListener('submit', async (e) => {
       e.preventDefault();
       const nisn = document.getElementById('inputNisn').value.trim();
@@ -211,8 +209,8 @@
       }
     });
 
-    // Eksekusi muat data
     loadDaftarSantri();
+    lucide.createIcons();
   </script>
 </body>
 </html>

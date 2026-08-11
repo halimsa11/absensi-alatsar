@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Siswa - Absensi Kehadiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   
@@ -12,15 +13,17 @@
   <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-50 border-b border-emerald-800">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm">
+        <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0">
         <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50">👤 Portal Siswa</h1>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50 flex items-center gap-2">
+            <i data-lucide="user-check" class="w-5 h-5 text-emerald-300"></i> Portal Siswa
+          </h1>
           <p class="text-emerald-200 text-xs hidden sm:block">Formulir Absensi Kehadiran Harian</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="logoutSantri()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition shadow-sm active:scale-[0.98]">
-          Logout
+        <button onclick="logoutSantri()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition shadow-sm active:scale-[0.98] flex items-center gap-1.5">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
         </button>
       </div>
     </div>
@@ -41,7 +44,7 @@
     <!-- Form Absensi -->
     <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80">
       <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <span>📌</span> Input Kehadiran Hari Ini
+        <i data-lucide="calendar-check" class="w-5 h-5 text-emerald-700"></i> Input Kehadiran Hari Ini
       </h3>
       
       <form id="formAbsensi" class="space-y-4" autocomplete="off">
@@ -55,8 +58,8 @@
         </div>
 
         <div class="pt-2">
-          <button type="submit" id="btnKirim" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99]">
-            Kirim Absensi
+          <button type="submit" id="btnKirim" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99] flex items-center justify-center gap-2">
+            <i data-lucide="send" class="w-4 h-4"></i> Kirim Absensi
           </button>
         </div>
       </form>
@@ -96,7 +99,8 @@
       document.getElementById('selectStatus').disabled = true;
       const btn = document.getElementById('btnKirim');
       btn.disabled = true;
-      btn.innerText = 'Absensi Tidak Tersedia';
+      btn.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> Absensi Tidak Tersedia';
+      lucide.createIcons();
     }
 
     // Fungsi Logout
@@ -121,7 +125,7 @@
       return true;
     }
 
-    // 3. Cek Apakah Siswa Ini Sudah Absen Hari Ini (Menggunakan API Rekap Tanggal Hari Ini)
+    // 3. Cek Apakah Siswa Ini Sudah Absen Hari Ini
     async function cekSudahAbsenHariIni() {
       try {
         const now = new Date();
@@ -185,19 +189,22 @@
         } else {
           showAlert(`⚠️ ${result.message || 'Gagal mencatat absensi'}`, false);
           btn.disabled = false;
-          btn.innerText = 'Kirim Absensi';
+          btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Kirim Absensi';
+          lucide.createIcons();
         }
       } catch (err) {
         showAlert('❌ Gagal terhubung ke server.', false);
         btn.disabled = false;
-        btn.innerText = 'Kirim Absensi';
+        btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Kirim Absensi';
+        lucide.createIcons();
       }
     });
 
-    // Inisialisasi awal
     if (cekBatasWaktu()) {
       cekSudahAbsenHariIni();
     }
+
+    lucide.createIcons();
   </script>
 </body>
 </html>

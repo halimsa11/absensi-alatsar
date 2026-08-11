@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Staf - Sistem Absensi</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
 
@@ -14,11 +15,15 @@
       <div class="flex items-center gap-3">
         <img src="logo.png" alt="Logo Al-Atsar" onerror="this.style.display='none'" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
         <div>
-          <h1 class="text-lg font-bold tracking-tight text-emerald-50">Login Staf</h1>
+          <h1 class="text-lg font-bold tracking-tight text-emerald-50 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-5 h-5 text-emerald-300"></i> Login Staf
+          </h1>
           <p class="text-emerald-100 text-xs">Portal Khusus Guru / Staf Pengajar</p>
         </div>
       </div>
-      <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Menu Utama</a>
+      <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-white font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
+        <i data-lucide="home" class="w-3.5 h-3.5"></i> Menu Utama
+      </a>
     </div>
   </header>
 
@@ -28,6 +33,9 @@
 
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
       <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mx-auto mb-3">
+          <i data-lucide="lock" class="w-6 h-6"></i>
+        </div>
         <h2 class="text-xl font-bold text-slate-900">Masuk Portal Staf</h2>
         <p class="text-xs text-slate-500 mt-1">Gunakan kata sandi staf untuk masuk</p>
       </div>
@@ -38,8 +46,8 @@
           <input type="password" id="inputPassword" placeholder="Masukkan password staf" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium text-slate-800" required />
         </div>
 
-        <button type="submit" id="btnLogin" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99]">
-          Masuk
+        <button type="submit" id="btnLogin" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99] flex items-center justify-center gap-2">
+          <i data-lucide="key-round" class="w-4 h-4"></i> Masuk
         </button>
       </form>
     </div>
@@ -87,9 +95,12 @@
         }
       } finally {
         btn.disabled = false;
-        btn.innerText = 'Masuk';
+        btn.innerHTML = '<i data-lucide="key-round" class="w-4 h-4"></i> Masuk';
+        lucide.createIcons();
       }
     });
+
+    lucide.createIcons();
   </script>
 </body>
 </html>
