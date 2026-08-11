@@ -3,100 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Siswa - Login</title>
+  <title>Login Siswa - Al-Atsar Solo</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   
-  <!-- Header -->
-  <header class="bg-slate-900 text-white shadow-sm">
-    <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div>
-        <h1 class="text-lg font-bold tracking-tight">🔑 Login Portal Siswa</h1>
-        <p class="text-slate-400 text-xs">Masukkan NIS untuk masuk ke portal absensi</p>
+  <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-50 border-b border-emerald-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm">
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50">Al-Atsar Solo</h1>
+          <p class="text-emerald-200 text-xs hidden sm:block">Portal Siswa</p>
+        </div>
       </div>
-      <div class="flex items-center gap-2">
-        <a href="/" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Menu Utama</a>
-      </div>
+      <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl border border-emerald-700 transition">
+        🏠 Menu Utama
+      </a>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-md mx-auto px-6 py-12 w-full space-y-6">
+  <main class="max-w-md mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full space-y-6">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
-
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
-      <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <span>👤</span> Login Siswa
-      </h2>
-      
-      <form id="formLogin" class="space-y-4" autocomplete="off">
+    
+    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80">
+      <div class="text-center mb-6">
+        <h2 class="text-xl font-bold text-slate-900">Masuk Portal Siswa</h2>
+        <p class="text-xs text-slate-500 mt-1">Masukkan NISN kamu untuk melakukan presensi</p>
+      </div>
+      <form id="formLoginSantri" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor NIS</label>
-          <input type="text" id="inputNisn" placeholder="Masukkan NIS" required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-slate-800 font-medium text-slate-800" />
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">NISN Siswa</label>
+          <input type="number" id="inputNis" placeholder="Masukkan NISN kamu" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
         </div>
-
-        <div class="pt-2">
-          <button type="submit" id="btnLogin" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">
-            Masuk Portal
-          </button>
-        </div>
+        <button type="submit" id="btnLogin" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99]">
+          Masuk Presensi
+        </button>
       </form>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Sistem Absensi Siswa Al Atsar
-  </footer>
+  <footer class="text-center py-6 text-xs text-slate-400 font-medium">&copy; 2026 Al-Atsar Solo</footer>
 
   <script>
-    function showAlert(message, isSuccess = true) {
-      const box = document.getElementById('alertBox');
-      box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
-      box.innerText = message;
+    // 1. Jika sudah ada sesi login, langsung lempar ke siswa.html
+    const checkSantri = localStorage.getItem('santriSession');
+    if (checkSantri) {
+      window.location.href = 'siswa.html';
     }
 
-    // Jika santri sudah login sebelumnya, langsung lempar ke santri.html
-    if (localStorage.getItem('santriSession')) {
-      window.location.href = '/santri.html';
-    }
-
-    document.getElementById('formLogin').addEventListener('submit', async (e) => {
+    // 2. Event listener tombol submit
+    document.getElementById('formLoginSantri').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const nisnInput = document.getElementById('inputNisn').value.trim();
-      const btn = document.getElementById('btnLogin');
+      const nis = document.getElementById('inputNis').value.trim();
+      const alertBox = document.getElementById('alertBox');
+      const btnLogin = document.getElementById('btnLogin');
 
-      btn.disabled = true;
-      btn.innerText = 'Memeriksa NIS...';
+      alertBox.classList.add('hidden');
+      btnLogin.disabled = true;
+      btnLogin.innerText = 'Memeriksa NISN...';
 
       try {
-        const res = await fetch('/api/students');
+        const res = await fetch(`/api/students/check?nis=${encodeURIComponent(nis)}`);
         const result = await res.json();
 
-        if (result.success && Array.isArray(result.data)) {
-          const foundSantri = result.data.find(s => String(s.nisn).trim() === nisnInput);
-
-          if (foundSantri) {
-            showAlert('✅ NIS Ditemukan! Mengalihkan ke halaman absensi...');
-            localStorage.setItem('santriSession', JSON.stringify(foundSantri));
-            setTimeout(() => {
-              window.location.href = '/santri.html';
-            }, 800);
-          } else {
-            showAlert('⚠️ NIS tidak terdaftar! Silakan periksa NIS kamu atau hubungi Staf.', false);
-            btn.disabled = false;
-            btn.innerText = 'Masuk Portal';
-          }
+        if (res.ok && result.success) {
+          // Simpan sesi dan arahkan ke siswa.html
+          localStorage.setItem('santriSession', JSON.stringify(result.data));
+          window.location.href = 'siswa.html';
         } else {
-          showAlert('❌ Gagal memuat data santri dari server.', false);
-          btn.disabled = false;
-          btn.innerText = 'Masuk Portal';
+          alertBox.className = 'p-4 rounded-2xl text-sm font-medium shadow-sm block bg-rose-50 text-rose-800 border border-rose-200';
+          alertBox.innerText = `❌ ${result.message || 'NISN tidak ditemukan!'}`;
         }
       } catch (err) {
-        showAlert('❌ Terjadi kesalahan koneksi ke server.', false);
-        btn.disabled = false;
-        btn.innerText = 'Masuk Portal';
+        alertBox.className = 'p-4 rounded-2xl text-sm font-medium shadow-sm block bg-rose-50 text-rose-800 border border-rose-200';
+        alertBox.innerText = '❌ Gagal terhubung ke server database.';
+      } finally {
+        btnLogin.disabled = false;
+        btnLogin.innerText = 'Masuk Presensi';
       }
     });
   </script>
