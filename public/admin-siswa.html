@@ -8,27 +8,39 @@
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   
-  <!-- Header -->
-  <header class="bg-emerald-900 text-white shadow-sm">
-    <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div>
-        <h1 class="text-lg font-bold tracking-tight">🛡️ Panel Staf</h1>
-        <p class="text-emerald-100 text-xs">Kelola, daftarkan, dan hapus data siswa</p>
+  <!-- Header Responsif -->
+  <header class="bg-emerald-900 text-white shadow-sm sticky top-0 z-50 border-b border-emerald-800">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <!-- Judul + Logo -->
+      <div class="flex items-center gap-3">
+        <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50">🛡️ Panel Staf</h1>
+          <p class="text-emerald-100 text-xs">Kelola, daftarkan, dan hapus data siswa</p>
+        </div>
       </div>
-      <div class="flex items-center gap-2">
-        <a href="/index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1">🏠 Menu Utama</a>
-        <a href="/admin-rekap.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl transition">Lihat Rekap</a>
-        <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Logout</button>
+
+      <!-- Tombol Navigasi Header -->
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
+        <a href="/index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center justify-center whitespace-nowrap">
+          Menu Utama
+        </a>
+        <a href="/admin-rekap.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition whitespace-nowrap">
+          Lihat Rekap
+        </a>
+        <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3 py-2 rounded-xl transition whitespace-nowrap">
+          Logout
+        </button>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-4xl mx-auto px-6 py-10 w-full space-y-8">
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 w-full space-y-8">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
     <!-- Form Tambah Siswa -->
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
+    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80">
       <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
         <span>➕</span> Form Tambah Siswa Baru
       </h2>
@@ -63,7 +75,7 @@
     </div>
 
     <!-- Daftar Siswa & Tombol Hapus -->
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
+    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
           <span>📋</span> Daftar Seluruh Siswa Terdaftar

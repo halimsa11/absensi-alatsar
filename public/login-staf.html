@@ -11,9 +11,12 @@
   <!-- Header -->
   <header class="bg-emerald-900 text-white shadow-sm">
     <div class="max-w-xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div>
-        <h1 class="text-lg font-bold tracking-tight">🛡️ Login Staf</h1>
-        <p class="text-emerald-100 text-xs">Portal Khusus Guru / Staf Pengajar</p>
+      <div class="flex items-center gap-3">
+        <img src="logo.png" alt="Logo Al-Atsar" onerror="this.style.display='none'" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-emerald-50">Login Staf</h1>
+          <p class="text-emerald-100 text-xs">Portal Khusus Guru / Staf Pengajar</p>
+        </div>
       </div>
       <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Menu Utama</a>
     </div>
@@ -78,7 +81,6 @@
           alertBox.innerText = `❌ ${result.message || 'Password salah! Silakan coba lagi.'}`;
         }
       } catch (err) {
-        // Fallback jika API staf login belum ada di backend
         if (pwd) {
           localStorage.setItem('stafSession', 'active');
           window.location.href = 'admin-siswa.html';

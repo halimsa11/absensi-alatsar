@@ -8,43 +8,51 @@
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
 
-  <!-- Header -->
-  <header class="bg-emerald-900 text-white shadow-sm">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div>
-        <h1 class="text-lg font-bold tracking-tight">📋 Rekap & History Absensi Siswa</h1>
-        <p class="text-emerald-100 text-xs">Monitoring Kehadiran Harian & Riwayat Tanggal</p>
+  <!-- Header Responsif Mobile -->
+  <header class="bg-emerald-900 text-white shadow-sm sticky top-0 z-50 border-b border-emerald-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <!-- Logo + Judul -->
+      <div class="flex items-center gap-3">
+        <img src="logo.png" alt="Logo Al-Atsar" onerror="this.style.display='none'" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50">📋 Rekap Absensi Siswa</h1>
+          <p class="text-emerald-100 text-xs">Monitoring Kehadiran Harian & Riwayat Tanggal</p>
+        </div>
       </div>
-      <div class="flex items-center gap-2">
-        <a href="admin-siswa.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Kelola Siswa</a>
+
+      <!-- Tombol Navigasi Header -->
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
+        <a href="admin-siswa.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl transition whitespace-nowrap">
+          Kelola Siswa
+        </a>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-6 py-10 w-full space-y-6">
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full space-y-6">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
     <!-- Panel Filter & Rekap -->
     <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
-      <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="p-4 sm:p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h2 class="text-base font-bold text-slate-900">Data Kehadiran Siswa</h2>
           <p class="text-xs text-slate-500">Pilih tanggal dan kelas untuk melihat riwayat absensi</p>
         </div>
 
-        <!-- Filter Tanggal, Filter Kelas & Tombol Refresh -->
-        <div class="flex flex-wrap items-center gap-3">
-          <!-- Filter Tanggal / History -->
-          <div class="flex items-center gap-2">
-            <label for="filterTanggal" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Tanggal:</label>
-            <input type="date" id="filterTanggal" onchange="loadRekapData()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800" />
+        <!-- Filter Tanggal, Filter Kelas & Tombol Refresh (Grid Rapi di Mobile) -->
+        <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-3 w-full lg:w-auto">
+          <!-- Filter Tanggal -->
+          <div class="flex items-center justify-between sm:justify-start gap-2 bg-slate-50 p-2 sm:p-0 rounded-2xl border border-slate-200/80 sm:border-0">
+            <label for="filterTanggal" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap pl-1 sm:pl-0">Tanggal:</label>
+            <input type="date" id="filterTanggal" onchange="loadRekapData()" class="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white sm:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800" />
           </div>
 
           <!-- Filter Kelas -->
-          <div class="flex items-center gap-2">
-            <label for="filterKelas" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Kelas:</label>
-            <select id="filterKelas" onchange="filterDataRekap()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800">
+          <div class="flex items-center justify-between sm:justify-start gap-2 bg-slate-50 p-2 sm:p-0 rounded-2xl border border-slate-200/80 sm:border-0">
+            <label for="filterKelas" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap pl-1 sm:pl-0">Kelas:</label>
+            <select id="filterKelas" onchange="filterDataRekap()" class="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white sm:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800">
               <option value="semua">Semua Kelas</option>
               <option value="10">Kelas 10</option>
               <option value="11">Kelas 11</option>
@@ -52,22 +60,22 @@
             </select>
           </div>
 
-          <button onclick="loadRekapData()" class="text-xs bg-emerald-50 text-emerald-800 font-semibold px-3.5 py-2 rounded-xl hover:bg-emerald-100 transition">
+          <button onclick="loadRekapData()" class="w-full sm:w-auto justify-center text-xs bg-emerald-50 text-emerald-800 font-semibold px-4 py-2.5 rounded-xl hover:bg-emerald-100 transition flex items-center gap-1.5 active:scale-[0.98]">
             🔄 Refresh
           </button>
         </div>
       </div>
 
-      <!-- Tabel Data Rekap -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+      <!-- Tabel Data Rekap (Scroll Horizontal Mulus di HP) -->
+      <div class="overflow-x-auto w-full">
+        <table class="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-xs uppercase font-bold tracking-wider">
-              <th class="py-4 px-6 w-16 text-center">No</th>
-              <th class="py-4 px-6">NIS</th>
-              <th class="py-4 px-6">Nama Siswa</th>
-              <th class="py-4 px-6">Jam Masuk</th>
-              <th class="py-4 px-6">Keterangan</th>
+              <th class="py-4 px-4 sm:px-6 w-12 text-center">No</th>
+              <th class="py-4 px-4 sm:px-6 w-28">NIS</th>
+              <th class="py-4 px-4 sm:px-6">Nama Siswa</th>
+              <th class="py-4 px-4 sm:px-6 w-32">Jam Masuk</th>
+              <th class="py-4 px-4 sm:px-6 w-32">Keterangan</th>
             </tr>
           </thead>
           <tbody id="tabelRekap" class="divide-y divide-slate-100 text-sm font-medium">
@@ -108,7 +116,6 @@
       tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap absensi...</td></tr>';
 
       try {
-        // PERBAIKAN ENDPOINT API: Memanggil /api/attendance
         const res = await fetch(`/api/attendance?date=${selectedDate}`);
         const result = await res.json();
 
@@ -178,11 +185,11 @@
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50/60 transition">
-            <td class="py-4 px-6 text-center text-slate-400 font-semibold">${index + 1}</td>
-            <td class="py-4 px-6 font-mono text-slate-600 text-xs">${nis}</td>
-            <td class="py-4 px-6 text-slate-800 font-medium">${nama}${kelasInfo}</td>
-            <td class="py-4 px-6 font-mono text-slate-600 text-xs">${jamFormat}</td>
-            <td class="py-4 px-6">
+            <td class="py-4 px-4 sm:px-6 text-center text-slate-400 font-semibold">${index + 1}</td>
+            <td class="py-4 px-4 sm:px-6 font-mono text-slate-600 text-xs">${nis}</td>
+            <td class="py-4 px-4 sm:px-6 text-slate-800 font-medium">${nama}${kelasInfo}</td>
+            <td class="py-4 px-4 sm:px-6 font-mono text-slate-600 text-xs">${jamFormat}</td>
+            <td class="py-4 px-4 sm:px-6">
               <span class="${badgeClass} font-semibold px-3 py-1 rounded-full text-xs inline-block">${status}</span>
             </td>
           </tr>
