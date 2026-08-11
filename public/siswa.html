@@ -9,32 +9,37 @@
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   
   <!-- Header -->
-  <header class="bg-slate-900 text-white shadow-sm">
-    <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div>
-        <h1 class="text-lg font-bold tracking-tight">👤 Portal Siswa</h1>
-        <p class="text-slate-400 text-xs">Formulir Absensi Kehadiran Harian</p>
+  <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-50 border-b border-emerald-800">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm">
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50">👤 Portal Siswa</h1>
+          <p class="text-emerald-200 text-xs hidden sm:block">Formulir Absensi Kehadiran Harian</p>
+        </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="logoutSantri()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Logout</button>
+        <button onclick="logoutSantri()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition shadow-sm active:scale-[0.98]">
+          Logout
+        </button>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-xl mx-auto px-6 py-10 w-full space-y-6">
-    <!-- Card Identitas Santri -->
-    <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-sm space-y-1">
-      <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Selamat Datang,</p>
-      <h2 id="dispNama" class="text-xl font-bold text-white">...</h2>
-      <p id="dispDetail" class="text-xs text-slate-300 font-mono pt-1">NIS: - | Kelas: -</p>
+  <main class="max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-10 w-full space-y-6">
+    <!-- Card Identitas Siswa -->
+    <div class="bg-emerald-900 text-white p-6 rounded-3xl shadow-sm border border-emerald-800 space-y-1">
+      <p class="text-xs text-emerald-200 uppercase tracking-wider font-semibold">Selamat Datang,</p>
+      <h2 id="dispNama" class="text-xl font-bold text-emerald-50">...</h2>
+      <p id="dispDetailSantri" class="text-xs text-emerald-200 font-mono pt-1">NIS: - | Kelas: -</p>
     </div>
 
     <!-- Alert Box -->
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
     <!-- Form Absensi -->
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
+    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80">
       <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
         <span>📌</span> Input Kehadiran Hari Ini
       </h3>
@@ -42,7 +47,7 @@
       <form id="formAbsensi" class="space-y-4" autocomplete="off">
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Keterangan Kehadiran</label>
-          <select id="selectStatus" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-slate-800 font-medium text-slate-800" required>
+          <select id="selectStatus" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" required>
             <option value="Hadir">Hadir</option>
             <option value="Sakit">Sakit</option>
             <option value="Alfa">Alfa</option>
@@ -50,7 +55,7 @@
         </div>
 
         <div class="pt-2">
-          <button type="submit" id="btnKirim" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">
+          <button type="submit" id="btnKirim" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99]">
             Kirim Absensi
           </button>
         </div>
@@ -60,23 +65,23 @@
 
   <!-- Footer -->
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Sistem Absensi Siswa
+    &copy; 2026 Al-Atsar Solo • Sistem Absensi Siswa
   </footer>
 
   <script>
-    // 1. Cek Sesi Login Santri secara INSTAN
+    // 1. Cek Sesi Login Siswa secara INSTAN
     const sessionData = localStorage.getItem('santriSession') || localStorage.getItem('siswaSession');
     if (!sessionData) {
-      window.location.href = '/login-santri.html';
+      window.location.href = 'login-siswa.html';
     }
 
-    const currentSantri = JSON.parse(sessionData);
+    const currentSantri = JSON.parse(sessionData || '{}');
 
-    // Render Data Profil Langsung (Tanpa nunggu API)
-    document.getElementById('dispNama').innerText = currentSantri.fullName || 'Santri';
+    // Render Data Profil Langsung
+    document.getElementById('dispNama').innerText = currentSantri.fullName || 'Siswa';
     const classInfo = currentSantri.className ? currentSantri.className : (currentSantri.classId ? `Kelas ${currentSantri.classId}` : 'Kelas -');
     const nisValue = currentSantri.nis || currentSantri.nisn || '-';
-    document.getElementById('dispDetail').innerText = `NIS: ${nisValue} | ${classInfo}`;
+    document.getElementById('dispDetailSantri').innerText = `NIS: ${nisValue} | ${classInfo}`;
 
     function showAlert(message, isSuccess = true) {
       const box = document.getElementById('alertBox');
@@ -94,10 +99,11 @@
       btn.innerText = 'Absensi Tidak Tersedia';
     }
 
+    // Fungsi Logout
     function logoutSantri() {
       localStorage.removeItem('santriSession');
       localStorage.removeItem('siswaSession');
-      window.location.href = '/login-santri.html';
+      window.location.href = 'login-siswa.html';
     }
 
     // 2. Cek Batas Waktu Jam 14.30
@@ -115,18 +121,31 @@
       return true;
     }
 
-    // 3. Cek Apakah Santri Ini Sudah Absen Hari Ini (Di Background)
+    // 3. Cek Apakah Siswa Ini Sudah Absen Hari Ini (Menggunakan API Rekap Tanggal Hari Ini)
     async function cekSudahAbsenHariIni() {
       try {
-        const res = await fetch('/api/absen/hari-ini');
+        const now = new Date();
+        const localYYYY = now.getFullYear();
+        const localMM = String(now.getMonth() + 1).padStart(2, '0');
+        const localDD = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${localYYYY}-${localMM}-${localDD}`;
+
+        const res = await fetch(`/api/attendance?date=${todayStr}`);
         const result = await res.json();
 
         if (result.success && Array.isArray(result.data)) {
-          const userNis = String(currentSantri.nis || currentSantri.nisn || '');
-          const recordHariIni = result.data.find(item => String(item.nis || item.nisn || '') === userNis);
+          const userNis = String(currentSantri.nis || currentSantri.nisn || '').trim();
+          const userStudentId = String(currentSantri.id || '').trim();
+
+          const recordHariIni = result.data.find(item => {
+            const matchId = item.studentId && String(item.studentId) === userStudentId;
+            const matchNisn = item.nisn && String(item.nisn).trim() === userNis;
+            const matchNis = item.nis && String(item.nis).trim() === userNis;
+            return matchId || matchNisn || matchNis;
+          });
 
           if (recordHariIni) {
-            lockForm(`✅ Anda sudah melakukan absensi hari ini dengan keterangan status: "${recordHariIni.keterangan}". Absensi hanya bisa dilakukan 1 kali per hari.`);
+            lockForm(`✅ Anda sudah melakukan absensi hari ini dengan status "${recordHariIni.status}". Absensi hanya dapat dilakukan 1 kali per hari.`);
           }
         }
       } catch (err) {
@@ -150,7 +169,11 @@
         const res = await fetch('/api/attendance', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ studentId: parseInt(currentSantri.id), status })
+          body: JSON.stringify({ 
+            studentId: parseInt(currentSantri.id), 
+            nis: currentSantri.nis || currentSantri.nisn,
+            status 
+          })
         });
         const result = await res.json();
 
@@ -158,7 +181,7 @@
           showAlert('✅ Absensi berhasil dicatat!');
           setTimeout(() => {
             lockForm(`✅ Anda telah berhasil absen hari ini dengan status "${status}".`);
-          }, 1000);
+          }, 500);
         } else {
           showAlert(`⚠️ ${result.message || 'Gagal mencatat absensi'}`, false);
           btn.disabled = false;
@@ -171,7 +194,7 @@
       }
     });
 
-    // Inisialisasi cepat tanpa async blocking
+    // Inisialisasi awal
     if (cekBatasWaktu()) {
       cekSudahAbsenHariIni();
     }

@@ -9,14 +9,14 @@
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
 
   <!-- Header -->
-  <header class="bg-slate-900 text-white shadow-sm">
+  <header class="bg-emerald-900 text-white shadow-sm">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <div>
         <h1 class="text-lg font-bold tracking-tight">📋 Rekap & History Absensi Siswa</h1>
-        <p class="text-slate-400 text-xs">Monitoring Kehadiran Harian & Riwayat Tanggal</p>
+        <p class="text-emerald-100 text-xs">Monitoring Kehadiran Harian & Riwayat Tanggal</p>
       </div>
       <div class="flex items-center gap-2">
-        <a href="/admin-siswa.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Kelola Siswa</a>
+        <a href="admin-siswa.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Kelola Siswa</a>
       </div>
     </div>
   </header>
@@ -38,13 +38,13 @@
           <!-- Filter Tanggal / History -->
           <div class="flex items-center gap-2">
             <label for="filterTanggal" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Tanggal:</label>
-            <input type="date" id="filterTanggal" onchange="loadRekapData()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-800 text-slate-800" />
+            <input type="date" id="filterTanggal" onchange="loadRekapData()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800" />
           </div>
 
           <!-- Filter Kelas -->
           <div class="flex items-center gap-2">
             <label for="filterKelas" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Kelas:</label>
-            <select id="filterKelas" onchange="filterDataRekap()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-800 text-slate-800">
+            <select id="filterKelas" onchange="filterDataRekap()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800">
               <option value="semua">Semua Kelas</option>
               <option value="10">Kelas 10</option>
               <option value="11">Kelas 11</option>
@@ -52,7 +52,7 @@
             </select>
           </div>
 
-          <button onclick="loadRekapData()" class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-3.5 py-2 rounded-xl hover:bg-indigo-100 transition">
+          <button onclick="loadRekapData()" class="text-xs bg-emerald-50 text-emerald-800 font-semibold px-3.5 py-2 rounded-xl hover:bg-emerald-100 transition">
             🔄 Refresh
           </button>
         </div>
@@ -88,8 +88,12 @@
   <script>
     let allRekapData = [];
 
-    // Set nilai default tanggal hari ini (YYYY-MM-DD)
-    document.getElementById('filterTanggal').value = new Date().toISOString().split('T')[0];
+    // Set nilai default tanggal hari ini (Format YYYY-MM-DD Lokal)
+    const now = new Date();
+    const localYYYY = now.getFullYear();
+    const localMM = String(now.getMonth() + 1).padStart(2, '0');
+    const localDD = String(now.getDate()).padStart(2, '0');
+    document.getElementById('filterTanggal').value = `${localYYYY}-${localMM}-${localDD}`;
 
     function showAlert(message, isSuccess = true) {
       const box = document.getElementById('alertBox');
@@ -104,10 +108,11 @@
       tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap absensi...</td></tr>';
 
       try {
-        const res = await fetch(`/api/absen/hari-ini?date=${selectedDate}`);
+        // PERBAIKAN ENDPOINT API: Memanggil /api/attendance
+        const res = await fetch(`/api/attendance?date=${selectedDate}`);
         const result = await res.json();
 
-        if (result.success) {
+        if (res.ok && result.success) {
           allRekapData = result.data || [];
           filterDataRekap();
         } else {
@@ -139,17 +144,23 @@
       tbody.innerHTML = '';
       filteredData.forEach((item, index) => {
         const nis = item.nisn || item.nis || '-';
-        const nama = item.namaSiswa || item.fullName || '-';
+        const nama = item.studentName || item.namaSiswa || item.fullName || '-';
         const kelasInfo = item.className ? ` <span class="text-xs text-slate-400 font-normal">(${item.className})</span>` : '';
         
         let jamFormat = '-';
-        if (item.jamMasuk || item.checkInTime) {
-          const rawTime = item.jamMasuk || item.checkInTime;
+        const rawTime = item.date || item.jamMasuk || item.checkInTime;
+        if (rawTime) {
           const objDate = new Date(rawTime);
-          jamFormat = objDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.') + ' WIB';
+          if (!isNaN(objDate.getTime())) {
+            jamFormat = objDate.toLocaleTimeString('id-ID', { 
+              hour: '2-digit', 
+              minute: '2-digit',
+              hour12: false 
+            }).replace(':', '.') + ' WIB';
+          }
         }
 
-        const status = item.keterangan || item.status || 'Hadir';
+        const status = item.status || item.keterangan || 'Hadir';
 
         let badgeClass = 'bg-slate-100 text-slate-500 border border-slate-200/80';
         const statusLower = status.toLowerCase();

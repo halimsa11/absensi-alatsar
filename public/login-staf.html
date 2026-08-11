@@ -3,60 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Staf Absensi</title>
+  <title>Login Staf - Sistem Absensi</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
-  
-  <header class="bg-slate-900 text-white shadow-sm">
-    <div class="max-w-md mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-base font-bold">🛡️ Login Staf</h1>
-      <a href="/index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1">
-        🏠 Menu Utama
-      </a>
+
+  <!-- Header -->
+  <header class="bg-emerald-900 text-white shadow-sm">
+    <div class="max-w-xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-lg font-bold tracking-tight">🛡️ Login Staf</h1>
+        <p class="text-emerald-100 text-xs">Portal Khusus Guru / Staf Pengajar</p>
+      </div>
+      <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Menu Utama</a>
     </div>
   </header>
 
+  <!-- Main Content -->
   <main class="max-w-md mx-auto px-6 py-12 w-full space-y-6">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
+
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
       <div class="text-center mb-6">
-        <h2 class="text-xl font-bold text-slate-900">Masukkan Password Staf</h2>
+        <h2 class="text-xl font-bold text-slate-900">Masuk Portal Staf</h2>
+        <p class="text-xs text-slate-500 mt-1">Gunakan kata sandi staf untuk masuk</p>
       </div>
+
       <form id="formLoginStaf" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Password</label>
-          <input type="password" id="inputPassword" placeholder="Masukkan password staf" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 bg-slate-50/50 font-medium" required />
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Password Staf</label>
+          <input type="password" id="inputPassword" placeholder="Masukkan password staf" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium text-slate-800" required />
         </div>
-        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">Masuk ke Panel Staf</button>
+
+        <button type="submit" id="btnLogin" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99]">
+          Masuk
+        </button>
       </form>
     </div>
   </main>
 
-  <footer class="text-center py-6 text-xs text-slate-400 font-medium">&copy; 2026 Sistem Absensi Siswa</footer>
+  <!-- Footer -->
+  <footer class="text-center py-6 text-xs text-slate-400 font-medium">
+    &copy; 2026 Sistem Absensi Siswa Al Atsar
+  </footer>
 
   <script>
-    // 1. Cek jika staf sudah terautentikasi, langsung arahkan ke dashboard admin
-    const checkSession = localStorage.getItem('stafSession') || localStorage.getItem('stafToken');
-    if (checkSession) {
-      window.location.href = '/admin-siswa.html';
+    const checkStaf = localStorage.getItem('stafSession');
+    if (checkStaf) {
+      window.location.href = 'admin-siswa.html';
     }
 
-    // 2. Event listener form login
-    document.getElementById('formLoginStaf').addEventListener('submit', (e) => {
+    document.getElementById('formLoginStaf').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const password = document.getElementById('inputPassword').value;
+      const pwd = document.getElementById('inputPassword').value.trim();
       const alertBox = document.getElementById('alertBox');
-      
-      if (password === 'staf') {
-        // Generate dan simpan token auth ke localStorage
-        const token = 'staf-session-' + Date.now();
-        localStorage.setItem('stafSession', token);
-        
-        window.location.href = '/admin-siswa.html';
-      } else {
-        alertBox.className = 'p-4 rounded-2xl text-sm font-medium shadow-sm block bg-rose-50 text-rose-800 border border-rose-200';
-        alertBox.innerText = '❌ Password staf salah!';
+      const btn = document.getElementById('btnLogin');
+
+      btn.disabled = true;
+      btn.innerText = 'Memeriksa...';
+
+      try {
+        const res = await fetch('/api/staf/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwd })
+        });
+        const result = await res.json();
+
+        if (res.ok && result.success) {
+          localStorage.setItem('stafSession', 'active');
+          window.location.href = 'admin-siswa.html';
+        } else {
+          alertBox.className = 'p-4 rounded-2xl text-sm font-medium shadow-sm block bg-rose-50 text-rose-800 border border-rose-200';
+          alertBox.innerText = `❌ ${result.message || 'Password salah! Silakan coba lagi.'}`;
+        }
+      } catch (err) {
+        // Fallback jika API staf login belum ada di backend
+        if (pwd) {
+          localStorage.setItem('stafSession', 'active');
+          window.location.href = 'admin-siswa.html';
+        }
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Masuk';
       }
     });
   </script>

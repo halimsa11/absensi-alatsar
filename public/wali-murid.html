@@ -8,12 +8,12 @@
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
 
-  <!-- Header -->
-  <header class="bg-slate-900 text-white shadow-sm">
+  <!-- Header (Kembali Asli Tanpa Tombol Menu Utama) -->
+  <header class="bg-emerald-900 text-white shadow-sm">
     <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
       <div>
         <h1 class="text-lg font-bold tracking-tight">👨‍👩‍👦 Portal Orang Tua</h1>
-        <p class="text-slate-400 text-xs">Monitoring Kehadiran Siswa Harian</p>
+        <p class="text-emerald-100 text-xs">Monitoring Kehadiran Siswa Harian</p>
       </div>
     </div>
   </header>
@@ -32,16 +32,16 @@
       <form id="formLoginOrtu" class="space-y-4" autocomplete="off">
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">NIS Siswa</label>
-          <input type="text" id="loginNis" placeholder="Contoh: 008123456" required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-slate-800 font-medium text-slate-800" />
+          <input type="text" id="loginNis" placeholder="Masukkan NIS Siswa" required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" />
         </div>
 
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Password</label>
-          <input type="password" id="loginPassword" placeholder="Masukkan password..." required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-slate-800 font-medium text-slate-800" />
+          <input type="password" id="loginPassword" placeholder="Masukkan password..." required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" />
           <p class="text-[11px] text-slate-400 mt-1">*Default password: 123456</p>
         </div>
 
-        <button type="submit" id="btnLogin" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">
+        <button type="submit" id="btnLogin" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99]">
           Lihat Rekap Absensi
         </button>
       </form>
@@ -50,11 +50,11 @@
     <!-- VIEW 2: Tampilan Rekap Santri -->
     <div id="viewRekap" class="hidden space-y-6">
       <!-- Card Profil Santri -->
-      <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-sm flex justify-between items-center">
+      <div class="bg-emerald-900 text-white p-6 rounded-3xl shadow-sm flex justify-between items-center">
         <div>
-          <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Log Kehadiran Siswa</p>
+          <p class="text-xs text-emerald-100 uppercase tracking-wider font-semibold">Log Kehadiran Siswa</p>
           <h2 id="dispNamaSantri" class="text-xl font-bold text-white">...</h2>
-          <p id="dispDetailSantri" class="text-xs text-slate-300 font-mono pt-1">NIS: - | Kelas: -</p>
+          <p id="dispDetailSantri" class="text-xs text-emerald-100 font-mono pt-1">NIS: - | Kelas: -</p>
         </div>
         <button onclick="logoutOrtu()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Keluar</button>
       </div>
@@ -68,9 +68,9 @@
           </div>
           
           <div class="flex items-center gap-2">
-            <input type="date" id="filterTanggalOrtu" onchange="loadRekapSantri()" class="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-800 text-slate-800" />
+            <input type="date" id="filterTanggalOrtu" onchange="loadRekapSantri()" class="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800" />
             <button onclick="resetFilterTanggal()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-1.5 rounded-xl transition">Semua</button>
-            <button onclick="loadRekapSantri()" class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-3 py-1.5 rounded-xl hover:bg-indigo-100 transition">🔄 Refresh</button>
+            <button onclick="loadRekapSantri()" class="text-xs bg-emerald-50 text-emerald-800 font-semibold px-3 py-1.5 rounded-xl hover:bg-emerald-100 transition">🔄 Refresh</button>
           </div>
         </div>
 
@@ -109,6 +109,32 @@
       box.innerText = message;
     }
 
+    // Inisialisasi awal saat halaman dibuka
+    function checkOrtuSession() {
+      const savedSession = localStorage.getItem('ortuSession');
+      if (savedSession) {
+        try {
+          activeStudent = JSON.parse(savedSession);
+          showRekapView();
+        } catch (e) {
+          localStorage.removeItem('ortuSession');
+        }
+      }
+    }
+
+    function showRekapView() {
+      if (!activeStudent) return;
+      document.getElementById('dispNamaSantri').innerText = activeStudent.fullName || 'Siswa';
+      document.getElementById('dispDetailSantri').innerText = `NIS: ${activeStudent.nisn || activeStudent.nis || '-'} | Kelas: ${activeStudent.className || '-'}`;
+      
+      document.getElementById('viewLogin').classList.add('hidden');
+      document.getElementById('viewRekap').classList.remove('hidden');
+      document.getElementById('alertBox').classList.add('hidden');
+
+      loadRekapSantri();
+    }
+
+    // Process Login Form
     document.getElementById('formLoginOrtu').addEventListener('submit', async (e) => {
       e.preventDefault();
       const nis = document.getElementById('loginNis').value.trim();
@@ -122,32 +148,26 @@
         const res = await fetch('/api/ortu/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nisn: nis, password })
+          body: JSON.stringify({ nisn: nis, nis: nis, password })
         });
         const result = await res.json();
 
         if (res.ok && result.success) {
           activeStudent = result.data;
-          document.getElementById('dispNamaSantri').innerText = activeStudent.fullName;
-          document.getElementById('dispDetailSantri').innerText = `NIS: ${activeStudent.nisn || '-'} | Kelas: ${activeStudent.className}`;
-          
-          document.getElementById('viewLogin').classList.add('hidden');
-          document.getElementById('viewRekap').classList.remove('hidden');
-          document.getElementById('alertBox').classList.add('hidden');
-
-          loadRekapSantri();
+          localStorage.setItem('ortuSession', JSON.stringify(activeStudent));
+          showRekapView();
         } else {
           showAlert(`⚠️ ${result.message || 'Gagal login'}`, false);
-          btn.disabled = false;
-          btn.innerText = 'Lihat Rekap Absensi';
         }
       } catch (err) {
-        showAlert('❌ Gagal terhubung ke server.', false);
+        showAlert('❌ Gagal terhubung ke server database.', false);
+      } finally {
         btn.disabled = false;
         btn.innerText = 'Lihat Rekap Absensi';
       }
     });
 
+    // Load Log Rekap Absensi
     async function loadRekapSantri() {
       if (!activeStudent) return;
 
@@ -159,7 +179,7 @@
         const res = await fetch(`/api/ortu/rekap/${activeStudent.id}`);
         const result = await res.json();
 
-        if (result.success && result.data.length > 0) {
+        if (result.success && Array.isArray(result.data) && result.data.length > 0) {
           let logs = result.data;
 
           if (selectedDate) {
@@ -170,8 +190,7 @@
               const yyyy = d.getFullYear();
               const mm = String(d.getMonth() + 1).padStart(2, '0');
               const dd = String(d.getDate()).padStart(2, '0');
-              const localDateStr = `${yyyy}-${mm}-${dd}`;
-              return localDateStr === selectedDate;
+              return `${yyyy}-${mm}-${dd}` === selectedDate;
             });
           }
 
@@ -206,7 +225,7 @@
               }
             }
 
-            const status = item.status || 'Hadir';
+            const status = item.status || item.keterangan || 'Hadir';
 
             let badgeClass = 'bg-slate-100 text-slate-500 border border-slate-200/80';
             const statusLower = status.toLowerCase();
@@ -218,6 +237,8 @@
               badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200/60';
             } else if (statusLower === 'izin') {
               badgeClass = 'bg-sky-50 text-sky-700 border border-sky-200/60';
+            } else if (statusLower === 'alfa') {
+              badgeClass = 'bg-rose-50 text-rose-700 border border-rose-200/60';
             }
 
             tbody.innerHTML += `
@@ -246,11 +267,14 @@
 
     function logoutOrtu() {
       activeStudent = null;
+      localStorage.removeItem('ortuSession');
       document.getElementById('formLoginOrtu').reset();
       document.getElementById('filterTanggalOrtu').value = '';
       document.getElementById('viewRekap').classList.add('hidden');
       document.getElementById('viewLogin').classList.remove('hidden');
     }
+
+    checkOrtuSession();
   </script>
 </body>
 </html>

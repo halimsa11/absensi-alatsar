@@ -9,15 +9,15 @@
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   
   <!-- Header -->
-  <header class="bg-slate-900 text-white shadow-sm">
+  <header class="bg-emerald-900 text-white shadow-sm">
     <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
       <div>
         <h1 class="text-lg font-bold tracking-tight">🛡️ Panel Staf</h1>
-        <p class="text-slate-400 text-xs">Kelola, daftarkan, dan hapus data siswa</p>
+        <p class="text-emerald-100 text-xs">Kelola, daftarkan, dan hapus data siswa</p>
       </div>
       <div class="flex items-center gap-2">
-        <a href="/index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1">🏠 Menu Utama</a>
-        <a href="/admin-rekap.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3.5 py-2 rounded-xl transition">Lihat Rekap</a>
+        <a href="/index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1">🏠 Menu Utama</a>
+        <a href="/admin-rekap.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl transition">Lihat Rekap</a>
         <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition">Logout</button>
       </div>
     </div>
@@ -36,17 +36,17 @@
       <form id="formTambahSiswa" class="space-y-4">
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor Induk Siswa (NIS)</label>
-          <input type="number" id="inputNisn" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 bg-slate-50/50 font-medium" required />
+          <input type="number" id="inputNisn" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
         </div>
 
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nama Lengkap Siswa</label>
-          <input type="text" id="inputNama" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 bg-slate-50/50 font-medium" required />
+          <input type="text" id="inputNama" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
         </div>
 
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Pilih Kelas</label>
-          <select id="selectKelas" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-slate-800 font-medium text-slate-800" required>
+          <select id="selectKelas" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" required>
             <option value="">Pilih Kelas</option>
             <option value="10">10</option>
             <option value="11">11</option>
@@ -55,7 +55,7 @@
         </div>
 
         <div class="pt-2">
-          <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">
+          <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm">
             Simpan Data ke Database
           </button>
         </div>
@@ -68,7 +68,7 @@
         <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
           <span>📋</span> Daftar Seluruh Siswa Terdaftar
         </h2>
-        <button onclick="loadDaftarSantri()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3.5 py-2 rounded-xl transition">
+        <button onclick="loadDaftarSantri()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-medium px-3.5 py-2 rounded-xl transition">
           🔄 Refresh Data
         </button>
       </div>

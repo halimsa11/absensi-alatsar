@@ -24,31 +24,44 @@ app.get('/api/classes', async (req, res) => {
   }
 });
 
-// 2. Endpoint untuk mengambil daftar seluruh santri
+// 2. Endpoint untuk mengambil daftar seluruh santri (Dengan nama kelas)
 app.get('/api/students', async (req, res) => {
   try {
-    const studentsList = await db.select().from(students);
+    const studentsList = await db
+      .select({
+        id: students.id,
+        nisn: students.nisn,
+        nis: students.nisn,
+        fullName: students.fullName,
+        classId: students.classId,
+        className: classes.name
+      })
+      .from(students)
+      .leftJoin(classes, eq(students.classId, classes.id));
+
     res.json({ success: true, data: studentsList });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// 3. Endpoint Khusus Login / Cek NISN Siswa (Dipanggil oleh login-siswa.html)
+// 3. Endpoint Khusus Login / Cek NIS Siswa (Dipanggil oleh login-siswa.html)
 app.get('/api/students/check', async (req, res) => {
   try {
-    const { nis } = req.query;
-    if (!nis) {
-      return res.status(400).json({ success: false, message: 'NISN wajib diisi!' });
+    const { nis, nisn } = req.query;
+    const searchVal = (nis || nisn || '').toString().trim();
+
+    if (!searchVal) {
+      return res.status(400).json({ success: false, message: 'NIS wajib diisi!' });
     }
 
     const studentList = await db
       .select()
       .from(students)
-      .where(eq(students.nisn, nis.toString().trim()));
+      .where(eq(students.nisn, searchVal));
 
     if (studentList.length === 0) {
-      return res.status(404).json({ success: false, message: 'NISN tidak ditemukan di database!' });
+      return res.status(404).json({ success: false, message: 'NIS tidak ditemukan di database!' });
     }
 
     const student = studentList[0];
@@ -57,6 +70,7 @@ app.get('/api/students/check', async (req, res) => {
       data: {
         id: student.id,
         nis: student.nisn,
+        nisn: student.nisn,
         fullName: student.fullName,
         classId: student.classId
       }
@@ -69,9 +83,10 @@ app.get('/api/students/check', async (req, res) => {
 // 4. Endpoint untuk menyimpan data santri baru
 app.post('/api/students', async (req, res) => {
   try {
-    const { nisn, fullName, classId } = req.body;
+    const { nisn, nis, fullName, classId } = req.body;
+    const inputNis = (nisn || nis || '').toString().trim();
 
-    if (!nisn || !fullName || !classId) {
+    if (!inputNis || !fullName || !classId) {
       return res.status(400).json({ success: false, message: 'Semua kolom wajib diisi!' });
     }
 
@@ -85,7 +100,7 @@ app.post('/api/students', async (req, res) => {
     }
 
     await db.insert(students).values({
-      nisn: nisn.toString().trim(),
+      nisn: inputNis,
       fullName: fullName,
       classId: parseInt(classId) 
     });
@@ -118,12 +133,13 @@ app.delete('/api/students/:id', async (req, res) => {
 // 6. Endpoint simpan absensi
 app.post('/api/attendance', async (req, res) => {
   try {
-    const { studentId, nis, status, note, notes } = req.body;
+    const { studentId, nis, nisn, status, note, notes } = req.body;
 
     let validStudentId = studentId;
+    const searchVal = (nis || nisn || '').toString().trim();
 
-    if (!validStudentId && nis) {
-      const foundStudent = await db.select().from(students).where(eq(students.nisn, nis.toString().trim()));
+    if (!validStudentId && searchVal) {
+      const foundStudent = await db.select().from(students).where(eq(students.nisn, searchVal));
       if (foundStudent.length > 0) {
         validStudentId = foundStudent[0].id;
       }
@@ -164,7 +180,7 @@ app.post('/api/attendance', async (req, res) => {
   }
 });
 
-// 7. Endpoint Rekap Absensi (Untuk Wali Murid / wali-murid.html & Staf)
+// 7. Endpoint Rekap Absensi (Untuk Staf / Admin)
 app.get('/api/attendance', async (req, res) => {
   try {
     const { search, date } = req.query;
@@ -199,6 +215,7 @@ app.get('/api/attendance', async (req, res) => {
         id: attendances.id,
         studentName: students.fullName,
         nisn: students.nisn,
+        nis: students.nisn,
         classId: students.classId,
         className: classes.name,
         date: attendances.checkInTime,
@@ -210,13 +227,7 @@ app.get('/api/attendance', async (req, res) => {
       .where(whereClause)
       .orderBy(desc(attendances.checkInTime));
 
-    const formattedData = rekapList.map(item => ({
-      ...item,
-      date: item.date ? new Date(item.date).toISOString().split('T')[0] : '-',
-      status: item.status || 'Hadir'
-    }));
-
-    res.json({ success: true, data: formattedData });
+    res.json({ success: true, data: rekapList });
   } catch (err) {
     console.error('Error saat mengambil rekap:', err);
     res.status(500).json({ success: false, message: err.message });
@@ -226,19 +237,20 @@ app.get('/api/attendance', async (req, res) => {
 // 8. API Login Orang Tua
 app.post('/api/ortu/login', async (req, res) => {
   try {
-    const { nisn, password } = req.body;
+    const { nisn, nis, password } = req.body;
+    const searchVal = (nisn || nis || '').toString().trim();
 
-    if (!nisn || !password) {
-      return res.status(400).json({ success: false, message: 'NISN dan Password wajib diisi!' });
+    if (!searchVal || !password) {
+      return res.status(400).json({ success: false, message: 'NIS dan Password wajib diisi!' });
     }
 
     const studentList = await db
       .select()
       .from(students)
-      .where(eq(students.nisn, nisn.toString().trim()));
+      .where(eq(students.nisn, searchVal));
     
     if (studentList.length === 0) {
-      return res.status(404).json({ success: false, message: 'NISN siswa tidak ditemukan!' });
+      return res.status(404).json({ success: false, message: 'NIS siswa tidak ditemukan!' });
     }
 
     const student = studentList[0];
@@ -259,6 +271,7 @@ app.post('/api/ortu/login', async (req, res) => {
       data: {
         id: student.id,
         nisn: student.nisn,
+        nis: student.nisn,
         fullName: student.fullName,
         className: className
       }
@@ -266,6 +279,29 @@ app.post('/api/ortu/login', async (req, res) => {
   } catch (err) {
     console.error('Error login ortu:', err);
     res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server.' });
+  }
+});
+
+// 9. API Rekap Absensi 1 Santri (KHUSUS UNTUK WALI-MURID.HTML)
+app.get('/api/ortu/rekap/:studentId', async (req, res) => {
+  try {
+    const studentId = parseInt(req.params.studentId);
+
+    const logs = await db
+      .select({
+        id: attendances.id,
+        checkInTime: attendances.checkInTime,
+        status: attendances.status,
+        notes: attendances.notes
+      })
+      .from(attendances)
+      .where(eq(attendances.studentId, studentId))
+      .orderBy(desc(attendances.checkInTime));
+
+    res.json({ success: true, data: logs });
+  } catch (err) {
+    console.error('Error get rekap ortu:', err);
+    res.status(500).json({ success: false, message: 'Gagal mengambil riwayat absensi siswa.' });
   }
 });
 
