@@ -10,10 +10,10 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.30.0",
-    "express": "^5.2.1",
     "pg": "^8.22.0",
     "postgres": "^3.4.4"
   },

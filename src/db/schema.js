@@ -1,20 +1,15 @@
 import { pgTable, serial, varchar, timestamp, date, text, pgEnum, integer } from 'drizzle-orm/pg-core';
 
-// 1. Enum Status Absensi (Termasuk versi Kapital & Huruf Kecil)
+// Enum Status Absensi Asli
 export const attendanceStatusEnum = pgEnum('attendance_status', [
   'Hadir',
   'Hadir (Terlambat)',
   'Sakit',
   'Izin',
-  'Alfa',
-  'Alpa',
-  'hadir',
-  'sakit',
-  'izin',
-  'alpa'
+  'Alfa'
 ]);
 
-// 2. Tabel Kelas
+// Tabel Kelas
 export const classes = pgTable('classes', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 50 }).notNull(),
@@ -22,17 +17,17 @@ export const classes = pgTable('classes', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// 3. Tabel Siswa (nisn menggunakan varchar sehingga mendukung NIS alfanumerik / huruf + angka)
+// Tabel Siswa
 export const students = pgTable('students', {
   id: serial('id').primaryKey(),
-  nisn: varchar('nisn', { length: 50 }).notNull().unique(), // Menampung NIS/NISN huruf + angka
+  nisn: varchar('nisn', { length: 50 }).notNull().unique(),
   fullName: varchar('full_name', { length: 100 }).notNull(),
   classId: integer('class_id').references(() => classes.id).notNull(),
-  password: varchar('password', { length: 255 }).default('123456'), // Password default portal orang tua
+  password: varchar('password', { length: 255 }).default('123456'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// 4. Tabel Absensi
+// Tabel Absensi
 export const attendances = pgTable('attendances', {
   id: serial('id').primaryKey(),
   studentId: integer('student_id').references(() => students.id).notNull(),
@@ -43,5 +38,4 @@ export const attendances = pgTable('attendances', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// Export Alias
 export const attendance = attendances;

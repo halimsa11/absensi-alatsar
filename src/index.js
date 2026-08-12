@@ -1,22 +1,37 @@
+import 'dotenv/config';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { eq } from 'drizzle-orm';
+import { serve } from '@hono/node-server';
+import { eq, desc } from 'drizzle-orm';
 import { db } from './db/index.js';
 import { students, classes, attendances } from './db/schema.js';
 
 const app = new Hono();
 
-app.use('/api/*', cors());
+app.use('*', cors());
 
-// API STAF / ADMIN
+const getTodayDateStr = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// API Staf Login
 app.post('/api/staf/login', async (c) => {
-  const { password } = await c.req.json();
-  if (password === 'admin123' || password === 'staf123') {
-    return c.json({ success: true, message: 'Login staf berhasil' });
+  try {
+    const { password } = await c.req.json();
+    if (password === 'admin123' || password === 'staf123') {
+      return c.json({ success: true, message: 'Login staf berhasil' });
+    }
+    return c.json({ success: false, message: 'Password staf salah!' }, 401);
+  } catch (err) {
+    return c.json({ success: false, message: 'Request tidak valid' }, 400);
   }
-  return c.json({ success: false, message: 'Password staf salah!' }, 401);
 });
 
+// API Get All Students
 app.get('/api/students', async (c) => {
   try {
     const dataSiswa = await db
@@ -36,56 +51,12 @@ app.get('/api/students', async (c) => {
   }
 });
 
-app.post('/api/students', async (c) => {
-  try {
-    const { nisn, fullName, classId } = await c.req.json();
-
-    if (!nisn || !fullName || !classId) {
-      return c.json({ success: false, message: 'Data tidak lengkap' }, 400);
-    }
-
-    const existing = await db.select().from(students).where(eq(students.nisn, nisn)).limit(1);
-    if (existing.length > 0) {
-      return c.json({ success: false, message: 'NISN sudah terdaftar' }, 400);
-    }
-
-    const newStudent = await db
-      .insert(students)
-      .values({
-        nisn: nisn,
-        fullName: fullName,
-        classId: parseInt(classId),
-      })
-      .returning();
-
-    return c.json({
-      success: true,
-      message: 'Siswa berhasil ditambahkan!',
-      data: newStudent[0],
-    });
-  } catch (err) {
-    return c.json({ success: false, message: 'Gagal menyimpan siswa' }, 500);
-  }
-});
-
-app.delete('/api/students/:id', async (c) => {
-  try {
-    const id = parseInt(c.req.param('id'));
-    await db.delete(attendances).where(eq(attendances.studentId, id));
-    await db.delete(students).where(eq(students.id, id));
-
-    return c.json({ success: true, message: 'Data siswa berhasil dihapus' });
-  } catch (err) {
-    return c.json({ success: false, message: 'Gagal menghapus data siswa' }, 500);
-  }
-});
-
-// API PRESENSI SISWA
+// API Cek NIS Siswa (Kembali ke Pencarian Angka Murni)
 app.get('/api/students/check', async (c) => {
   try {
-    const nis = c.req.query('nis');
+    const nisParam = c.req.query('nis');
 
-    if (!nis) {
+    if (!nisParam) {
       return c.json({ success: false, message: 'NIS wajib diisi' }, 400);
     }
 
@@ -99,97 +70,59 @@ app.get('/api/students/check', async (c) => {
       })
       .from(students)
       .leftJoin(classes, eq(students.classId, classes.id))
-      .where(eq(students.nisn, nis))
+      .where(eq(students.nisn, String(nisParam)))
       .limit(1);
 
     if (!result || result.length === 0) {
       return c.json({ success: false, message: 'NIS tidak ditemukan' }, 404);
     }
 
-    return c.json({
-      success: true,
-      data: result[0],
-    });
+    return c.json({ success: true, data: result[0] });
   } catch (err) {
-    return c.json({ success: false, message: 'Terjadi kesalahan server' }, 500);
+    return c.json({ success: false, message: 'Terjadi kesalahan server saat memeriksa NIS' }, 500);
   }
 });
 
+// API Simpan Absensi
 app.post('/api/attendance', async (c) => {
   try {
     const { studentId, status } = await c.req.json();
-    const todayStr = new Date().toISOString().split('T')[0];
+    const parsedStudentId = parseInt(studentId);
+
+    if (isNaN(parsedStudentId) || !status) {
+      return c.json({ success: false, message: 'Data absensi tidak valid' }, 400);
+    }
+
+    const todayStr = getTodayDateStr();
 
     const existingAbsence = await db
       .select()
       .from(attendances)
-      .where(
-        eq(attendances.studentId, parseInt(studentId))
-      )
+      .where(eq(attendances.studentId, parsedStudentId))
       .limit(1);
-
-    const isAlreadyPresent = existingAbsence.find((a) => a.date === todayStr);
-
-    if (isAlreadyPresent) {
-      return c.json({
-        success: false,
-        message: `Anda sudah melakukan absensi hari ini dengan status "${isAlreadyPresent.status}".`,
-      }, 400);
-    }
 
     const newAttendance = await db
       .insert(attendances)
       .values({
-        studentId: parseInt(studentId),
+        studentId: parsedStudentId,
         date: todayStr,
         status: status,
       })
       .returning();
 
-    return c.json({
-      success: true,
-      message: 'Absensi berhasil dicatat!',
-      data: newAttendance[0],
-    });
+    return c.json({ success: true, message: 'Absensi berhasil dicatat!', data: newAttendance[0] });
   } catch (err) {
     return c.json({ success: false, message: 'Gagal mencatat absensi' }, 500);
   }
 });
 
-app.get('/api/attendance', async (c) => {
-  try {
-    const dateParam = c.req.query('date') || new Date().toISOString().split('T')[0];
-
-    const records = await db
-      .select({
-        id: attendances.id,
-        studentId: attendances.studentId,
-        nisn: students.nisn,
-        studentName: students.fullName,
-        classId: students.classId,
-        className: classes.name,
-        date: attendances.date,
-        checkInTime: attendances.checkInTime,
-        status: attendances.status,
-      })
-      .from(attendances)
-      .innerJoin(students, eq(attendances.studentId, students.id))
-      .leftJoin(classes, eq(students.classId, classes.id))
-      .where(eq(attendances.date, dateParam));
-
-    return c.json({ success: true, data: records });
-  } catch (err) {
-    return c.json({ success: false, message: 'Gagal mengambil data rekap' }, 500);
-  }
-});
-
-// API PORTAL ORANG TUA / WALI MURID
+// API Login Wali Murid
 app.post('/api/ortu/login', async (c) => {
   try {
     const { nisn, password } = await c.req.json();
 
     if (!nisn || !password) {
-      return c.json({ success: false, message: 'NISN dan Password harus diisi' }, 400);
+      return c.json({ success: false, message: 'NIS dan Password harus diisi' }, 400);
     }
 
     const result = await db
@@ -203,53 +136,34 @@ app.post('/api/ortu/login', async (c) => {
       })
       .from(students)
       .leftJoin(classes, eq(students.classId, classes.id))
-      .where(eq(students.nisn, nisn))
+      .where(eq(students.nisn, String(nisn)))
       .limit(1);
 
     if (result.length === 0) {
-      return c.json({ success: false, message: 'NISN siswa tidak ditemukan' }, 404);
+      return c.json({ success: false, message: 'NIS siswa tidak ditemukan' }, 404);
     }
 
     const student = result[0];
 
-    if (student.password !== password) {
+    if (student.password !== String(password)) {
       return c.json({ success: false, message: 'Password salah!' }, 401);
     }
 
     return c.json({
       success: true,
       message: 'Login Wali Murid berhasil',
-      data: {
-        id: student.id,
-        nisn: student.nisn,
-        fullName: student.fullName,
-        classId: student.classId,
-        className: student.className,
-      },
+      data: student,
     });
   } catch (err) {
     return c.json({ success: false, message: 'Gagal memproses login' }, 500);
   }
 });
 
-app.get('/api/ortu/rekap/:studentId', async (c) => {
-  try {
-    const studentId = parseInt(c.req.param('studentId'));
-
-    const logs = await db
-      .select({
-        id: attendances.id,
-        date: attendances.date,
-        checkInTime: attendances.checkInTime,
-        status: attendances.status,
-      })
-      .from(attendances)
-      .where(eq(attendances.studentId, studentId));
-
-    return c.json({ success: true, data: logs });
-  } catch (err) {
-    return c.json({ success: false, message: 'Gagal mengambil log presensi' }, 500);
-  }
+serve({
+  fetch: app.fetch,
+  port: 3001
+}, (info) => {
+  console.log(`Server backend menyala di http://127.0.0.1:${info.port}`);
 });
 
 export default app;
