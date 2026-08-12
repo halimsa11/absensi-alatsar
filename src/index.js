@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { eq, sql, or } from 'drizzle-orm';
-import { db } from './db.js'; // Sesuaikan dengan file inisialisasi koneksi Drizzle kamu
-import { students, classes, attendances } from './schema.js';
+import { db } from './db/index.js';
+import { students, classes, attendances } from './db/schema.js';
 
 const app = new Hono();
 
