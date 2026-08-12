@@ -25,10 +25,11 @@
 
       <!-- Tombol Navigasi Header -->
       <div class="flex items-center gap-2 w-full sm:w-auto justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
-        <a href="/index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+        <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap">
           <i data-lucide="home" class="w-3.5 h-3.5"></i> Menu Utama
         </a>
-        <a href="/admin-rekap.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+        <!-- DI SINI BUTTON LIHAT REKAP DIREDIRECT KE admin-rekap.html -->
+        <a href="admin-rekap.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
           <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Lihat Rekap
         </a>
         <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
@@ -49,13 +50,13 @@
       </h2>
       
       <form id="formTambahSiswa" class="space-y-4">
-<div>
-  <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor Induk Siswa (NIS)</label>
-  <input type="text" id="inputNisn" placeholder="Masukkan NIS siswa" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
-</div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor Induk Siswa (NIS)</label>
+          <input type="text" id="inputNisn" placeholder="Masukkan NIS siswa" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
+        </div>
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nama Lengkap Siswa</label>
-          <input type="text" id="inputNama" placeholder="Masukan Nama Lengkap siswa"class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
+          <input type="text" id="inputNama" placeholder="Masukkan Nama Lengkap siswa" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
         </div>
 
         <div>
@@ -112,15 +113,20 @@
   </footer>
 
   <script>
+    const getBaseUrl = () => {
+      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
+    };
+
     const checkSession = localStorage.getItem('stafSession') || localStorage.getItem('stafToken');
     if (!checkSession) {
-      window.location.href = '/login-staf.html';
+      window.location.href = 'login-staf.html';
     }
 
     function logoutStaf() {
       localStorage.removeItem('stafSession');
       localStorage.removeItem('stafToken');
-      window.location.href = '/login-staf.html';
+      window.location.href = 'login-staf.html';
     }
 
     function showAlert(message, isSuccess = true) {
@@ -133,12 +139,12 @@
     async function loadDaftarSantri() {
       const tbody = document.getElementById('tabelDaftarSantri');
       try {
-        const res = await fetch('/api/students');
+        const res = await fetch(`${getBaseUrl()}/api/students`);
         const result = await res.json();
         if (result.success && result.data.length > 0) {
           tbody.innerHTML = '';
           result.data.forEach((santri, index) => {
-            let namaKelas = santri.classId;
+            let namaKelas = santri.className || santri.classId;
             if (santri.classId == 10) namaKelas = '10';
             else if (santri.classId == 11) namaKelas = '11';
             else if (santri.classId == 12) namaKelas = '12';
@@ -170,7 +176,7 @@
       if (!confirm(`Apakah kamu yakin ingin menghapus data siswa "${nama}"?`)) return;
 
       try {
-        const res = await fetch(`/api/students/${id}`, { method: 'DELETE' });
+        const res = await fetch(`${getBaseUrl()}/api/students/${id}`, { method: 'DELETE' });
         const result = await res.json();
         if (res.ok && result.success) {
           showAlert(`✅ ${result.message}`);
@@ -190,7 +196,7 @@
       const classId = parseInt(document.getElementById('selectKelas').value);
 
       try {
-        const res = await fetch('/api/students', {
+        const res = await fetch(`${getBaseUrl()}/api/students`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nisn, fullName, classId })

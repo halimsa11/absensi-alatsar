@@ -59,8 +59,13 @@
   </footer>
 
   <script>
+    const getBaseUrl = () => {
+      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
+    };
+
     const checkStaf = localStorage.getItem('stafSession');
-    if (checkStaf) {
+    if (checkStaf === 'active') {
       window.location.href = 'admin-siswa.html';
     }
 
@@ -70,11 +75,12 @@
       const alertBox = document.getElementById('alertBox');
       const btn = document.getElementById('btnLogin');
 
+      alertBox.classList.add('hidden');
       btn.disabled = true;
       btn.innerText = 'Memeriksa...';
 
       try {
-        const res = await fetch('/api/staf/login', {
+        const res = await fetch(`${getBaseUrl()}/api/staf/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password: pwd })
@@ -89,10 +95,8 @@
           alertBox.innerText = `❌ ${result.message || 'Password salah! Silakan coba lagi.'}`;
         }
       } catch (err) {
-        if (pwd) {
-          localStorage.setItem('stafSession', 'active');
-          window.location.href = 'admin-siswa.html';
-        }
+        alertBox.className = 'p-4 rounded-2xl text-sm font-medium shadow-sm block bg-rose-50 text-rose-800 border border-rose-200';
+        alertBox.innerText = '❌ Gagal terhubung ke server backend.';
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i data-lucide="key-round" class="w-4 h-4"></i> Masuk';

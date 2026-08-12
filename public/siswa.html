@@ -72,6 +72,15 @@
   </footer>
 
   <script>
+    // Helper otomatis menentukan lokasi backend
+    const getBaseUrl = () => {
+      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isLocalHost) {
+        return `${window.location.protocol}//${window.location.hostname}:3000`;
+      }
+      return '';
+    };
+
     // 1. Cek Sesi Login Siswa secara INSTAN
     const sessionData = localStorage.getItem('santriSession') || localStorage.getItem('siswaSession');
     if (!sessionData) {
@@ -134,7 +143,7 @@
         const localDD = String(now.getDate()).padStart(2, '0');
         const todayStr = `${localYYYY}-${localMM}-${localDD}`;
 
-        const res = await fetch(`/api/attendance?date=${todayStr}`);
+        const res = await fetch(`${getBaseUrl()}/api/attendance?date=${todayStr}`);
         const result = await res.json();
 
         if (result.success && Array.isArray(result.data)) {
@@ -170,7 +179,7 @@
       btn.innerText = 'Mengirim Absensi...';
 
       try {
-        const res = await fetch('/api/attendance', {
+        const res = await fetch(`${getBaseUrl()}/api/attendance`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 

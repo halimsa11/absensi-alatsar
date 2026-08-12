@@ -28,6 +28,9 @@
         <a href="admin-siswa.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
           <i data-lucide="users" class="w-3.5 h-3.5"></i> Kelola Siswa
         </a>
+        <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap shadow-sm">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout Staf
+        </button>
       </div>
     </div>
   </header>
@@ -90,11 +93,27 @@
     </div>
   </main>
 
+  <!-- Footer -->
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">
     &copy; 2026 Sistem Absensi Siswa • Admin Rekap
   </footer>
 
   <script>
+    const getBaseUrl = () => {
+      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
+    };
+
+    // Cek Sesi Staf
+    if (localStorage.getItem('stafSession') !== 'active') {
+      window.location.href = 'login-staf.html';
+    }
+
+    function logoutStaf() {
+      localStorage.removeItem('stafSession');
+      window.location.href = 'index.html';
+    }
+
     let allRekapData = [];
 
     const now = new Date();
@@ -110,7 +129,7 @@
       tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap absensi...</td></tr>';
 
       try {
-        const res = await fetch(`/api/attendance?date=${selectedDate}`);
+        const res = await fetch(`${getBaseUrl()}/api/attendance?date=${selectedDate}`);
         const result = await res.json();
 
         if (res.ok && result.success) {
@@ -149,7 +168,7 @@
         const kelasInfo = item.className ? ` <span class="text-xs text-slate-400 font-normal">(${item.className})</span>` : '';
         
         let jamFormat = '-';
-        const rawTime = item.date || item.jamMasuk || item.checkInTime;
+        const rawTime = item.checkInTime || item.date;
         if (rawTime) {
           const objDate = new Date(rawTime);
           if (!isNaN(objDate.getTime())) {
