@@ -28,27 +28,24 @@
   <main class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full space-y-6">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
-    <!-- VIEW 1: Form Login Ortu -->
+    <!-- VIEW 1: Form Cek NIS Ortu -->
     <div id="viewLogin" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 max-w-md mx-auto space-y-6">
       <div class="text-center space-y-1">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center mx-auto mb-3">
+          <i data-lucide="user-check" class="w-6 h-6"></i>
+        </div>
         <h2 class="text-xl font-bold text-slate-900">Masuk Portal Wali Siswa</h2>
-        <p class="text-xs text-slate-500">Masukkan NIS dan Password untuk melihat log rekap anak Anda.</p>
+        <p class="text-xs text-slate-500">Masukkan NIS siswa untuk melihat log rekap kehadiran anak Anda.</p>
       </div>
 
       <form id="formLoginOrtu" class="space-y-4" autocomplete="off">
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">NIS Siswa</label>
-          <input type="text" id="loginNis" placeholder="Masukkan NIS Siswa" required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Password</label>
-          <input type="password" id="loginPassword" placeholder="Masukkan password..." required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" />
-          <p class="text-[11px] text-slate-400 mt-1">*Default password: 123456</p>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor Induk Siswa (NIS)</label>
+          <input type="text" id="loginNis" placeholder="Masukan NIS" required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" />
         </div>
 
         <button type="submit" id="btnLogin" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99] flex items-center justify-center gap-2">
-          <i data-lucide="log-in" class="w-4 h-4"></i> Lihat Rekap Absensi
+          <i data-lucide="search" class="w-4 h-4"></i> Lihat Rekap Absensi
         </button>
       </form>
     </div>
@@ -105,11 +102,17 @@
     </div>
   </main>
 
+  <!-- Footer -->
   <footer class="text-center py-6 text-xs text-slate-400 font-medium px-4">
     &copy; 2026 Sistem Absensi Siswa Al Atsar • Portal Orang Tua
   </footer>
 
   <script>
+    const getBaseUrl = () => {
+      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
+    };
+
     let activeStudent = null;
 
     function showAlert(message, isSuccess = true) {
@@ -133,7 +136,8 @@
     function showRekapView() {
       if (!activeStudent) return;
       document.getElementById('dispNamaSantri').innerText = activeStudent.fullName || 'Siswa';
-      document.getElementById('dispDetailSantri').innerText = `NIS: ${activeStudent.nisn || activeStudent.nis || '-'} | Kelas: ${activeStudent.className || '-'}`;
+      const classInfo = activeStudent.className ? activeStudent.className : (activeStudent.classId ? `Kelas ${activeStudent.classId}` : 'Kelas -');
+      document.getElementById('dispDetailSantri').innerText = `NIS: ${activeStudent.nisn || activeStudent.nis || '-'} | ${classInfo}`;
       
       document.getElementById('viewLogin').classList.add('hidden');
       document.getElementById('viewRekap').classList.remove('hidden');
@@ -145,18 +149,15 @@
     document.getElementById('formLoginOrtu').addEventListener('submit', async (e) => {
       e.preventDefault();
       const nis = document.getElementById('loginNis').value.trim();
-      const password = document.getElementById('loginPassword').value.trim();
+      const alertBox = document.getElementById('alertBox');
       const btn = document.getElementById('btnLogin');
 
+      alertBox.classList.add('hidden');
       btn.disabled = true;
-      btn.innerText = 'Memeriksa Data...';
+      btn.innerText = 'Memeriksa NIS...';
 
       try {
-        const res = await fetch('/api/ortu/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nisn: nis, nis: nis, password })
-        });
+        const res = await fetch(`${getBaseUrl()}/api/students/check?nis=${encodeURIComponent(nis)}`);
         const result = await res.json();
 
         if (res.ok && result.success) {
@@ -164,13 +165,13 @@
           localStorage.setItem('ortuSession', JSON.stringify(activeStudent));
           showRekapView();
         } else {
-          showAlert(`⚠️ ${result.message || 'Gagal login'}`, false);
+          showAlert(`⚠️ ${result.message || 'NIS tidak ditemukan!'}`, false);
         }
       } catch (err) {
         showAlert('❌ Gagal terhubung ke server database.', false);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> Lihat Rekap Absensi';
+        btn.innerHTML = '<i data-lucide="search" class="w-4 h-4"></i> Lihat Rekap Absensi';
         lucide.createIcons();
       }
     });
@@ -183,7 +184,7 @@
       tbody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-slate-400">Memuat log kehadiran...</td></tr>';
 
       try {
-        const res = await fetch(`/api/ortu/rekap/${activeStudent.id}`);
+        const res = await fetch(`${getBaseUrl()}/api/ortu/rekap/${activeStudent.id}`);
         const result = await res.json();
 
         if (result.success && Array.isArray(result.data) && result.data.length > 0) {
