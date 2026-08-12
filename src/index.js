@@ -234,6 +234,33 @@ app.get('/api/attendance', async (c) => {
     return c.json({ success: false, message: 'Gagal mengambil data rekap absensi' }, 500);
   }
 });
+// GET Rekap Absensi Khusus 1 Siswa (Untuk Portal Orang Tua)
+app.get('/api/ortu/rekap/:studentId', async (c) => {
+  try {
+    const studentId = parseInt(c.req.param('studentId'));
+
+    if (isNaN(studentId)) {
+      return c.json({ success: false, message: 'ID siswa tidak valid' }, 400);
+    }
+
+    const records = await db
+      .select({
+        id: attendances.id,
+        studentId: attendances.studentId,
+        date: attendances.date,
+        checkInTime: attendances.checkInTime,
+        status: attendances.status,
+      })
+      .from(attendances)
+      .where(eq(attendances.studentId, studentId))
+      .orderBy(desc(attendances.date));
+
+    return c.json({ success: true, data: records });
+  } catch (err) {
+    console.error('Error Get Ortu Rekap:', err);
+    return c.json({ success: false, message: 'Gagal mengambil data rekap absensi' }, 500);
+  }
+});
 
 // Jalankan Server di Port 3000
 serve({
