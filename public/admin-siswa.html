@@ -9,10 +9,9 @@
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   
-  <!-- Header Responsif -->
+  <!-- Header -->
   <header class="bg-emerald-900 text-white shadow-sm sticky top-0 z-50 border-b border-emerald-800">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-      <!-- Judul + Logo -->
       <div class="flex items-center gap-3">
         <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
         <div>
@@ -23,12 +22,10 @@
         </div>
       </div>
 
-      <!-- Tombol Navigasi Header -->
       <div class="flex items-center gap-2 w-full sm:w-auto justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
         <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap">
           <i data-lucide="home" class="w-3.5 h-3.5"></i> Menu Utama
         </a>
-        <!-- DI SINI BUTTON LIHAT REKAP DIREDIRECT KE admin-rekap.html -->
         <a href="admin-rekap.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
           <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Lihat Rekap
         </a>
@@ -43,13 +40,21 @@
   <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 w-full space-y-8">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
-    <!-- Form Tambah Siswa -->
-    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80">
-      <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <i data-lucide="user-plus" class="w-5 h-5 text-emerald-700"></i> Form Tambah Siswa Baru
-      </h2>
+    <!-- Form Tambah / Edit Siswa -->
+    <div id="formCard" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 transition-all">
+      <div class="flex justify-between items-center mb-6">
+        <h2 id="formTitle" class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-emerald-700"></i> Form Tambah Siswa Baru
+        </h2>
+        <button type="button" id="btnBatalEdit" onclick="resetForm()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i> Batal Edit
+        </button>
+      </div>
       
       <form id="formTambahSiswa" class="space-y-4">
+        <!-- Input Hidden untuk Menampung ID Siswa Saat Edit -->
+        <input type="hidden" id="editStudentId" value="" />
+
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor Induk Siswa (NIS)</label>
           <input type="text" id="inputNisn" placeholder="Masukkan NIS siswa" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
@@ -70,14 +75,14 @@
         </div>
 
         <div class="pt-2">
-          <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm flex items-center justify-center gap-2">
+          <button type="submit" id="btnSubmitForm" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm flex items-center justify-center gap-2">
             <i data-lucide="save" class="w-4 h-4"></i> Simpan Data ke Database
           </button>
         </div>
       </form>
     </div>
 
-    <!-- Daftar Siswa & Tombol Hapus -->
+    <!-- Tabel Daftar Siswa -->
     <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -89,14 +94,14 @@
       </div>
 
       <div class="overflow-x-auto pb-2">
-        <table class="w-full text-left border-collapse min-w-[500px]">
+        <table class="w-full text-left border-collapse min-w-[550px]">
           <thead>
             <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-xs uppercase font-bold tracking-wider">
               <th class="py-3 px-4 w-12 text-center">No</th>
               <th class="py-3 px-4">Nama Siswa</th>
               <th class="py-3 px-4">NIS</th>
               <th class="py-3 px-4">Kelas</th>
-              <th class="py-3 px-4 text-center w-28">Aksi</th>
+              <th class="py-3 px-4 text-center w-40">Aksi</th>
             </tr>
           </thead>
           <tbody id="tabelDaftarSantri" class="divide-y divide-slate-100 text-sm font-medium">
@@ -107,7 +112,6 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">
     &copy; 2026 Sistem Absensi Siswa • Staf Panel
   </footer>
@@ -117,6 +121,8 @@
       const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
     };
+
+    let globalStudentData = []; // Menyimpan array data siswa secara global
 
     const checkSession = localStorage.getItem('stafSession') || localStorage.getItem('stafToken');
     if (!checkSession) {
@@ -142,6 +148,7 @@
         const res = await fetch(`${getBaseUrl()}/api/students`);
         const result = await res.json();
         if (result.success && result.data.length > 0) {
+          globalStudentData = result.data; // Simpan data siswa ke memori
           tbody.innerHTML = '';
           result.data.forEach((santri, index) => {
             let namaKelas = santri.className || santri.classId;
@@ -149,16 +156,23 @@
             else if (santri.classId == 11) namaKelas = '11';
             else if (santri.classId == 12) namaKelas = '12';
 
+            const nis = santri.nisn || santri.nis || '-';
+
             tbody.innerHTML += `
               <tr class="hover:bg-slate-50/60 transition">
                 <td class="py-3 px-4 text-center text-slate-400 text-xs">${index + 1}</td>
                 <td class="py-3 px-4 text-slate-900 font-bold">${santri.fullName}</td>
-                <td class="py-3 px-4 font-mono text-slate-600 text-xs">${santri.nisn || santri.nis || '-'}</td>
+                <td class="py-3 px-4 font-mono text-slate-600 text-xs">${nis}</td>
                 <td class="py-3 px-4 text-slate-600 text-xs">${namaKelas}</td>
                 <td class="py-3 px-4 text-center">
-                  <button onclick="hapusSantri(${santri.id}, '${santri.fullName}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-xl border border-rose-200 transition whitespace-nowrap flex items-center gap-1 mx-auto">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
-                  </button>
+                  <div class="flex items-center justify-center gap-1.5">
+                    <button onclick="editSantri(${santri.id})" class="bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-amber-200 transition flex items-center gap-1">
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Edit
+                    </button>
+                    <button onclick="hapusSantri(${santri.id}, '${santri.fullName}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-rose-200 transition flex items-center gap-1">
+                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
+                    </button>
+                  </div>
                 </td>
               </tr>
             `;
@@ -170,6 +184,40 @@
       } catch (err) {
         tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-rose-500">Gagal memuat data siswa.</td></tr>`;
       }
+    }
+
+    // 1. ISI FORM SAAT TOMBOL EDIT DIKLIK
+    function editSantri(id) {
+      const student = globalStudentData.find(s => s.id === id);
+      if (!student) return;
+
+      // ISIKAN ID SISWA KE INPUT HIDDEN
+      document.getElementById('editStudentId').value = student.id;
+      document.getElementById('inputNisn').value = student.nisn || student.nis || '';
+      document.getElementById('inputNama').value = student.fullName || '';
+      document.getElementById('selectKelas').value = student.classId || '';
+
+      // UBAH TAMPILAN FORM KETIKA DALAM MODE EDIT
+      document.getElementById('formTitle').innerHTML = '<i data-lucide="user-cog" class="w-5 h-5 text-amber-600"></i> Edit Data Siswa';
+      document.getElementById('btnSubmitForm').innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Perbarui Data Siswa';
+      document.getElementById('btnSubmitForm').className = 'w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm flex items-center justify-center gap-2';
+      document.getElementById('btnBatalEdit').classList.remove('hidden');
+
+      // Scroll halus ke form atas
+      document.getElementById('formCard').scrollIntoView({ behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    // 2. KEMBALIKAN FORM KE MODE TAMBAH BARU
+    function resetForm() {
+      document.getElementById('editStudentId').value = '';
+      document.getElementById('formTambahSiswa').reset();
+
+      document.getElementById('formTitle').innerHTML = '<i data-lucide="user-plus" class="w-5 h-5 text-emerald-700"></i> Form Tambah Siswa Baru';
+      document.getElementById('btnSubmitForm').innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Simpan Data ke Database';
+      document.getElementById('btnSubmitForm').className = 'w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm flex items-center justify-center gap-2';
+      document.getElementById('btnBatalEdit').classList.add('hidden');
+      lucide.createIcons();
     }
 
     async function hapusSantri(id, nama) {
@@ -189,23 +237,32 @@
       }
     }
 
+    // 3. HANDLER SUBMIT FORM (TAMBAH vs EDIT)
     document.getElementById('formTambahSiswa').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      const studentId = document.getElementById('editStudentId').value;
       const nisn = document.getElementById('inputNisn').value.trim();
       const fullName = document.getElementById('inputNama').value.trim();
       const classId = parseInt(document.getElementById('selectKelas').value);
 
+      // JIKA editStudentId ADA ISINYA -> MODE EDIT (PUT), JIKA KOSONG -> MODE TAMBAH (POST)
+      const isEdit = Boolean(studentId);
+      const url = isEdit ? `${getBaseUrl()}/api/students/${studentId}` : `${getBaseUrl()}/api/students`;
+      const method = isEdit ? 'PUT' : 'POST';
+
       try {
-        const res = await fetch(`${getBaseUrl()}/api/students`, {
-          method: 'POST',
+        const res = await fetch(url, {
+          method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nisn, fullName, classId })
         });
         const result = await res.json();
+
         if (res.ok && result.success) {
-          showAlert('✅ Data siswa berhasil ditambahkan!');
-          document.getElementById('formTambahSiswa').reset();
-          loadDaftarSantri(); 
+          showAlert(`✅ ${result.message || (isEdit ? 'Data berhasil diperbarui!' : 'Siswa berhasil ditambahkan!')}`);
+          resetForm(); // Kosongkan input & kembalikan ke mode tambah
+          loadDaftarSantri(); // Refresh tabel siswa
         } else {
           showAlert(`⚠️ ${result.message}`, false);
         }
