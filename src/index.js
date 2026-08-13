@@ -12,11 +12,12 @@ const app = new Hono();
 app.use('*', cors());
 app.use('/*', serveStatic({ root: './public' }));
 
+// Helper Ambil Tanggal Hari Ini Versi WIB (Asia/Jakarta)
 const getTodayDateStr = () => {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
+  const nowWib = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+  const year = nowWib.getFullYear();
+  const month = String(nowWib.getMonth() + 1).padStart(2, '0');
+  const day = String(nowWib.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
@@ -109,7 +110,6 @@ app.put('/api/students/:id', async (c) => {
       return c.json({ success: false, message: 'NIS, Nama Lengkap, dan Kelas wajib diisi!' }, 400);
     }
 
-    // UPDATE data siswa berdasarkan ID
     const updatedStudent = await db
       .update(students)
       .set({
@@ -186,13 +186,36 @@ app.get('/api/students/check', async (c) => {
   }
 });
 
-// Simpan Presensi
+// Simpan Presensi (JAM BUKA 07.00 - 14.30 WIB | STATUS DB TETAP HADIR)
 app.post('/api/attendance', async (c) => {
   try {
-    const { studentId, status } = await c.req.json();
+    const { studentId } = await c.req.json();
     const parsedStudentId = parseInt(studentId);
+
+    if (isNaN(parsedStudentId)) {
+      return c.json({ success: false, message: 'ID siswa tidak valid' }, 400);
+    }
+
+    // Ambil waktu WIB (Asia/Jakarta)
+    const nowWib = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+    const currentMinutes = nowWib.getHours() * 60 + nowWib.getMinutes();
+
+    const startPresensi = 7 * 60;       // 07:00 WIB (420 menit)
+    const closePresensi = 14 * 60 + 30; // 14:30 WIB (870 menit)
+
+    // Cek Jam Operasional (07.00 - 14.30 WIB)
+    if (currentMinutes < startPresensi || currentMinutes > closePresensi) {
+      return c.json({
+        success: false,
+        message: 'Presensi ditolak! Jam presensi dibuka dari pukul 07.00 sampai 14.30 WIB.',
+      }, 400);
+    }
+
+    // Status disimpan ke DB tetap 'Hadir' (tidak sentuh enum DB)
+    const statusPresensi = 'Hadir';
     const todayStr = getTodayDateStr();
 
+    // Cek Apakah Siswa Sudah Absen Hari Ini
     const existingAbsence = await db
       .select()
       .from(attendances)
@@ -202,21 +225,23 @@ app.post('/api/attendance', async (c) => {
     if (existingAbsence.length > 0) {
       return c.json({
         success: false,
-        message: `Anda sudah melakukan absensi hari ini dengan status "${existingAbsence[0].status}".`,
+        message: `Kamu sudah melakukan absensi hari ini dengan status "${existingAbsence[0].status}".`,
       }, 400);
     }
 
+    // Simpan data presensi
     const newAttendance = await db
       .insert(attendances)
       .values({
         studentId: parsedStudentId,
         date: todayStr,
-        status: status,
+        status: statusPresensi,
       })
       .returning();
 
     return c.json({ success: true, message: 'Absensi berhasil dicatat!', data: newAttendance[0] });
   } catch (err) {
+    console.error('Error Attendance:', err);
     return c.json({ success: false, message: 'Gagal mencatat absensi' }, 500);
   }
 });

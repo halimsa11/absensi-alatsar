@@ -3,99 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rekap & History Absensi - Admin</title>
+  <title>Staf - Rekap Absensi Siswa</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
-
-  <!-- Header Responsif Mobile -->
+  
+  <!-- Header Responsif -->
   <header class="bg-emerald-900 text-white shadow-sm sticky top-0 z-50 border-b border-emerald-800">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-      <!-- Logo + Judul -->
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
       <div class="flex items-center gap-3">
-        <img src="logo.png" alt="Logo Al-Atsar" onerror="this.style.display='none'" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
+        <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
         <div>
           <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50 flex items-center gap-2">
-            <i data-lucide="clipboard-list" class="w-5 h-5 text-emerald-300"></i> Rekap Absensi Siswa
+            <i data-lucide="file-text" class="w-5 h-5 text-emerald-300"></i> Rekap Absensi Siswa
           </h1>
-          <p class="text-emerald-100 text-xs">Monitoring Kehadiran Harian & Riwayat Tanggal</p>
+          <p class="text-emerald-100 text-xs">Monitoring Kehadiran Seluruh Siswa</p>
         </div>
       </div>
 
-      <!-- Tombol Navigasi Header -->
-      <div class="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
-        <a href="admin-siswa.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
+        <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="home" class="w-3.5 h-3.5"></i> Menu Utama
+        </a>
+        <a href="admin-siswa.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
           <i data-lucide="users" class="w-3.5 h-3.5"></i> Kelola Siswa
         </a>
-        <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap shadow-sm">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout Staf
+        <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
         </button>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full space-y-6">
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 w-full space-y-6">
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
-    <!-- Panel Filter & Rekap -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
-      <div class="p-4 sm:p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <!-- Container Tabel & Filter -->
+    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
         <div>
-          <h2 class="text-base font-bold text-slate-900">Data Kehadiran Siswa</h2>
-          <p class="text-xs text-slate-500">Pilih tanggal dan kelas untuk melihat riwayat absensi</p>
+          <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="calendar" class="w-5 h-5 text-emerald-700"></i> Log Absensi Harian
+          </h2>
+          <p class="text-xs text-slate-500">Pilih tanggal untuk melihat riwayat kehadiran siswa</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-3 w-full lg:w-auto">
-          <!-- Filter Tanggal -->
-          <div class="flex items-center justify-between sm:justify-start gap-2 bg-slate-50 p-2 sm:p-0 rounded-2xl border border-slate-200/80 sm:border-0">
-            <label for="filterTanggal" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap pl-1 sm:pl-0">Tanggal:</label>
-            <input type="date" id="filterTanggal" onchange="loadRekapData()" class="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white sm:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800" />
-          </div>
-
-          <!-- Filter Kelas -->
-          <div class="flex items-center justify-between sm:justify-start gap-2 bg-slate-50 p-2 sm:p-0 rounded-2xl border border-slate-200/80 sm:border-0">
-            <label for="filterKelas" class="text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap pl-1 sm:pl-0">Kelas:</label>
-            <select id="filterKelas" onchange="filterDataRekap()" class="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white sm:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800">
-              <option value="semua">Semua Kelas</option>
-              <option value="10">Kelas 10</option>
-              <option value="11">Kelas 11</option>
-              <option value="12">Kelas 12</option>
-            </select>
-          </div>
-
-          <button onclick="loadRekapData()" class="w-full sm:w-auto justify-center text-xs bg-emerald-50 text-emerald-800 font-semibold px-4 py-2.5 rounded-xl hover:bg-emerald-100 transition flex items-center gap-1.5 active:scale-[0.98]">
+        <div class="flex flex-wrap items-center gap-2">
+          <input type="date" id="filterTanggal" onchange="loadRekapData()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800" />
+          <button onclick="resetFilterTanggal()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-2 rounded-xl transition">Hari Ini</button>
+          <button onclick="loadRekapData()" class="text-xs bg-emerald-50 text-emerald-800 font-semibold px-3 py-2 rounded-xl hover:bg-emerald-100 transition flex items-center gap-1">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
           </button>
         </div>
       </div>
 
-      <!-- Tabel Data Rekap -->
-      <div class="overflow-x-auto w-full">
+      <!-- Tabel Rekap -->
+      <div class="overflow-x-auto pb-2">
         <table class="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-xs uppercase font-bold tracking-wider">
-              <th class="py-4 px-4 sm:px-6 w-12 text-center">No</th>
-              <th class="py-4 px-4 sm:px-6 w-28">NIS</th>
-              <th class="py-4 px-4 sm:px-6">Nama Siswa</th>
-              <th class="py-4 px-4 sm:px-6 w-32">Jam Masuk</th>
-              <th class="py-4 px-4 sm:px-6 w-32">Keterangan</th>
+              <th class="py-3.5 px-4 w-12 text-center">No</th>
+              <th class="py-3.5 px-4">Nama Siswa</th>
+              <th class="py-3.5 px-4">NIS</th>
+              <th class="py-3.5 px-4">Kelas</th>
+              <th class="py-3.5 px-4">Jam Absen</th>
+              <th class="py-3.5 px-4 text-center w-36">Keterangan</th>
             </tr>
           </thead>
           <tbody id="tabelRekap" class="divide-y divide-slate-100 text-sm font-medium">
-            <tr>
-              <td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap absensi...</td>
-            </tr>
+            <tr><td colspan="6" class="py-8 text-center text-slate-400">Memuat data rekap absensi...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Sistem Absensi Siswa • Admin Rekap
+    &copy; 2026 Sistem Absensi Siswa • Staf Panel
   </footer>
 
   <script>
@@ -104,111 +90,110 @@
       return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
     };
 
-    // Cek Sesi Staf
-    if (localStorage.getItem('stafSession') !== 'active') {
+    const getTodayDateStr = () => {
+      const nowWib = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+      const year = nowWib.getFullYear();
+      const month = String(nowWib.getMonth() + 1).padStart(2, '0');
+      const day = String(nowWib.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const checkSession = localStorage.getItem('stafSession') || localStorage.getItem('stafToken');
+    if (!checkSession) {
       window.location.href = 'login-staf.html';
     }
 
     function logoutStaf() {
       localStorage.removeItem('stafSession');
-      window.location.href = 'index.html';
+      localStorage.removeItem('stafToken');
+      window.location.href = 'login-staf.html';
     }
 
-    let allRekapData = [];
-
-    const now = new Date();
-    const localYYYY = now.getFullYear();
-    const localMM = String(now.getMonth() + 1).padStart(2, '0');
-    const localDD = String(now.getDate()).padStart(2, '0');
-    document.getElementById('filterTanggal').value = `${localYYYY}-${localMM}-${localDD}`;
+    document.getElementById('filterTanggal').value = getTodayDateStr();
 
     async function loadRekapData() {
       const tbody = document.getElementById('tabelRekap');
-      const selectedDate = document.getElementById('filterTanggal').value;
+      const dateVal = document.getElementById('filterTanggal').value || getTodayDateStr();
 
-      tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-slate-400">Memuat data rekap absensi...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-slate-400">Memuat data rekap absensi...</td></tr>';
 
       try {
-        const res = await fetch(`${getBaseUrl()}/api/attendance?date=${selectedDate}`);
+        const res = await fetch(`${getBaseUrl()}/api/attendance?date=${dateVal}`);
         const result = await res.json();
 
-        if (res.ok && result.success) {
-          allRekapData = result.data || [];
-          filterDataRekap();
+        if (res.ok && result.success && Array.isArray(result.data) && result.data.length > 0) {
+          tbody.innerHTML = '';
+          result.data.forEach((row, index) => {
+            let namaKelas = row.className || row.classId;
+            if (row.classId == 10) namaKelas = '10';
+            else if (row.classId == 11) namaKelas = '11';
+            else if (row.classId == 12) namaKelas = '12';
+
+            const nis = row.nisn || row.nis || '-';
+
+            // Format Jam Masuk WIB & Cek Keterlambatan (> 08.00 WIB)
+            let jamFormat = '-';
+            let isTerlambat = false;
+
+            const rawTime = row.checkInTime || row.createdAt || row.date;
+            if (rawTime) {
+              const d = new Date(rawTime);
+              if (!isNaN(d.getTime())) {
+                // Ambil jam & menit zona WIB
+                const jamWib = parseInt(d.toLocaleTimeString('en-US', { hour: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }));
+                const menitWib = parseInt(d.toLocaleTimeString('en-US', { minute: '2-digit', timeZone: 'Asia/Jakarta' }));
+                
+                // Jika jam absen > 08.00 WIB
+                if ((jamWib * 60 + menitWib) > (8 * 60)) {
+                  isTerlambat = true;
+                }
+
+                jamFormat = d.toLocaleTimeString('id-ID', { 
+                  hour: '2-digit', 
+                  minute: '2-digit', 
+                  hour12: false, 
+                  timeZone: 'Asia/Jakarta' 
+                }).replace(':', '.') + ' WIB';
+              }
+            }
+
+            const status = row.status || 'Hadir';
+
+            // Render Tampilan Keterangan
+            let statusHtml = `
+              <div class="flex flex-col items-center">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-semibold px-3 py-1 rounded-full text-xs inline-block capitalize">
+                  ${status}
+                </span>
+                ${isTerlambat ? '<span class="text-[11px] font-bold text-amber-600 mt-1">(Terlambat)</span>' : ''}
+              </div>
+            `;
+
+            tbody.innerHTML += `
+              <tr class="hover:bg-slate-50/60 transition">
+                <td class="py-3.5 px-4 text-center text-slate-400 text-xs font-semibold">${index + 1}</td>
+                <td class="py-3.5 px-4 text-slate-900 font-bold">${row.studentName || '-'}</td>
+                <td class="py-3.5 px-4 font-mono text-slate-600 text-xs">${nis}</td>
+                <td class="py-3.5 px-4 text-slate-600 text-xs">${namaKelas}</td>
+                <td class="py-3.5 px-4 font-mono text-slate-600 text-xs">${jamFormat}</td>
+                <td class="py-3.5 px-4 text-center">
+                  ${statusHtml}
+                </td>
+              </tr>
+            `;
+          });
+          lucide.createIcons();
         } else {
-          tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-rose-500">Gagal mengambil data rekap absensi.</td></tr>';
+          tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400">Belum ada siswa yang melakukan absensi pada tanggal ini.</td></tr>`;
         }
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-rose-500">Gagal terhubung ke server.</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-rose-500">Gagal memuat rekap absensi.</td></tr>`;
       }
     }
 
-    function filterDataRekap() {
-      const tbody = document.getElementById('tabelRekap');
-      const selectedClass = document.getElementById('filterKelas').value;
-
-      const filteredData = allRekapData.filter(item => {
-        if (selectedClass === 'semua') return true;
-
-        const matchClassId = item.classId && String(item.classId) === String(selectedClass);
-        const matchClassName = item.className && item.className.toString().includes(selectedClass);
-
-        return matchClassId || matchClassName;
-      });
-
-      if (filteredData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400 font-normal">Tidak ada data absensi untuk filter tanggal & kelas ini.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = '';
-      filteredData.forEach((item, index) => {
-        const nis = item.nisn || item.nis || '-';
-        const nama = item.studentName || item.namaSiswa || item.fullName || '-';
-        const kelasInfo = item.className ? ` <span class="text-xs text-slate-400 font-normal">(${item.className})</span>` : '';
-        
-        let jamFormat = '-';
-        const rawTime = item.checkInTime || item.date;
-        if (rawTime) {
-          const objDate = new Date(rawTime);
-          if (!isNaN(objDate.getTime())) {
-            jamFormat = objDate.toLocaleTimeString('id-ID', { 
-              hour: '2-digit', 
-              minute: '2-digit',
-              hour12: false 
-            }).replace(':', '.') + ' WIB';
-          }
-        }
-
-        const status = item.status || item.keterangan || 'Hadir';
-
-        let badgeClass = 'bg-slate-100 text-slate-500 border border-slate-200/80';
-        const statusLower = status.toLowerCase();
-        if (statusLower === 'hadir') {
-          badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
-        } else if (statusLower.includes('terlambat')) {
-          badgeClass = 'bg-orange-50 text-orange-700 border border-orange-200/60';
-        } else if (statusLower === 'sakit') {
-          badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200/60';
-        } else if (statusLower === 'izin') {
-          badgeClass = 'bg-sky-50 text-sky-700 border border-sky-200/60';
-        } else if (statusLower === 'alfa' || statusLower === 'alpa') {
-          badgeClass = 'bg-rose-50 text-rose-700 border border-rose-200/60';
-        }
-
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-50/60 transition">
-            <td class="py-4 px-4 sm:px-6 text-center text-slate-400 font-semibold">${index + 1}</td>
-            <td class="py-4 px-4 sm:px-6 font-mono text-slate-600 text-xs">${nis}</td>
-            <td class="py-4 px-4 sm:px-6 text-slate-800 font-medium">${nama}${kelasInfo}</td>
-            <td class="py-4 px-4 sm:px-6 font-mono text-slate-600 text-xs">${jamFormat}</td>
-            <td class="py-4 px-4 sm:px-6">
-              <span class="${badgeClass} font-semibold px-3 py-1 rounded-full text-xs inline-block">${status}</span>
-            </td>
-          </tr>
-        `;
-      });
-      lucide.createIcons();
+    function resetFilterTanggal() {
+      document.getElementById('filterTanggal').value = getTodayDateStr();
+      loadRekapData();
     }
 
     loadRekapData();
