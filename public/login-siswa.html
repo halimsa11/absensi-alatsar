@@ -56,7 +56,7 @@
         if (res.ok && result.success) {
           // Simpan sesi siswa ke localStorage
           localStorage.setItem('santriSession', JSON.stringify(result.data));
-          window.location.href = 'santri.html';
+          window.location.href = 'siswa.html';
         } else {
           alert(result.message || 'NIS tidak ditemukan!');
           btn.disabled = false; 
