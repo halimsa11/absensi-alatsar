@@ -3,59 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu Utama - Sistem Absensi Santri</title>
+  <title>Sistem Absensi Siswa - Al-Atsar</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
-  <!-- Header dengan Logo Al-Atsar Solo -->
-  <header class="bg-emerald-900 text-white shadow-sm py-6">
-    <div class="max-w-xl mx-auto px-6 flex flex-col items-center text-center gap-3">
-      <img src="logo.png" alt="Logo Al-Atsar Solo" onerror="this.style.display='none'" class="w-20 h-auto object-contain bg-white rounded-2xl p-2 shadow-md" />
-      <div>
-        <h1 class="text-xl font-bold tracking-tight text-emerald-50">Sistem Absensi Siswa</h1>
-        <p class="text-emerald-100 text-xs mt-0.5">Silakan pilih akses masuk sesuai peranmu</p>
+<body class="bg-gradient-to-br from-slate-50 via-emerald-50/30 to-slate-100 min-h-screen flex flex-col justify-between text-slate-800 font-sans selection:bg-emerald-600 selection:text-white">
+
+  <!-- Header dengan Warna Hijau Tua Admin & Kotak Logo Putih -->
+  <header class="w-full bg-[#064e3b] text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <!-- Kotak Putih Logo -->
+        <div class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center p-1.5 shadow-sm">
+          <img src="logo.png" onerror="this.style.display='none'" alt="Logo" class="w-full h-full object-contain">
+        </div>
+        <div>
+          <h1 class="font-bold text-white text-base tracking-tight">Sistem Absensi</h1>
+          <p class="text-xs text-emerald-200 font-medium">Al-Atsar</p>
+        </div>
+      </div>
+      <div class="text-xs font-semibold text-emerald-100 bg-emerald-800/80 px-3.5 py-1.5 rounded-full border border-emerald-700">
+        Tahun Ajaran 2026/2027
       </div>
     </div>
   </header>
 
-  <main class="max-w-md mx-auto px-6 py-10 w-full space-y-6">
-    <div class="text-center space-y-2 mb-6">
-      <h2 class="text-2xl font-bold text-slate-900">Selamat Datang!</h2>
-      <p class="text-sm text-slate-500">Pilih menu di bawah untuk melanjutkan</p>
+  <!-- Konten Utama -->
+  <main class="max-w-4xl mx-auto px-4 py-16 sm:py-20 w-full flex-grow flex flex-col items-center justify-center space-y-10">
+    
+    <!-- Bagian Judul Hero -->
+    <div class="text-center space-y-3 max-w-xl mx-auto">
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+        Pilih Portal Akses Anda
+      </h2>
+      <p class="text-sm sm:text-base text-slate-500 leading-relaxed">
+        Silakan pilih salah satu menu di bawah ini sesuai dengan peran Anda untuk melanjutkan ke sistem absensi.
+      </p>
     </div>
 
-    <div class="space-y-4">
-      <!-- Menu Santri -->
-      <a href="login-siswa.html" class="flex items-center justify-between p-5 bg-white hover:bg-emerald-50/50 border border-slate-200/80 rounded-3xl shadow-sm transition group">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center group-hover:scale-105 transition shadow-inner">
-            <i data-lucide="book-open" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-slate-900 text-base">Login Siswa</h3>
-          </div>
+    <!-- Grid Pilihan Menu (Sisa 2 Menu: Siswa & Admin) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-xl">
+      
+      <!-- 1. Menu Siswa / Santri -->
+      <a href="login-siswa.html" class="group bg-white p-8 rounded-[28px] border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 flex flex-col items-center text-center space-y-5 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="w-16 h-16 bg-emerald-50 text-emerald-800 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-800 group-hover:text-white transition-all duration-300 shadow-sm border border-emerald-100">
+          <i data-lucide="user-check" class="w-8 h-8"></i>
         </div>
-        <i data-lucide="arrow-right" class="w-5 h-5 text-slate-400 group-hover:text-emerald-800 transition"></i>
+        <div class="space-y-1.5">
+          <h3 class="font-bold text-lg text-slate-900 group-hover:text-emerald-800 transition">Portal Siswa</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Lakukan presensi harian menggunakan verifikasi lokasi (GPS) sekolah.</p>
+        </div>
+        <span class="text-xs font-bold text-emerald-800 flex items-center gap-1 pt-2 group-hover:translate-x-1 transition-transform">
+          Masuk Portal <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </span>
       </a>
 
-      <!-- Menu Staf -->
-      <a href="login-staf.html" class="flex items-center justify-between p-5 bg-white hover:bg-slate-50 border border-slate-200/80 rounded-3xl shadow-sm transition group">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center group-hover:scale-105 transition shadow-inner">
-            <i data-lucide="shield-check" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-slate-900 text-base">Login Staf</h3>
-          </div>
+      <!-- 2. Menu Staf / Admin -->
+      <a href="login-staf.html" class="group bg-white p-8 rounded-[28px] border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 flex flex-col items-center text-center space-y-5 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="w-16 h-16 bg-emerald-50 text-emerald-800 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-800 group-hover:text-white transition-all duration-300 shadow-sm border border-emerald-100">
+          <i data-lucide="shield-check" class="w-8 h-8"></i>
         </div>
-        <i data-lucide="arrow-right" class="w-5 h-5 text-slate-400 group-hover:text-slate-900 transition"></i>
+        <div class="space-y-1.5">
+          <h3 class="font-bold text-lg text-slate-900 group-hover:text-emerald-800 transition">Login Admin</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Kelola data siswa, kelas, rekapitulasi harian, dan pengaturan sistem.</p>
+        </div>
+        <span class="text-xs font-bold text-emerald-800 flex items-center gap-1 pt-2 group-hover:translate-x-1 transition-transform">
+          Masuk Panel <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </span>
       </a>
+
     </div>
+
   </main>
 
-  <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Sistem Absensi Siswa Al Atsar
+  <!-- Footer -->
+  <footer class="w-full bg-white border-t border-slate-200/80 py-6 text-center text-xs text-slate-400 font-medium">
+    &copy; 2026 Sistem Absensi Siswa Al-Atsar &bull; All Rights Reserved
   </footer>
 
   <script>

@@ -3,275 +3,213 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Staf - Kelola Data Siswa</title>
+  <title>Admin - Kelola Data Siswa</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
+<body class="bg-slate-50 min-h-screen text-slate-800">
   
-  <!-- Header -->
-  <header class="bg-emerald-900 text-white shadow-sm sticky top-0 z-50 border-b border-emerald-800">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-      <div class="flex items-center gap-3">
-        <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
-        <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50 flex items-center gap-2">
-            <i data-lucide="shield-check" class="w-5 h-5 text-emerald-300"></i> Panel Staf
-          </h1>
-          <p class="text-emerald-100 text-xs">Kelola, daftarkan, dan hapus data siswa</p>
+  <!-- Header Responsif Mobile -->
+  <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div class="flex items-center justify-between w-full sm:w-auto gap-3">
+        <div class="flex items-center gap-3">
+          <img src="logo.png" onerror="this.style.display='none'" alt="Logo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white p-1 object-contain">
+          <h1 class="text-base sm:text-lg font-bold tracking-tight">Admin Dashboard</h1>
         </div>
+        <!-- Tombol Logout khusus Mobile di pojok kanan atas baris pertama -->
+        <button onclick="logout()" class="sm:hidden bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+        </button>
       </div>
 
-      <div class="flex items-center gap-2 w-full sm:w-auto justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
-        <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap">
-          <i data-lucide="home" class="w-3.5 h-3.5"></i> Menu Utama
-        </a>
-        <a href="admin-rekap.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
-          <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Lihat Rekap
-        </a>
-        <button onclick="logoutStaf()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+      <!-- Menu Navigasi & Logout Desktop -->
+      <div class="flex items-center justify-between w-full sm:w-auto gap-4 pt-2 sm:pt-0 border-t sm:border-0 border-emerald-800/60">
+        <div class="flex gap-4 text-sm">
+          <a href="admin-siswa.html" class="font-bold text-white border-b-2 border-emerald-400 pb-0.5">Kelola Siswa</a>
+          <a href="admin-rekap.html" class="font-bold text-emerald-200 hover:text-white transition pb-0.5">Rekap Absensi</a>
+        </div>
+        <button onclick="logout()" class="hidden sm:flex bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl text-xs font-bold items-center gap-2 transition shadow-sm">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Logout
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 w-full space-y-8">
-    <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
-
-    <!-- Form Tambah / Edit Siswa -->
-    <div id="formCard" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 transition-all">
-      <div class="flex justify-between items-center mb-6">
-        <h2 id="formTitle" class="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="user-plus" class="w-5 h-5 text-emerald-700"></i> Form Tambah Siswa Baru
-        </h2>
-        <button type="button" id="btnBatalEdit" onclick="resetForm()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-1.5 rounded-xl transition flex items-center gap-1">
-          <i data-lucide="x" class="w-3.5 h-3.5"></i> Batal Edit
-        </button>
-      </div>
-      
-      <form id="formTambahSiswa" class="space-y-4">
-        <!-- Input Hidden untuk Menampung ID Siswa Saat Edit -->
-        <input type="hidden" id="editStudentId" value="" />
-
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor Induk Siswa (NIS)</label>
-          <input type="text" id="inputNisn" placeholder="Masukkan NIS siswa" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
+  <main class="max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-6">
+    
+    <!-- Form Input / Edit -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <h2 id="formTitle" class="font-bold text-lg mb-4 text-emerald-800 flex items-center gap-2">
+        <i data-lucide="user-plus" class="w-5 h-5"></i> Input Data Siswa
+      </h2>
+      <form id="formSiswa" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div class="md:col-span-3">
+          <label class="block text-xs font-bold text-slate-500 mb-1">NIS</label>
+          <input type="text" id="inputNisn" required class="w-full border px-4 py-2.5 rounded-xl bg-slate-50 focus:ring-2 focus:ring-emerald-600 outline-none text-sm" placeholder="Misal: 123456">
         </div>
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nama Lengkap Siswa</label>
-          <input type="text" id="inputNama" placeholder="Masukkan Nama Lengkap siswa" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium" required />
+        <div class="md:col-span-5">
+          <label class="block text-xs font-bold text-slate-500 mb-1">Nama Lengkap</label>
+          <input type="text" id="inputNama" required class="w-full border px-4 py-2.5 rounded-xl bg-slate-50 focus:ring-2 focus:ring-emerald-600 outline-none text-sm" placeholder="Nama Lengkap Siswa">
         </div>
-
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Pilih Kelas</label>
-          <select id="selectKelas" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" required>
-            <option value="">Pilih Kelas</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold text-slate-500 mb-1">Kelas</label>
+          <select id="inputKelas" class="w-full border px-4 py-2.5 rounded-xl bg-slate-50 focus:ring-2 focus:ring-emerald-600 outline-none text-sm">
+            <option value="10">Kelas 10</option>
+            <option value="11">Kelas 11</option>
+            <option value="12">Kelas 12</option>
           </select>
         </div>
-
-        <div class="pt-2">
-          <button type="submit" id="btnSubmitForm" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm flex items-center justify-center gap-2">
-            <i data-lucide="save" class="w-4 h-4"></i> Simpan Data ke Database
-          </button>
+        <div class="md:col-span-2 flex gap-2">
+          <button type="submit" id="btnSimpan" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-2.5 rounded-xl text-sm transition">Simpan</button>
+          <button type="button" id="btnBatal" onclick="resetForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-sm transition">Batal</button>
         </div>
       </form>
     </div>
 
-    <!-- Tabel Daftar Siswa -->
-    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="users" class="w-5 h-5 text-emerald-700"></i> Daftar Seluruh Siswa Terdaftar
+    <!-- Tabel Daftar Siswa & Search Bar -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+        <h2 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+          <i data-lucide="users" class="w-5 h-5"></i> Daftar Siswa
         </h2>
-        <button onclick="loadDaftarSantri()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Data
-        </button>
+        
+        <div class="w-full sm:w-72 relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </span>
+          <input type="text" id="searchSiswa" oninput="renderTabel()" placeholder="Cari nama atau NIS..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 outline-none transition">
+        </div>
       </div>
 
-      <div class="overflow-x-auto pb-2">
-        <table class="w-full text-left border-collapse min-w-[550px]">
-          <thead>
-            <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-xs uppercase font-bold tracking-wider">
-              <th class="py-3 px-4 w-12 text-center">No</th>
-              <th class="py-3 px-4">Nama Siswa</th>
-              <th class="py-3 px-4">NIS</th>
-              <th class="py-3 px-4">Kelas</th>
-              <th class="py-3 px-4 text-center w-40">Aksi</th>
+      <div class="overflow-x-auto border rounded-xl">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-100/80 text-slate-600 border-b">
+            <tr>
+              <th class="p-4 font-bold w-12 text-center">No</th>
+              <th class="p-4 font-bold">NIS</th>
+              <th class="p-4 font-bold">Nama Lengkap</th>
+              <th class="p-4 font-bold">Kelas</th>
+              <th class="p-4 font-bold text-center">Aksi</th>
             </tr>
           </thead>
-          <tbody id="tabelDaftarSantri" class="divide-y divide-slate-100 text-sm font-medium">
-            <tr><td colspan="5" class="py-8 text-center text-slate-400">Memuat data Siswa...</td></tr>
-          </tbody>
+          <tbody id="tabelSiswa" class="divide-y divide-slate-100"></tbody>
         </table>
       </div>
     </div>
   </main>
 
-  <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Sistem Absensi Siswa • Staf Panel
-  </footer>
-
   <script>
-    const getBaseUrl = () => {
-      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
-    };
+    const token = localStorage.getItem('stafToken');
+    if (!token) window.location.href = 'login-staf.html';
+    
+    const getBaseUrl = () => window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
 
-    let globalStudentData = []; // Menyimpan array data siswa secara global
-
-    const checkSession = localStorage.getItem('stafSession') || localStorage.getItem('stafToken');
-    if (!checkSession) {
-      window.location.href = 'login-staf.html';
-    }
-
-    function logoutStaf() {
-      localStorage.removeItem('stafSession');
+    function logout() {
       localStorage.removeItem('stafToken');
       window.location.href = 'login-staf.html';
     }
 
-    function showAlert(message, isSuccess = true) {
-      const box = document.getElementById('alertBox');
-      box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
-      box.innerText = message;
-      setTimeout(() => box.classList.add('hidden'), 4000);
-    }
+    let editModeId = null; 
+    let allStudents = [];
 
-    async function loadDaftarSantri() {
-      const tbody = document.getElementById('tabelDaftarSantri');
+    async function loadSiswa() {
       try {
-        const res = await fetch(`${getBaseUrl()}/api/students`);
-        const result = await res.json();
-        if (result.success && result.data.length > 0) {
-          globalStudentData = result.data; // Simpan data siswa ke memori
-          tbody.innerHTML = '';
-          result.data.forEach((santri, index) => {
-            let namaKelas = santri.className || santri.classId;
-            if (santri.classId == 10) namaKelas = '10';
-            else if (santri.classId == 11) namaKelas = '11';
-            else if (santri.classId == 12) namaKelas = '12';
-
-            const nis = santri.nisn || santri.nis || '-';
-
-            tbody.innerHTML += `
-              <tr class="hover:bg-slate-50/60 transition">
-                <td class="py-3 px-4 text-center text-slate-400 text-xs">${index + 1}</td>
-                <td class="py-3 px-4 text-slate-900 font-bold">${santri.fullName}</td>
-                <td class="py-3 px-4 font-mono text-slate-600 text-xs">${nis}</td>
-                <td class="py-3 px-4 text-slate-600 text-xs">${namaKelas}</td>
-                <td class="py-3 px-4 text-center">
-                  <div class="flex items-center justify-center gap-1.5">
-                    <button onclick="editSantri(${santri.id})" class="bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-amber-200 transition flex items-center gap-1">
-                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Edit
-                    </button>
-                    <button onclick="hapusSantri(${santri.id}, '${santri.fullName}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-rose-200 transition flex items-center gap-1">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            `;
-          });
-          lucide.createIcons();
-        } else {
-          tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada siswa yang terdaftar.</td></tr>`;
-        }
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-rose-500">Gagal memuat data siswa.</td></tr>`;
-      }
-    }
-
-    // 1. ISI FORM SAAT TOMBOL EDIT DIKLIK
-    function editSantri(id) {
-      const student = globalStudentData.find(s => s.id === id);
-      if (!student) return;
-
-      // ISIKAN ID SISWA KE INPUT HIDDEN
-      document.getElementById('editStudentId').value = student.id;
-      document.getElementById('inputNisn').value = student.nisn || student.nis || '';
-      document.getElementById('inputNama').value = student.fullName || '';
-      document.getElementById('selectKelas').value = student.classId || '';
-
-      // UBAH TAMPILAN FORM KETIKA DALAM MODE EDIT
-      document.getElementById('formTitle').innerHTML = '<i data-lucide="user-cog" class="w-5 h-5 text-amber-600"></i> Edit Data Siswa';
-      document.getElementById('btnSubmitForm').innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Perbarui Data Siswa';
-      document.getElementById('btnSubmitForm').className = 'w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm flex items-center justify-center gap-2';
-      document.getElementById('btnBatalEdit').classList.remove('hidden');
-
-      // Scroll halus ke form atas
-      document.getElementById('formCard').scrollIntoView({ behavior: 'smooth' });
-      lucide.createIcons();
-    }
-
-    // 2. KEMBALIKAN FORM KE MODE TAMBAH BARU
-    function resetForm() {
-      document.getElementById('editStudentId').value = '';
-      document.getElementById('formTambahSiswa').reset();
-
-      document.getElementById('formTitle').innerHTML = '<i data-lucide="user-plus" class="w-5 h-5 text-emerald-700"></i> Form Tambah Siswa Baru';
-      document.getElementById('btnSubmitForm').innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Simpan Data ke Database';
-      document.getElementById('btnSubmitForm').className = 'w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm flex items-center justify-center gap-2';
-      document.getElementById('btnBatalEdit').classList.add('hidden');
-      lucide.createIcons();
-    }
-
-    async function hapusSantri(id, nama) {
-      if (!confirm(`Apakah kamu yakin ingin menghapus data siswa "${nama}"?`)) return;
-
-      try {
-        const res = await fetch(`${getBaseUrl()}/api/students/${id}`, { method: 'DELETE' });
-        const result = await res.json();
-        if (res.ok && result.success) {
-          showAlert(`✅ ${result.message}`);
-          loadDaftarSantri(); 
-        } else {
-          showAlert(`⚠️ ${result.message || 'Gagal menghapus'}`, false);
-        }
-      } catch (err) {
-        showAlert('❌ Gagal terhubung ke server saat menghapus data.', false);
-      }
-    }
-
-    // 3. HANDLER SUBMIT FORM (TAMBAH vs EDIT)
-    document.getElementById('formTambahSiswa').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const studentId = document.getElementById('editStudentId').value;
-      const nisn = document.getElementById('inputNisn').value.trim();
-      const fullName = document.getElementById('inputNama').value.trim();
-      const classId = parseInt(document.getElementById('selectKelas').value);
-
-      // JIKA editStudentId ADA ISINYA -> MODE EDIT (PUT), JIKA KOSONG -> MODE TAMBAH (POST)
-      const isEdit = Boolean(studentId);
-      const url = isEdit ? `${getBaseUrl()}/api/students/${studentId}` : `${getBaseUrl()}/api/students`;
-      const method = isEdit ? 'PUT' : 'POST';
-
-      try {
-        const res = await fetch(url, {
-          method: method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nisn, fullName, classId })
+        const res = await fetch(`${getBaseUrl()}/api/students`, {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (res.status === 401 || res.status === 403) return logout();
         const result = await res.json();
-
-        if (res.ok && result.success) {
-          showAlert(`✅ ${result.message || (isEdit ? 'Data berhasil diperbarui!' : 'Siswa berhasil ditambahkan!')}`);
-          resetForm(); // Kosongkan input & kembalikan ke mode tambah
-          loadDaftarSantri(); // Refresh tabel siswa
-        } else {
-          showAlert(`⚠️ ${result.message}`, false);
-        }
+        allStudents = result.data || [];
+        renderTabel();
       } catch (err) {
-        showAlert('❌ Gagal terhubung ke server.', false);
+        console.error('Gagal memuat siswa:', err);
       }
+    }
+
+    function renderTabel() {
+      const keyword = document.getElementById('searchSiswa').value.toLowerCase().trim();
+      const filteredData = allStudents.filter(s => {
+        const nama = s.fullName ? s.fullName.toLowerCase() : '';
+        const nis = s.nisn ? String(s.nisn).toLowerCase() : '';
+        return nama.includes(keyword) || nis.includes(keyword);
+      });
+
+      let rows = '';
+      if (filteredData.length === 0) {
+        rows = `<tr><td colspan="5" class="p-6 text-center text-slate-500">Tidak ada siswa yang ditemukan.</td></tr>`;
+      } else {
+        filteredData.forEach((s, idx) => {
+          const cls = s.className ? s.className : `Kelas ${s.classId}`;
+          rows += `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-4 text-center text-slate-500">${idx + 1}</td>
+              <td class="p-4 font-medium text-slate-900">${s.nisn}</td>
+              <td class="p-4 text-slate-800">${s.fullName}</td>
+              <td class="p-4 text-slate-600">${cls}</td>
+              <td class="p-4 text-center">
+                <button onclick="editSiswa(${s.id}, '${s.nisn}', '${s.fullName}', ${s.classId})" class="text-emerald-600 hover:text-emerald-800 font-bold text-xs bg-emerald-50 px-3 py-1.5 rounded-lg mr-2 transition">Edit</button>
+                <button onclick="hapusSiswa(${s.id})" class="text-rose-600 hover:text-rose-800 font-bold text-xs bg-rose-50 px-3 py-1.5 rounded-lg transition">Hapus</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+      document.getElementById('tabelSiswa').innerHTML = rows;
+      lucide.createIcons();
+    }
+
+    document.getElementById('formSiswa').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nisn = document.getElementById('inputNisn').value;
+      const fullName = document.getElementById('inputNama').value;
+      const classId = document.getElementById('inputKelas').value;
+      
+      const payload = { nisn, fullName, classId: parseInt(classId) };
+      const btn = document.getElementById('btnSimpan');
+      btn.disabled = true; btn.innerText = 'Menyimpan...';
+
+      try {
+        const url = editModeId ? `${getBaseUrl()}/api/students/${editModeId}` : `${getBaseUrl()}/api/students`;
+        const res = await fetch(url, {
+          method: editModeId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(payload)
+        });
+        if (res.status === 401 || res.status === 403) return logout();
+        if (res.ok) { resetForm(); loadSiswa(); }
+      } catch (err) {} 
+      finally { btn.disabled = false; btn.innerText = 'Simpan'; }
     });
 
-    loadDaftarSantri();
+    function editSiswa(id, nisn, fullName, classId) {
+      editModeId = id;
+      document.getElementById('inputNisn').value = nisn;
+      document.getElementById('inputNama').value = fullName;
+      document.getElementById('inputKelas').value = classId || 10;
+      document.getElementById('formTitle').innerHTML = '<i data-lucide="edit" class="w-5 h-5"></i> Edit Data Siswa';
+      document.getElementById('btnSimpan').innerText = 'Update';
+      document.getElementById('btnBatal').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    function resetForm() {
+      editModeId = null;
+      document.getElementById('formSiswa').reset();
+      document.getElementById('formTitle').innerHTML = '<i data-lucide="user-plus" class="w-5 h-5"></i> Input Data Siswa';
+      document.getElementById('btnSimpan').innerText = 'Simpan';
+      document.getElementById('btnBatal').classList.add('hidden');
+      lucide.createIcons();
+    }
+
+    async function hapusSiswa(id) {
+      if (!confirm("Yakin hapus siswa ini?")) return;
+      await fetch(`${getBaseUrl()}/api/students/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+      loadSiswa();
+    }
+
+    loadSiswa();
     lucide.createIcons();
   </script>
 </body>

@@ -3,105 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Staf - Sistem Absensi</title>
+  <title>Login Staf - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
+    
+    <div class="text-center">
+      <img src="logo.png" onerror="this.style.display='none'" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-50 p-2 shadow-sm border border-emerald-100 object-contain">
+      <h1 class="text-2xl font-bold text-slate-800">Login Admin</h1>
+      <p class="text-sm text-slate-500 mt-1">Sistem Absensi Al-Atsar</p>
+    </div>
 
-  <!-- Header -->
-  <header class="bg-emerald-900 text-white shadow-sm">
-    <div class="max-w-xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <img src="logo.png" alt="Logo Al-Atsar" onerror="this.style.display='none'" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
-        <div>
-          <h1 class="text-lg font-bold tracking-tight text-emerald-50 flex items-center gap-2">
-            <i data-lucide="shield-check" class="w-5 h-5 text-emerald-300"></i> Login Staf
-          </h1>
-          <p class="text-emerald-100 text-xs">Portal Khusus Guru / Staf Pengajar</p>
-        </div>
+    <form id="formLoginAdmin" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Password Akses</label>
+        <input type="password" id="password" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none transition text-sm" placeholder="••••••••">
       </div>
-      <a href="index.html" class="text-xs bg-emerald-800 hover:bg-emerald-700 text-white font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
-        <i data-lucide="home" class="w-3.5 h-3.5"></i> Menu Utama
+      
+      <button type="submit" id="btnSubmit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-3.5 rounded-xl transition shadow-sm text-sm">Masuk Dashboard</button>
+    </form>
+
+    <!-- Tombol Kembali ke Menu Utama -->
+    <div class="pt-2 border-t border-slate-100 text-center">
+      <a href="index.html" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-emerald-800 transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Menu Utama
       </a>
     </div>
-  </header>
 
-  <!-- Main Content -->
-  <main class="max-w-md mx-auto px-6 py-12 w-full space-y-6">
-    <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
-
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
-      <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mx-auto mb-3">
-          <i data-lucide="lock" class="w-6 h-6"></i>
-        </div>
-        <h2 class="text-xl font-bold text-slate-900">Masuk Portal Staf</h2>
-        <p class="text-xs text-slate-500 mt-1">Gunakan kata sandi staf untuk masuk</p>
-      </div>
-
-      <form id="formLoginStaf" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Password Staf</label>
-          <input type="password" id="inputPassword" placeholder="Masukkan password staf" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-slate-50/50 font-medium text-slate-800" required />
-        </div>
-
-        <button type="submit" id="btnLogin" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99] flex items-center justify-center gap-2">
-          <i data-lucide="key-round" class="w-4 h-4"></i> Masuk
-        </button>
-      </form>
-    </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Sistem Absensi Siswa Al Atsar
-  </footer>
+  </div>
 
   <script>
-    const getBaseUrl = () => {
-      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
-    };
+    const getBaseUrl = () => window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
+    if (localStorage.getItem('stafToken')) window.location.href = 'admin-siswa.html';
 
-    const checkStaf = localStorage.getItem('stafSession');
-    if (checkStaf === 'active') {
-      window.location.href = 'admin-siswa.html';
-    }
-
-    document.getElementById('formLoginStaf').addEventListener('submit', async (e) => {
+    document.getElementById('formLoginAdmin').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const pwd = document.getElementById('inputPassword').value.trim();
-      const alertBox = document.getElementById('alertBox');
-      const btn = document.getElementById('btnLogin');
-
-      alertBox.classList.add('hidden');
-      btn.disabled = true;
-      btn.innerText = 'Memeriksa...';
-
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true; btn.innerText = 'Memverifikasi...';
       try {
         const res = await fetch(`${getBaseUrl()}/api/staf/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pwd })
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: document.getElementById('password').value })
         });
         const result = await res.json();
-
         if (res.ok && result.success) {
-          localStorage.setItem('stafSession', 'active');
+          localStorage.setItem('stafToken', result.token);
           window.location.href = 'admin-siswa.html';
-        } else {
-          alertBox.className = 'p-4 rounded-2xl text-sm font-medium shadow-sm block bg-rose-50 text-rose-800 border border-rose-200';
-          alertBox.innerText = `❌ ${result.message || 'Password salah! Silakan coba lagi.'}`;
-        }
-      } catch (err) {
-        alertBox.className = 'p-4 rounded-2xl text-sm font-medium shadow-sm block bg-rose-50 text-rose-800 border border-rose-200';
-        alertBox.innerText = '❌ Gagal terhubung ke server backend.';
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="key-round" class="w-4 h-4"></i> Masuk';
-        lucide.createIcons();
-      }
+        } else { alert(result.message); btn.disabled = false; btn.innerText = 'Masuk Dashboard'; }
+      } catch (err) { alert('Error server'); btn.disabled = false; btn.innerText = 'Masuk Dashboard'; }
     });
 
     lucide.createIcons();

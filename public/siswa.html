@@ -3,235 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Siswa - Absensi Kehadiran</title>
+  <title>Portal Siswa - Absensi</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
-  
-  <!-- Header -->
   <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-50 border-b border-emerald-800">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <img src="logo.png" onerror="this.style.display='none'" alt="Logo Al-Atsar" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0">
+        <img src="logo.png" onerror="this.style.display='none'" alt="Logo" class="w-10 h-10 rounded-xl bg-white p-1">
         <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50 flex items-center gap-2">
-            <i data-lucide="user-check" class="w-5 h-5 text-emerald-300"></i> Portal Siswa
-          </h1>
-          <p class="text-emerald-200 text-xs hidden sm:block">Formulir Absensi Kehadiran Harian</p>
+          <h1 class="text-base font-bold flex items-center gap-2"><i data-lucide="user-check" class="w-5 h-5 text-emerald-300"></i> Portal Siswa</h1>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="logoutSantri()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-3.5 py-2 rounded-xl transition shadow-sm active:scale-[0.98] flex items-center gap-1.5">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
-        </button>
-      </div>
+      <button onclick="logoutSantri()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5"><i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout</button>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-10 w-full space-y-6">
-    <!-- Card Identitas Siswa -->
-    <div class="bg-emerald-900 text-white p-6 rounded-3xl shadow-sm border border-emerald-800 space-y-1">
-      <p class="text-xs text-emerald-200 uppercase tracking-wider font-semibold">Selamat Datang,</p>
-      <h2 id="dispNama" class="text-xl font-bold text-emerald-50">...</h2>
-      <p id="dispDetailSantri" class="text-xs text-emerald-200 font-mono pt-1">NIS: - | Kelas: -</p>
+  <main class="max-w-xl mx-auto px-4 py-8 w-full space-y-6">
+    <div class="bg-emerald-900 text-white p-6 rounded-3xl shadow-sm border border-emerald-800">
+      <p class="text-xs text-emerald-200 uppercase font-semibold">Selamat Datang,</p>
+      <h2 id="dispNama" class="text-xl font-bold">...</h2>
+      <p id="dispDetailSantri" class="text-xs text-emerald-200 mt-1">NIS: - | Kelas: -</p>
     </div>
 
-    <!-- Alert Box -->
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
-    <!-- Form Absensi -->
-    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80">
-      <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <i data-lucide="calendar-check" class="w-5 h-5 text-emerald-700"></i> Input Kehadiran Hari Ini
-      </h3>
-      
-      <form id="formAbsensi" class="space-y-4" autocomplete="off">
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80">
+      <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2"><i data-lucide="calendar-check" class="w-5 h-5 text-emerald-700"></i> Input Kehadiran</h3>
+      <form id="formAbsensi" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Keterangan Kehadiran</label>
-          <select id="selectStatus" class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" required>
+          <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Keterangan</label>
+          <select id="selectStatus" class="w-full px-4 py-3.5 rounded-2xl border bg-slate-50">
             <option value="Hadir">Hadir</option>
             <option value="Sakit">Sakit</option>
             <option value="Alfa">Alfa</option>
           </select>
         </div>
-
-        <div class="pt-2">
-          <button type="submit" id="btnKirim" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99] flex items-center justify-center gap-2">
-            <i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)
-          </button>
-        </div>
+        <button type="submit" id="btnKirim" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2 text-sm"><i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)</button>
       </form>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="text-center py-6 text-xs text-slate-400 font-medium">
-    &copy; 2026 Al-Atsar Solo • Sistem Absensi Siswa
-  </footer>
+  <footer class="text-center py-6 text-xs text-slate-400 font-medium">&copy; 2026 Sistem Absensi Siswa</footer>
 
   <script>
-    const getBaseUrl = () => {
-      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
-    };
-
+    const getBaseUrl = () => window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
     const sessionData = localStorage.getItem('santriSession') || localStorage.getItem('siswaSession');
-    if (!sessionData) {
-      window.location.href = 'login-siswa.html';
-    }
-
+    if (!sessionData) window.location.href = 'login-siswa.html';
     const currentSantri = JSON.parse(sessionData || '{}');
 
     document.getElementById('dispNama').innerText = currentSantri.fullName || 'Siswa';
-    const classInfo = currentSantri.className ? currentSantri.className : (currentSantri.classId ? `Kelas ${currentSantri.classId}` : 'Kelas -');
-    const nisValue = currentSantri.nis || currentSantri.nisn || '-';
-    document.getElementById('dispDetailSantri').innerText = `NIS: ${nisValue} | ${classInfo}`;
+    document.getElementById('dispDetailSantri').innerText = `NIS: ${currentSantri.nis || currentSantri.nisn || '-'} | ${currentSantri.className || 'Kelas -'}`;
 
-    function showAlert(message, isSuccess = true) {
+    function showAlert(msg, isSuccess = true) {
       const box = document.getElementById('alertBox');
-      box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
-      box.innerText = message;
+      box.className = `p-4 rounded-2xl text-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`;
+      box.innerText = msg;
     }
 
-    function lockForm(message) {
-      showAlert(message, false);
-      const form = document.getElementById('formAbsensi');
-      form.style.opacity = '0.5';
+    function lockForm(msg) {
+      showAlert(msg, false);
+      document.getElementById('formAbsensi').style.opacity = '0.5';
       document.getElementById('selectStatus').disabled = true;
       const btn = document.getElementById('btnKirim');
       btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> Absensi Tidak Tersedia';
+      btn.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> Sudah Absen / Tutup';
       lucide.createIcons();
     }
 
-    function logoutSantri() {
-      localStorage.removeItem('santriSession');
-      localStorage.removeItem('siswaSession');
-      window.location.href = 'login-siswa.html';
-    }
+    function logoutSantri() { localStorage.clear(); window.location.href = 'login-siswa.html'; }
 
     function cekBatasWaktu() {
-      const sekarang = new Date();
-      const jam = sekarang.getHours();
-      const menit = sekarang.getMinutes();
-      const totalMenit = jam * 60 + menit;
-      const batasBuka = 7 * 60;        // 07:00 WIB
-      const batasTutup = 14 * 60 + 30; // 14:30 WIB
-
-      if (totalMenit < batasBuka || totalMenit > batasTutup) {
-        lockForm('⚠️ Waktu presensi ditolak. Presensi hanya dibuka pukul 07.00 - 14.30 WIB.');
-        return false;
-      }
+      const mnt = new Date().getHours() * 60 + new Date().getMinutes();
+      if (mnt < 7 * 60 || mnt > 14 * 60 + 30) { lockForm('Waktu presensi hanya pukul 07.00 - 14.30 WIB.'); return false; }
       return true;
     }
 
     async function cekSudahAbsenHariIni() {
       try {
-        const now = new Date();
-        const localYYYY = now.getFullYear();
-        const localMM = String(now.getMonth() + 1).padStart(2, '0');
-        const localDD = String(now.getDate()).padStart(2, '0');
-        const todayStr = `${localYYYY}-${localMM}-${localDD}`;
-
-        const res = await fetch(`${getBaseUrl()}/api/attendance?date=${todayStr}`);
+        const d = new Date();
+        const tStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const res = await fetch(`${getBaseUrl()}/api/students/check-attendance?studentId=${currentSantri.id}&date=${tStr}`);
         const result = await res.json();
-
-        if (result.success && Array.isArray(result.data)) {
-          const userNis = String(currentSantri.nis || currentSantri.nisn || '').trim();
-          const userStudentId = String(currentSantri.id || '').trim();
-
-          const recordHariIni = result.data.find(item => {
-            const matchId = item.studentId && String(item.studentId) === userStudentId;
-            const matchNisn = item.nisn && String(item.nisn).trim() === userNis;
-            const matchNis = item.nis && String(item.nis).trim() === userNis;
-            return matchId || matchNisn || matchNis;
-          });
-
-          if (recordHariIni) {
-            lockForm(`✅ Anda sudah melakukan absensi hari ini dengan status "${recordHariIni.status}". Absensi hanya dapat dilakukan 1 kali per hari.`);
-          }
-        }
-      } catch (err) {
-        console.error('Gagal mengecek status absensi:', err);
-      }
+        if (result.success && result.data) lockForm(`✅ Anda sudah absen hari ini (${result.data.status}).`);
+      } catch (err) { console.log(err); }
     }
 
-    // Ambil Koordinat GPS HP/Laptop
     function getLokasiGps() {
-      return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-          reject('Browser atau perangkat kamu tidak mendukung fitur GPS.');
-        } else {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-            (err) => {
-              if (err.code === err.PERMISSION_DENIED) {
-                reject('Akses lokasi (GPS) ditolak! Mohon izinkan akses lokasi di browser HP kamu.');
-              } else {
-                reject('Gagal mendeteksi lokasi GPS. Pastikan GPS HP kamu sudah aktif.');
-              }
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-          );
-        }
+      return new Promise((res, rej) => {
+        if (!navigator.geolocation) rej('GPS tidak didukung.');
+        else navigator.geolocation.getCurrentPosition(p => res({ lat: p.coords.latitude, lon: p.coords.longitude }), 
+          e => rej(e.code === e.PERMISSION_DENIED ? 'Akses lokasi ditolak!' : 'Gagal deteksi GPS.'), { enableHighAccuracy: true, timeout: 10000 });
       });
     }
 
-    // Submit Absensi + GPS
     document.getElementById('formAbsensi').addEventListener('submit', async (e) => {
       e.preventDefault();
-
       if (!cekBatasWaktu()) return;
-
-      const btn = document.getElementById('btnKirim');
-      const status = document.getElementById('selectStatus').value;
-
-      btn.disabled = true;
-      btn.innerText = 'Mendeteksi Lokasi GPS...';
+      const btn = document.getElementById('btnKirim'), status = document.getElementById('selectStatus').value;
+      btn.disabled = true; btn.innerText = 'Mendeteksi Lokasi...';
 
       try {
         const coords = await getLokasiGps();
-
-        btn.innerText = 'Mengirim Absensi...';
-
+        btn.innerText = 'Mengirim Data...';
         const res = await fetch(`${getBaseUrl()}/api/attendance`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            studentId: parseInt(currentSantri.id), 
-            nis: currentSantri.nis || currentSantri.nisn,
-            status,
-            latitude: coords.latitude,
-            longitude: coords.longitude
-          })
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId: currentSantri.id, status, latitude: coords.lat, longitude: coords.lon })
         });
         const result = await res.json();
-
-        if (res.ok && result.success) {
-          showAlert('✅ Absensi berhasil dicatat!');
-          setTimeout(() => {
-            lockForm(`✅ Anda telah berhasil absen hari ini dengan status "${status}".`);
-          }, 500);
-        } else {
-          showAlert(`⚠️ ${result.message || 'Gagal mencatat absensi'}`, false);
-          btn.disabled = false;
-          btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
-          lucide.createIcons();
-        }
-      } catch (err) {
-        showAlert(`❌ ${typeof err === 'string' ? err : 'Gagal terhubung ke server.'}`, false);
-        btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
-        lucide.createIcons();
-      }
+        if (result.success) { showAlert('✅ Berhasil!'); setTimeout(() => lockForm('Berhasil absen.'), 500); }
+        else { showAlert(`⚠️ ${result.message}`, false); btn.disabled = false; btn.innerText = 'Kirim Absensi'; }
+      } catch (err) { showAlert(`❌ ${err}`, false); btn.disabled = false; btn.innerText = 'Kirim Absensi'; }
     });
 
-    if (cekBatasWaktu()) {
-      cekSudahAbsenHariIni();
-    }
-
+    if (cekBatasWaktu()) cekSudahAbsenHariIni();
     lucide.createIcons();
   </script>
 </body>

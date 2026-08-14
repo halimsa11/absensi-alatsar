@@ -3,275 +3,227 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Orang Tua - Monitoring Absensi Siswa</title>
+  <title>Portal Wali Murid - Monitoring Kehadiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
-
-  <!-- Header Responsif Mobile -->
-  <header class="bg-emerald-900 text-white shadow-sm sticky top-0 z-50 border-b border-emerald-800">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <img src="logo.png" alt="Logo Al-Atsar" onerror="this.style.display='none'" class="w-10 h-10 object-contain rounded-xl bg-white p-1 shadow-sm flex-shrink-0" />
-        <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight text-emerald-50 flex items-center gap-2">
-            <i data-lucide="users" class="w-5 h-5 text-emerald-300"></i> Portal Orang Tua
-          </h1>
-          <p class="text-emerald-100 text-xs">Monitoring Kehadiran Siswa Harian</p>
-        </div>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between text-slate-800 font-sans">
+  
+  <!-- Header dengan Hijau Tua & Kotak Logo Putih (Tanpa Tombol Beranda) -->
+  <header class="bg-[#064e3b] text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 sm:px-8 py-3.5 flex items-center gap-3.5">
+      <div class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center p-1.5 shadow-sm">
+        <img src="logo.png" onerror="this.style.display='none'" alt="Logo" class="w-full h-full object-contain">
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold tracking-tight">Portal Orang Tua</h1>
+        <p class="text-xs text-emerald-200 font-medium">Monitoring Kehadiran Siswa Harian</p>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full space-y-6">
-    <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
-
-    <!-- VIEW 1: Form Cek NIS Ortu -->
-    <div id="viewLogin" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 max-w-md mx-auto space-y-6">
-      <div class="text-center space-y-1">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center mx-auto mb-3">
-          <i data-lucide="user-check" class="w-6 h-6"></i>
-        </div>
-        <h2 class="text-xl font-bold text-slate-900">Masuk Portal Wali Siswa</h2>
-        <p class="text-xs text-slate-500">Masukkan NIS siswa untuk melihat log rekap kehadiran anak Anda.</p>
+  <!-- Konten Utama -->
+  <main class="max-w-4xl mx-auto px-4 py-12 w-full flex-grow flex flex-col items-center justify-center space-y-8">
+    
+    <!-- 1. TAMPILAN AWAL: Form Input NIS -->
+    <div id="loginCard" class="bg-white w-full max-w-xl p-10 sm:p-14 rounded-[32px] shadow-sm border border-slate-200/80 text-center space-y-8">
+      <div class="w-16 h-16 bg-emerald-50 text-emerald-800 rounded-2xl mx-auto flex items-center justify-center border border-emerald-100 shadow-sm">
+        <i data-lucide="user" class="w-8 h-8"></i>
       </div>
 
-      <form id="formLoginOrtu" class="space-y-4" autocomplete="off">
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nomor Induk Siswa (NIS)</label>
-          <input type="text" id="loginNis" placeholder="Masukan NIS" required class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800" />
-        </div>
+      <div class="space-y-2">
+        <h2 class="text-2xl font-bold tracking-tight text-slate-900">Masuk Portal Wali Siswa</h2>
+        <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">Masukkan NIS siswa untuk melihat log rekap kehadiran anak Anda.</p>
+      </div>
 
-        <button type="submit" id="btnLogin" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99] flex items-center justify-center gap-2">
+      <div class="space-y-5 text-left pt-2">
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">Nomor Induk Siswa (NIS)</label>
+          <input type="text" id="nis" placeholder="Masukan NIS" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50/40 focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:border-transparent outline-none text-sm transition font-medium text-slate-800 shadow-inner">
+        </div>
+        
+        <button id="btnCari" onclick="loadDataOrtu()" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-4 rounded-2xl text-sm flex items-center justify-center gap-2.5 transition shadow-sm">
           <i data-lucide="search" class="w-4 h-4"></i> Lihat Rekap Absensi
         </button>
-      </form>
+      </div>
     </div>
 
-    <!-- VIEW 2: Tampilan Rekap Santri -->
-    <div id="viewRekap" class="hidden space-y-6">
-      <!-- Card Profil Santri -->
-      <div class="bg-emerald-900 text-white p-5 sm:p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <!-- 2. TAMPILAN SETELAH LOGIN: Card Profil & Tabel Rekap -->
+    <div id="resultArea" class="hidden w-full space-y-6 animate-fadeIn">
+      
+      <!-- Card Informasi Siswa -->
+      <div class="bg-[#064e3b] text-white p-6 sm:p-8 rounded-[28px] shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <p class="text-xs text-emerald-200 uppercase tracking-wider font-semibold">Log Kehadiran Siswa</p>
-          <h2 id="dispNamaSantri" class="text-xl font-bold text-white mt-0.5">...</h2>
-          <p id="dispDetailSantri" class="text-xs text-emerald-200 font-mono pt-1">NIS: - | Kelas: -</p>
+          <p class="text-[11px] text-emerald-200 uppercase font-semibold tracking-widest">LOG KEHADIRAN SISWA</p>
+          <h3 id="dispNama" class="text-2xl font-bold mt-0.5 tracking-wide">Nama Siswa</h3>
+          <p id="dispInfoDetail" class="text-xs text-emerald-200 mt-1 font-mono">NIS: - &bull; Kelas: -</p>
         </div>
-        <button onclick="logoutOrtu()" class="w-full sm:w-auto text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium px-4 py-2.5 rounded-xl transition text-center shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Keluar
+        <button onclick="resetPencarian()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
         </button>
       </div>
 
-      <!-- Tabel Rekap 1 Santri -->
-      <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
-        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <!-- Kotak Tabel & Filter -->
+      <div class="bg-white rounded-[28px] border border-slate-200/80 overflow-hidden shadow-sm p-6 space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
           <div>
-            <h3 class="text-sm font-bold text-slate-900">Riwayat Absensi Kehadiran</h3>
-            <p class="text-xs text-slate-500">Cari riwayat kehadiran berdasarkan tanggal</p>
+            <h4 class="font-bold text-slate-800 text-base">Riwayat Absensi Kehadiran</h4>
+            <p class="text-xs text-slate-400 mt-0.5">Cari riwayat kehadiran berdasarkan tanggal</p>
           </div>
-          
-          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            <input type="date" id="filterTanggalOrtu" onchange="loadRekapSantri()" class="flex-1 sm:flex-none px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-slate-800" />
-            <button onclick="resetFilterTanggal()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-2 rounded-xl transition">Semua</button>
-            <button onclick="loadRekapSantri()" class="text-xs bg-emerald-50 text-emerald-800 font-semibold px-3 py-2 rounded-xl hover:bg-emerald-100 transition flex items-center gap-1">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+
+          <!-- Tombol Filter -->
+          <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+            <input type="date" id="filterTanggal" onchange="filterDataLokal()" class="border border-slate-200 px-3.5 py-2 rounded-xl bg-slate-50 text-xs focus:ring-2 focus:ring-emerald-700 outline-none text-slate-600 font-medium">
+            <button onclick="resetFilterTanggal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition">Semua</button>
+            <button onclick="loadDataOrtu()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-emerald-100">
+              <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Refresh
             </button>
           </div>
         </div>
 
-        <div class="overflow-x-auto w-full">
-          <table class="w-full text-left border-collapse min-w-[500px]">
-            <thead>
-              <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-xs uppercase font-bold tracking-wider">
-                <th class="py-3.5 px-4 sm:px-6 w-12 text-center">No</th>
-                <th class="py-3.5 px-4 sm:px-6">Tanggal</th>
-                <th class="py-3.5 px-4 sm:px-6 w-32">Jam Masuk</th>
-                <th class="py-3.5 px-4 sm:px-6 w-28 text-center">Keterangan</th>
+        <!-- Tabel Data -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead class="text-xs uppercase text-slate-400 bg-slate-50/50 border-b border-slate-100">
+              <tr>
+                <th class="p-4 font-bold w-16 text-center">NO</th>
+                <th class="p-4 font-bold">TANGGAL</th>
+                <th class="p-4 font-bold">JAM MASUK</th>
+                <th class="p-4 font-bold">KETERANGAN</th>
               </tr>
             </thead>
-            <tbody id="tabelLogOrtu" class="divide-y divide-slate-100 text-sm font-medium">
-              <tr>
-                <td colspan="4" class="py-12 text-center text-slate-400">Memuat log kehadiran...</td>
-              </tr>
-            </tbody>
+            <tbody id="tabelRiwayat" class="divide-y divide-slate-100 text-sm"></tbody>
           </table>
         </div>
+
       </div>
     </div>
+
   </main>
 
   <!-- Footer -->
-  <footer class="text-center py-6 text-xs text-slate-400 font-medium px-4">
-    &copy; 2026 Sistem Absensi Siswa Al Atsar • Portal Orang Tua
+  <footer class="text-center py-6 text-xs text-slate-400 font-medium border-t border-slate-100">
+    &copy; 2026 Sistem Absensi Siswa Al-Atsar &bull; Portal Orang Tua
   </footer>
 
   <script>
-    const getBaseUrl = () => {
-      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
-    };
+    const getBaseUrl = () => window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
+    let globalDataRekap = [];
 
-    let activeStudent = null;
-
-    function showAlert(message, isSuccess = true) {
-      const box = document.getElementById('alertBox');
-      box.className = `p-4 rounded-2xl text-sm font-medium shadow-sm block ${isSuccess ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`;
-      box.innerText = message;
-    }
-
-    function checkOrtuSession() {
-      const savedSession = localStorage.getItem('ortuSession');
-      if (savedSession) {
-        try {
-          activeStudent = JSON.parse(savedSession);
-          showRekapView();
-        } catch (e) {
-          localStorage.removeItem('ortuSession');
-        }
-      }
-    }
-
-    function showRekapView() {
-      if (!activeStudent) return;
-      document.getElementById('dispNamaSantri').innerText = activeStudent.fullName || 'Siswa';
-      const classInfo = activeStudent.className ? activeStudent.className : (activeStudent.classId ? `Kelas ${activeStudent.classId}` : 'Kelas -');
-      document.getElementById('dispDetailSantri').innerText = `NIS: ${activeStudent.nisn || activeStudent.nis || '-'} | ${classInfo}`;
+    async function loadDataOrtu() {
+      const nis = document.getElementById('nis').value.trim();
+      if (!nis) return alert("Harap masukkan NIS siswa terlebih dahulu.");
       
-      document.getElementById('viewLogin').classList.add('hidden');
-      document.getElementById('viewRekap').classList.remove('hidden');
-      document.getElementById('alertBox').classList.add('hidden');
-
-      loadRekapSantri();
-    }
-
-    document.getElementById('formLoginOrtu').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const nis = document.getElementById('loginNis').value.trim();
-      const alertBox = document.getElementById('alertBox');
-      const btn = document.getElementById('btnLogin');
-
-      alertBox.classList.add('hidden');
-      btn.disabled = true;
-      btn.innerText = 'Memeriksa NIS...';
+      const btn = document.getElementById('btnCari');
+      btn.disabled = true; 
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Memuat...';
+      lucide.createIcons();
 
       try {
-        const res = await fetch(`${getBaseUrl()}/api/students/check?nis=${encodeURIComponent(nis)}`);
+        const res = await fetch(`${getBaseUrl()}/api/ortu/rekap`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nis })
+        });
         const result = await res.json();
 
         if (res.ok && result.success) {
-          activeStudent = result.data;
-          localStorage.setItem('ortuSession', JSON.stringify(activeStudent));
-          showRekapView();
+          document.getElementById('dispNama').innerText = result.student.fullName;
+          
+          const kelasData = result.student.className ? result.student.className : (result.student.classId ? `Kelas ${result.student.classId}` : '-');
+          document.getElementById('dispInfoDetail').innerText = `NIS: ${nis}  •  Kelas: ${kelasData}`;
+          
+          globalDataRekap = result.data || [];
+          renderTabel(globalDataRekap);
+
+          document.getElementById('loginCard').classList.add('hidden');
+          document.getElementById('resultArea').classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-          showAlert(`⚠️ ${result.message || 'NIS tidak ditemukan!'}`, false);
+          alert(result.message || 'Data siswa dengan NIS tersebut tidak ditemukan.');
         }
-      } catch (err) {
-        showAlert('❌ Gagal terhubung ke server database.', false);
+      } catch (err) { 
+        alert('Terjadi kesalahan koneksi server.'); 
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="search" class="w-4 h-4"></i> Lihat Rekap Absensi';
+        btn.disabled = false; 
+        btn.innerHTML = '<i data-lucide="search" class="w-4 h-4"></i> Lihat Rekap Absensi'; 
         lucide.createIcons();
       }
-    });
+    }
 
-    async function loadRekapSantri() {
-      if (!activeStudent) return;
+    function renderTabel(dataArray) {
+      let rows = '';
+      if(dataArray.length === 0) {
+        rows = `<tr><td colspan="4" class="p-8 text-center text-sm text-slate-400">Belum ada riwayat absensi tercatat.</td></tr>`;
+      } else {
+        dataArray.forEach((r, idx) => {
+          const statusClean = r.status ? r.status.trim().toLowerCase() : '';
+          let badgeBg = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+          let statusText = r.status || 'Hadir';
 
-      const tbody = document.getElementById('tabelLogOrtu');
-      const selectedDate = document.getElementById('filterTanggalOrtu').value;
-      tbody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-slate-400">Memuat log kehadiran...</td></tr>';
-
-      try {
-        const res = await fetch(`${getBaseUrl()}/api/ortu/rekap/${activeStudent.id}`);
-        const result = await res.json();
-
-        if (result.success && Array.isArray(result.data) && result.data.length > 0) {
-          let logs = result.data;
-
-          if (selectedDate) {
-            logs = logs.filter(item => {
-              const rawTime = item.checkInTime || item.time || item.date;
-              if (!rawTime) return false;
-              const d = new Date(rawTime);
-              const yyyy = d.getFullYear();
-              const mm = String(d.getMonth() + 1).padStart(2, '0');
-              const dd = String(d.getDate()).padStart(2, '0');
-              return `${yyyy}-${mm}-${dd}` === selectedDate;
-            });
+          if (statusClean === 'terlambat') {
+            badgeBg = 'bg-amber-100 text-amber-800 border border-amber-200';
+            statusText = 'Terlambat';
+          } else if (statusClean === 'sakit') {
+            badgeBg = 'bg-blue-100 text-blue-800 border border-blue-200';
+            statusText = 'Sakit';
+          } else if (statusClean === 'alfa') {
+            badgeBg = 'bg-rose-100 text-rose-800 border border-rose-200';
+            statusText = 'Alfa';
+          }
+          
+          let wibTime = '-';
+          if (r.checkInTime) {
+             const dt = new Date(r.checkInTime);
+             wibTime = dt.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit' }) + ' WIB';
           }
 
-          if (logs.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="py-12 text-center text-slate-400 font-normal">Tidak ada riwayat absensi untuk tanggal ini.</td></tr>`;
-            return;
+          let formattedDate = r.date;
+          if (r.date) {
+            const dateObj = new Date(r.date);
+            if (!isNaN(dateObj)) {
+              formattedDate = dateObj.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            }
           }
 
-          tbody.innerHTML = '';
-          logs.forEach((item, index) => {
-            const rawTime = item.checkInTime || item.time || item.date;
-            let tgl = '-';
-            let jamFormat = '-';
-
-            if (rawTime) {
-              const objDate = new Date(rawTime);
-              if (!isNaN(objDate.getTime())) {
-                tgl = objDate.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-                jamFormat = objDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '.') + ' WIB';
-              }
-            }
-
-            const status = item.status || item.keterangan || 'Hadir';
-
-            let badgeClass = 'bg-slate-100 text-slate-500 border border-slate-200/80';
-            const statusLower = status.toLowerCase();
-            if (statusLower === 'hadir') {
-              badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
-            } else if (statusLower.includes('terlambat')) {
-              badgeClass = 'bg-orange-50 text-orange-700 border border-orange-200/60';
-            } else if (statusLower === 'sakit') {
-              badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200/60';
-            } else if (statusLower === 'izin') {
-              badgeClass = 'bg-sky-50 text-sky-700 border border-sky-200/60';
-            } else if (statusLower === 'alfa') {
-              badgeClass = 'bg-rose-50 text-rose-700 border border-rose-200/60';
-            }
-
-            tbody.innerHTML += `
-              <tr class="hover:bg-slate-50/60 transition">
-                <td class="py-3.5 px-4 sm:px-6 text-center text-slate-400 font-semibold">${index + 1}</td>
-                <td class="py-3.5 px-4 sm:px-6 text-slate-800 font-medium whitespace-nowrap">${tgl}</td>
-                <td class="py-3.5 px-4 sm:px-6 font-mono text-slate-600 text-xs whitespace-nowrap">${jamFormat}</td>
-                <td class="py-3.5 px-4 sm:px-6 text-center">
-                  <span class="${badgeClass} font-semibold px-3 py-1 rounded-full text-xs inline-block">${status}</span>
-                </td>
-              </tr>
-            `;
-          });
-          lucide.createIcons();
-        } else {
-          tbody.innerHTML = `<tr><td colspan="4" class="py-12 text-center text-slate-400 font-normal">Belum ada riwayat absensi untuk siswa ini.</td></tr>`;
-        }
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="4" class="py-12 text-center text-rose-500 font-normal">Gagal memuat riwayat absensi.</td></tr>`;
+          rows += `
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-4 text-center font-bold text-slate-400">${idx + 1}</td>
+              <td class="p-4 font-medium text-slate-700">${formattedDate}</td>
+              <td class="p-4 text-slate-500 font-medium">${wibTime}</td>
+              <td class="p-4"><span class="px-4 py-1.5 text-xs font-bold rounded-full ${badgeBg}">${statusText}</span></td>
+            </tr>`;
+        });
       }
+      document.getElementById('tabelRiwayat').innerHTML = rows;
+    }
+
+    function filterDataLokal() {
+      const selectedDate = document.getElementById('filterTanggal').value;
+      if (!selectedDate) {
+        renderTabel(globalDataRekap);
+        return;
+      }
+      const filtered = globalDataRekap.filter(item => item.date === selectedDate);
+      renderTabel(filtered);
     }
 
     function resetFilterTanggal() {
-      document.getElementById('filterTanggalOrtu').value = '';
-      loadRekapSantri();
+      document.getElementById('filterTanggal').value = '';
+      renderTabel(globalDataRekap);
     }
 
-    function logoutOrtu() {
-      activeStudent = null;
-      localStorage.removeItem('ortuSession');
-      document.getElementById('formLoginOrtu').reset();
-      document.getElementById('filterTanggalOrtu').value = '';
-      document.getElementById('viewRekap').classList.add('hidden');
-      document.getElementById('viewLogin').classList.remove('hidden');
+    function resetPencarian() {
+      document.getElementById('nis').value = '';
+      document.getElementById('filterTanggal').value = '';
+      document.getElementById('resultArea').classList.add('hidden');
+      document.getElementById('loginCard').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    checkOrtuSession();
+    document.getElementById('nis').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') { loadDataOrtu(); }
+    });
+
     lucide.createIcons();
   </script>
 </body>
