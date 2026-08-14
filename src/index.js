@@ -12,7 +12,26 @@ const app = new Hono();
 app.use('*', cors());
 app.use('/*', serveStatic({ root: './public' }));
 
-// Helper Ambil Tanggal Hari Ini Versi WIB (Asia/Jakarta)
+// KOORDINAT SEKOLAH (Tanuragan Raya, Gonilan, Kartasura)
+const SEKOLAH_LAT = -7.555812;
+const SEKOLAH_LON = 110.765618;
+const MAX_RADIUS_METER = 50; // Radius batas maksimal diubah menjadi 50 Meter
+
+// Helper Menghitung Jarak GPS (Formula Haversine dalam Meter)
+function calculateDistanceMeter(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Radius bumi dalam meter
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Hasil jarak dalam meter
+}
+
 const getTodayDateStr = () => {
   const nowWib = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
   const year = nowWib.getFullYear();
@@ -25,7 +44,6 @@ const getTodayDateStr = () => {
 // API STAF / ADMIN - KELOLA SISWA
 // ==========================================
 
-// Login Staf
 app.post('/api/staf/login', async (c) => {
   try {
     const { password } = await c.req.json();
@@ -38,7 +56,6 @@ app.post('/api/staf/login', async (c) => {
   }
 });
 
-// GET /api/students (Ambil seluruh data siswa)
 app.get('/api/students', async (c) => {
   try {
     const dataSiswa = await db
@@ -58,7 +75,6 @@ app.get('/api/students', async (c) => {
   }
 });
 
-// POST /api/students (TAMBAH SISWA BARU)
 app.post('/api/students', async (c) => {
   try {
     const { nisn, fullName, classId } = await c.req.json();
@@ -96,7 +112,6 @@ app.post('/api/students', async (c) => {
   }
 });
 
-// PUT /api/students/:id (PERBARUI / EDIT DATA SISWA)
 app.put('/api/students/:id', async (c) => {
   try {
     const studentId = parseInt(c.req.param('id'));
@@ -135,7 +150,6 @@ app.put('/api/students/:id', async (c) => {
   }
 });
 
-// DELETE /api/students/:id (HAPUS SISWA)
 app.delete('/api/students/:id', async (c) => {
   try {
     const studentId = parseInt(c.req.param('id'));
@@ -157,7 +171,6 @@ app.delete('/api/students/:id', async (c) => {
 // API PRESENSI & REKAP
 // ==========================================
 
-// Cek NIS Siswa
 app.get('/api/students/check', async (c) => {
   try {
     const nisParam = c.req.query('nis');
@@ -186,24 +199,40 @@ app.get('/api/students/check', async (c) => {
   }
 });
 
-// Simpan Presensi (JAM BUKA 07.00 - 14.30 WIB | STATUS DB TETAP HADIR)
+// Simpan Presensi dengan Cek Lokasi GPS
 app.post('/api/attendance', async (c) => {
   try {
-    const { studentId } = await c.req.json();
+    const { studentId, latitude, longitude } = await c.req.json();
     const parsedStudentId = parseInt(studentId);
 
     if (isNaN(parsedStudentId)) {
       return c.json({ success: false, message: 'ID siswa tidak valid' }, 400);
     }
 
-    // Ambil waktu WIB (Asia/Jakarta)
+    // 1. VALIDASI GPS LOKASI
+    if (!latitude || !longitude) {
+      return c.json({ 
+        success: false, 
+        message: 'Akses lokasi (GPS) wajib diaktifkan untuk melakukan presensi!' 
+      }, 400);
+    }
+
+    const jarak = calculateDistanceMeter(SEKOLAH_LAT, SEKOLAH_LON, parseFloat(latitude), parseFloat(longitude));
+
+    if (jarak > MAX_RADIUS_METER) {
+      return c.json({
+        success: false,
+        message: `Presensi ditolak! Anda berada di luar area sekolah (${Math.round(jarak)} meter dari lokasi sekolah). Maksimal radius: ${MAX_RADIUS_METER} meter.`,
+      }, 400);
+    }
+
+    // 2. VALIDASI JAM OPERASIONAL (07.00 - 14.30 WIB)
     const nowWib = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
     const currentMinutes = nowWib.getHours() * 60 + nowWib.getMinutes();
 
-    const startPresensi = 7 * 60;       // 07:00 WIB (420 menit)
-    const closePresensi = 14 * 60 + 30; // 14:30 WIB (870 menit)
+    const startPresensi = 7 * 60;       // 07:00 WIB
+    const closePresensi = 14 * 60 + 30; // 14:30 WIB
 
-    // Cek Jam Operasional (07.00 - 14.30 WIB)
     if (currentMinutes < startPresensi || currentMinutes > closePresensi) {
       return c.json({
         success: false,
@@ -211,11 +240,10 @@ app.post('/api/attendance', async (c) => {
       }, 400);
     }
 
-    // Status disimpan ke DB tetap 'Hadir' (tidak sentuh enum DB)
     const statusPresensi = 'Hadir';
     const todayStr = getTodayDateStr();
 
-    // Cek Apakah Siswa Sudah Absen Hari Ini
+    // 3. CEK DUPLIKASI ABSENSI HARI INI
     const existingAbsence = await db
       .select()
       .from(attendances)
@@ -229,7 +257,6 @@ app.post('/api/attendance', async (c) => {
       }, 400);
     }
 
-    // Simpan data presensi
     const newAttendance = await db
       .insert(attendances)
       .values({
@@ -246,7 +273,6 @@ app.post('/api/attendance', async (c) => {
   }
 });
 
-// Get Rekap
 app.get('/api/attendance', async (c) => {
   try {
     const dateParam = c.req.query('date') || getTodayDateStr();
@@ -273,7 +299,6 @@ app.get('/api/attendance', async (c) => {
   }
 });
 
-// Get Rekap Ortu Per Siswa
 app.get('/api/ortu/rekap/:studentId', async (c) => {
   try {
     const studentId = parseInt(c.req.param('studentId'));

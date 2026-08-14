@@ -59,7 +59,7 @@
 
         <div class="pt-2">
           <button type="submit" id="btnKirim" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl transition text-sm shadow-sm active:scale-[0.99] flex items-center justify-center gap-2">
-            <i data-lucide="send" class="w-4 h-4"></i> Kirim Absensi
+            <i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)
           </button>
         </div>
       </form>
@@ -72,16 +72,11 @@
   </footer>
 
   <script>
-    // Helper otomatis menentukan lokasi backend
     const getBaseUrl = () => {
       const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      if (isLocalHost) {
-        return `${window.location.protocol}//${window.location.hostname}:3000`;
-      }
-      return '';
+      return isLocalHost ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
     };
 
-    // 1. Cek Sesi Login Siswa secara INSTAN
     const sessionData = localStorage.getItem('santriSession') || localStorage.getItem('siswaSession');
     if (!sessionData) {
       window.location.href = 'login-siswa.html';
@@ -89,7 +84,6 @@
 
     const currentSantri = JSON.parse(sessionData || '{}');
 
-    // Render Data Profil Langsung
     document.getElementById('dispNama').innerText = currentSantri.fullName || 'Siswa';
     const classInfo = currentSantri.className ? currentSantri.className : (currentSantri.classId ? `Kelas ${currentSantri.classId}` : 'Kelas -');
     const nisValue = currentSantri.nis || currentSantri.nisn || '-';
@@ -112,29 +106,27 @@
       lucide.createIcons();
     }
 
-    // Fungsi Logout
     function logoutSantri() {
       localStorage.removeItem('santriSession');
       localStorage.removeItem('siswaSession');
       window.location.href = 'login-siswa.html';
     }
 
-    // 2. Cek Batas Waktu Jam 14.30
     function cekBatasWaktu() {
       const sekarang = new Date();
       const jam = sekarang.getHours();
       const menit = sekarang.getMinutes();
       const totalMenit = jam * 60 + menit;
+      const batasBuka = 7 * 60;        // 07:00 WIB
       const batasTutup = 14 * 60 + 30; // 14:30 WIB
 
-      if (totalMenit > batasTutup) {
-        lockForm('⚠️ Waktu absen telah ditutup. Anda tidak dapat melakukan absensi lewat dari pukul 14.30 WIB.');
+      if (totalMenit < batasBuka || totalMenit > batasTutup) {
+        lockForm('⚠️ Waktu presensi ditolak. Presensi hanya dibuka pukul 07.00 - 14.30 WIB.');
         return false;
       }
       return true;
     }
 
-    // 3. Cek Apakah Siswa Ini Sudah Absen Hari Ini
     async function cekSudahAbsenHariIni() {
       try {
         const now = new Date();
@@ -166,7 +158,28 @@
       }
     }
 
-    // 4. Submit Absensi
+    // Ambil Koordinat GPS HP/Laptop
+    function getLokasiGps() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject('Browser atau perangkat kamu tidak mendukung fitur GPS.');
+        } else {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+            (err) => {
+              if (err.code === err.PERMISSION_DENIED) {
+                reject('Akses lokasi (GPS) ditolak! Mohon izinkan akses lokasi di browser HP kamu.');
+              } else {
+                reject('Gagal mendeteksi lokasi GPS. Pastikan GPS HP kamu sudah aktif.');
+              }
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
+        }
+      });
+    }
+
+    // Submit Absensi + GPS
     document.getElementById('formAbsensi').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -176,16 +189,22 @@
       const status = document.getElementById('selectStatus').value;
 
       btn.disabled = true;
-      btn.innerText = 'Mengirim Absensi...';
+      btn.innerText = 'Mendeteksi Lokasi GPS...';
 
       try {
+        const coords = await getLokasiGps();
+
+        btn.innerText = 'Mengirim Absensi...';
+
         const res = await fetch(`${getBaseUrl()}/api/attendance`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             studentId: parseInt(currentSantri.id), 
             nis: currentSantri.nis || currentSantri.nisn,
-            status 
+            status,
+            latitude: coords.latitude,
+            longitude: coords.longitude
           })
         });
         const result = await res.json();
@@ -198,13 +217,13 @@
         } else {
           showAlert(`⚠️ ${result.message || 'Gagal mencatat absensi'}`, false);
           btn.disabled = false;
-          btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Kirim Absensi';
+          btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
           lucide.createIcons();
         }
       } catch (err) {
-        showAlert('❌ Gagal terhubung ke server.', false);
+        showAlert(`❌ ${typeof err === 'string' ? err : 'Gagal terhubung ke server.'}`, false);
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Kirim Absensi';
+        btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
         lucide.createIcons();
       }
     });
