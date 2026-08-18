@@ -170,10 +170,10 @@ app.post('/api/attendance', async (c) => {
       }, 400);
     }
 
-    // 3. Tentukan Status Otomatis (Hadir / Terlambat)
+    // 3. Tentukan Status Otomatis (Hadir / Hadir (Terlambat))
     let statusPresensi = 'Hadir';
     if (currentMinutesTotal > batasTerlambat) {
-      statusPresensi = 'Terlambat';
+      statusPresensi = 'Hadir (Terlambat)';
     }
 
     const todayStr = getTodayDateStr();
@@ -191,13 +191,14 @@ app.post('/api/attendance', async (c) => {
       status: statusPresensi 
     }).returning();
 
-    const pesanSukses = statusPresensi === 'Terlambat'
+    const pesanSukses = statusPresensi === 'Hadir (Terlambat)'
       ? 'Absensi berhasil dicatat, namun Anda tercatat TERLAMBAT (lewat dari pukul 08.15 WIB).'
       : 'Absensi berhasil dicatat dengan status Hadir!';
 
     return c.json({ success: true, message: pesanSukses, data: newAttendance[0] });
   } catch (err) { 
-    return c.json({ success: false, message: 'Gagal mencatat absensi' }, 500); 
+    console.error('Error in POST /api/attendance:', err);
+    return c.json({ success: false, message: 'Gagal mencatat absensi: ' + (err.message || 'Kesalahan server') }, 500); 
   }
 });
 

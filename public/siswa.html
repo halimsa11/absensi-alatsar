@@ -62,8 +62,8 @@
       box.innerText = msg;
     }
 
-    function lockForm(msg) {
-      showAlert(msg, false);
+    function lockForm(msg, isSuccess = false) {
+      showAlert(msg, isSuccess);
       document.getElementById('formAbsensi').style.opacity = '0.5';
       document.getElementById('selectStatus').disabled = true;
       const btn = document.getElementById('btnKirim');
@@ -76,17 +76,18 @@
 
     function cekBatasWaktu() {
       const mnt = new Date().getHours() * 60 + new Date().getMinutes();
-      if (mnt < 7 * 60 || mnt > 14 * 60 + 30) { lockForm('Waktu presensi hanya pukul 07.00 - 14.30 WIB.'); return false; }
+      if (mnt < 7 * 60 || mnt > 14 * 60) { lockForm('Waktu presensi dibuka pukul 07.00 - 14.00 WIB.', false); return false; }
       return true;
     }
 
     async function cekSudahAbsenHariIni() {
+      if (!currentSantri.id) return;
       try {
         const d = new Date();
         const tStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         const res = await fetch(`${getBaseUrl()}/api/students/check-attendance?studentId=${currentSantri.id}&date=${tStr}`);
         const result = await res.json();
-        if (result.success && result.data) lockForm(`✅ Anda sudah absen hari ini (${result.data.status}).`);
+        if (result.success && result.data) lockForm(`✅ Anda sudah absen hari ini (${result.data.status}).`, true);
       } catch (err) { console.log(err); }
     }
 
@@ -112,9 +113,21 @@
           body: JSON.stringify({ studentId: currentSantri.id, status, latitude: coords.lat, longitude: coords.lon })
         });
         const result = await res.json();
-        if (result.success) { showAlert('✅ Berhasil!'); setTimeout(() => lockForm('Berhasil absen.'), 500); }
-        else { showAlert(`⚠️ ${result.message}`, false); btn.disabled = false; btn.innerText = 'Kirim Absensi'; }
-      } catch (err) { showAlert(`❌ ${err}`, false); btn.disabled = false; btn.innerText = 'Kirim Absensi'; }
+        if (res.ok && result.success) { 
+          showAlert(`✅ ${result.message}`, true); 
+          setTimeout(() => lockForm(result.message, true), 500); 
+        } else { 
+          showAlert(`⚠️ ${result.message || 'Presensi gagal'}`, false); 
+          btn.disabled = false; 
+          btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
+          lucide.createIcons();
+        }
+      } catch (err) { 
+        showAlert(`❌ ${err}`, false); 
+        btn.disabled = false; 
+        btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
+        lucide.createIcons();
+      }
     });
 
     if (cekBatasWaktu()) cekSudahAbsenHariIni();
