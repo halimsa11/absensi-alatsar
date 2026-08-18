@@ -6,6 +6,7 @@
   <title>Portal Siswa - Absensi</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="toast.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-50 border-b border-emerald-800">
@@ -72,7 +73,11 @@
       lucide.createIcons();
     }
 
-    function logoutSantri() { localStorage.clear(); window.location.href = 'login-siswa.html'; }
+    function logoutSantri() { 
+      sessionStorage.setItem('flashToast', JSON.stringify({ message: 'Anda telah berhasil logout dari Portal Siswa.', type: 'info' }));
+      localStorage.clear(); 
+      window.location.href = 'login-siswa.html'; 
+    }
 
     function cekBatasWaktu() {
       const mnt = new Date().getHours() * 60 + new Date().getMinutes();
@@ -115,21 +120,25 @@
         const result = await res.json();
         if (res.ok && result.success) { 
           showAlert(`✅ ${result.message}`, true); 
+          showToast(result.message, 'success');
           setTimeout(() => lockForm(result.message, true), 500); 
         } else { 
           showAlert(`⚠️ ${result.message || 'Presensi gagal'}`, false); 
+          showToast(result.message || 'Presensi gagal', 'error');
           btn.disabled = false; 
           btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
           lucide.createIcons();
         }
       } catch (err) { 
         showAlert(`❌ ${err}`, false); 
+        showToast(err, 'error');
         btn.disabled = false; 
         btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
         lucide.createIcons();
       }
     });
 
+    checkFlashToast('Masuk ke Portal Presensi Siswa');
     if (cekBatasWaktu()) cekSudahAbsenHariIni();
     lucide.createIcons();
   </script>

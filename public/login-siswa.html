@@ -6,6 +6,7 @@
   <title>Login Siswa - Absensi</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="toast.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
   <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
@@ -44,7 +45,7 @@
       const nis = document.getElementById('nis').value.trim();
       const btn = document.getElementById('btnSubmit');
       
-      if (!nis) return alert("NIS wajib diisi!");
+      if (!nis) return showToast("NIS wajib diisi!", "error");
 
       btn.disabled = true; 
       btn.innerText = 'Mencari Data...';
@@ -56,21 +57,23 @@
         if (res.ok && result.success) {
           // Simpan sesi siswa ke localStorage
           localStorage.setItem('santriSession', JSON.stringify(result.data));
+          sessionStorage.setItem('flashToast', JSON.stringify({ message: `Selamat datang, ${result.data.fullName}!`, type: 'success' }));
           window.location.href = 'siswa.html';
         } else {
-          alert(result.message || 'NIS tidak ditemukan!');
+          showToast(result.message || 'NIS tidak ditemukan!', 'error');
           btn.disabled = false; 
           btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> Masuk Absensi';
           lucide.createIcons();
         }
       } catch (err) {
-        alert('Terjadi kesalahan koneksi ke server.');
+        showToast('Terjadi kesalahan koneksi ke server.', 'error');
         btn.disabled = false; 
         btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> Masuk Absensi';
         lucide.createIcons();
       }
     });
 
+    checkFlashToast('Silakan masukkan NIS Anda untuk absensi');
     lucide.createIcons();
   </script>
 </body>

@@ -6,6 +6,7 @@
   <title>Admin - Rekap Absensi</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="toast.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800">
   
@@ -26,7 +27,7 @@
       <!-- Menu Navigasi & Logout Desktop -->
       <div class="flex items-center justify-between w-full sm:w-auto gap-4 pt-2 sm:pt-0 border-t sm:border-0 border-emerald-800/60">
         <div class="flex gap-4 text-sm">
-          <a href="admin-siswa.html" class="font-bold text-emerald-200 hover:text-white transition pb-0.5">Kelola Siswa</a>
+          <a href="admin-siswa.html" onclick="sessionStorage.setItem('flashToast', JSON.stringify({message: 'Beralih ke Kelola Data Siswa', type: 'info'}))" class="font-bold text-emerald-200 hover:text-white transition pb-0.5">Kelola Siswa</a>
           <a href="admin-rekap.html" class="font-bold text-white border-b-2 border-emerald-400 pb-0.5">Rekap Absensi</a>
         </div>
         <button onclick="logout()" class="hidden sm:flex bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl text-xs font-bold items-center gap-2 transition shadow-sm">
@@ -38,7 +39,7 @@
 
   <main class="max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-6">
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-      <h2 class="font-bold text-lg mb-4 text-emerald-800 flex items-center gap-2">
+      <h2 id="pageTitle" class="font-bold text-lg mb-4 text-emerald-800 flex items-center gap-2">
         <i data-lucide="calendar-days" class="w-5 h-5"></i> Rekap Harian
       </h2>
       
@@ -85,7 +86,11 @@
     if (!token) window.location.href = 'login-staf.html';
     const getBaseUrl = () => window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
 
-    function logout() { localStorage.removeItem('stafToken'); window.location.href = 'login-staf.html'; }
+    function logout() { 
+      sessionStorage.setItem('flashToast', JSON.stringify({ message: 'Anda telah berhasil logout.', type: 'info' }));
+      localStorage.removeItem('stafToken'); 
+      window.location.href = 'login-staf.html'; 
+    }
 
     document.getElementById('tglInput').value = new Date().toISOString().split('T')[0];
 
@@ -99,7 +104,7 @@
         const result = await res.json();
         
         let rows = '';
-        let dataTampil = result.data;
+        let dataTampil = result.data || [];
 
         if (kelasVal !== 'semua') {
           dataTampil = dataTampil.filter(r => {
@@ -124,7 +129,7 @@
             let badgeColor = 'bg-emerald-100 text-emerald-800';
             let statusText = r.status || 'Hadir';
 
-            if (statusClean === 'terlambat') {
+            if (statusClean.includes('terlambat')) {
               badgeColor = 'bg-amber-100 text-amber-800 border border-amber-200';
               statusText = 'Terlambat';
             } else if (statusClean === 'sakit') {
@@ -147,9 +152,11 @@
         document.getElementById('tabelRekap').innerHTML = rows;
       } catch (err) {
         console.error('Error memuat data:', err);
+        showToast('Gagal memuat rekap presensi dari server', 'error');
       }
     }
 
+    checkFlashToast('Masuk ke Halaman Rekap Absensi');
     loadRekap();
     lucide.createIcons();
   </script>

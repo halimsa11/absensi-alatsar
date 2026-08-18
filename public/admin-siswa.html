@@ -6,6 +6,7 @@
   <title>Admin - Kelola Data Siswa</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="toast.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800">
   
@@ -27,7 +28,7 @@
       <div class="flex items-center justify-between w-full sm:w-auto gap-4 pt-2 sm:pt-0 border-t sm:border-0 border-emerald-800/60">
         <div class="flex gap-4 text-sm">
           <a href="admin-siswa.html" class="font-bold text-white border-b-2 border-emerald-400 pb-0.5">Kelola Siswa</a>
-          <a href="admin-rekap.html" class="font-bold text-emerald-200 hover:text-white transition pb-0.5">Rekap Absensi</a>
+          <a href="admin-rekap.html" onclick="sessionStorage.setItem('flashToast', JSON.stringify({message: 'Beralih ke Rekap Absensi', type: 'info'}))" class="font-bold text-emerald-200 hover:text-white transition pb-0.5">Rekap Absensi</a>
         </div>
         <button onclick="logout()" class="hidden sm:flex bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl text-xs font-bold items-center gap-2 transition shadow-sm">
           <i data-lucide="log-out" class="w-4 h-4"></i> Logout
@@ -106,6 +107,7 @@
     const getBaseUrl = () => window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
 
     function logout() {
+      sessionStorage.setItem('flashToast', JSON.stringify({ message: 'Anda telah berhasil logout.', type: 'info' }));
       localStorage.removeItem('stafToken');
       window.location.href = 'login-staf.html';
     }
@@ -124,6 +126,7 @@
         renderTabel();
       } catch (err) {
         console.error('Gagal memuat siswa:', err);
+        showToast('Gagal memuat data siswa dari server', 'error');
       }
     }
 
@@ -161,25 +164,39 @@
 
     document.getElementById('formSiswa').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const nisn = document.getElementById('inputNisn').value;
-      const fullName = document.getElementById('inputNama').value;
+      const nisn = document.getElementById('inputNisn').value.trim();
+      const fullName = document.getElementById('inputNama').value.trim();
       const classId = document.getElementById('inputKelas').value;
       
       const payload = { nisn, fullName, classId: parseInt(classId) };
       const btn = document.getElementById('btnSimpan');
-      btn.disabled = true; btn.innerText = 'Menyimpan...';
+      const isEditing = !!editModeId;
+      btn.disabled = true; 
+      btn.innerText = isEditing ? 'Mengupdate...' : 'Menyimpan...';
 
       try {
-        const url = editModeId ? `${getBaseUrl()}/api/students/${editModeId}` : `${getBaseUrl()}/api/students`;
+        const url = isEditing ? `${getBaseUrl()}/api/students/${editModeId}` : `${getBaseUrl()}/api/students`;
         const res = await fetch(url, {
-          method: editModeId ? 'PUT' : 'POST',
+          method: isEditing ? 'PUT' : 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(payload)
         });
         if (res.status === 401 || res.status === 403) return logout();
-        if (res.ok) { resetForm(); loadSiswa(); }
-      } catch (err) {} 
-      finally { btn.disabled = false; btn.innerText = 'Simpan'; }
+        const result = await res.json();
+
+        if (res.ok && result.success) {
+          showToast(result.message || (isEditing ? 'Data siswa berhasil diperbarui!' : 'Data siswa berhasil ditambahkan!'), 'success');
+          resetForm();
+          loadSiswa();
+        } else {
+          showToast(result.message || (isEditing ? 'Gagal mengedit data siswa!' : 'Gagal menambahkan data siswa!'), 'error');
+        }
+      } catch (err) {
+        showToast('Terjadi kesalahan koneksi server!', 'error');
+      } finally {
+        btn.disabled = false; 
+        btn.innerText = editModeId ? 'Update' : 'Simpan';
+      }
     });
 
     function editSiswa(id, nisn, fullName, classId) {
@@ -205,10 +222,26 @@
 
     async function hapusSiswa(id) {
       if (!confirm("Yakin hapus siswa ini?")) return;
-      await fetch(`${getBaseUrl()}/api/students/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-      loadSiswa();
+      try {
+        const res = await fetch(`${getBaseUrl()}/api/students/${id}`, { 
+          method: 'DELETE', 
+          headers: { 'Authorization': `Bearer ${token}` } 
+        });
+        if (res.status === 401 || res.status === 403) return logout();
+        const result = await res.json();
+        if (res.ok && result.success) {
+          showToast(result.message || 'Data siswa berhasil dihapus!', 'delete');
+          loadSiswa();
+        } else {
+          showToast(result.message || 'Gagal menghapus data siswa!', 'error');
+        }
+      } catch (err) {
+        showToast('Terjadi kesalahan koneksi saat menghapus siswa!', 'error');
+      }
     }
 
+    // Tampilkan notifikasi masuk halaman atau flash message
+    checkFlashToast('Masuk ke Halaman Kelola Data Siswa');
     loadSiswa();
     lucide.createIcons();
   </script>

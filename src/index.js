@@ -75,8 +75,11 @@ app.post('/api/students', checkAdmin, async (c) => {
     const existing = await db.select().from(students).where(eq(students.nisn, String(nisn).trim())).limit(1);
     if (existing.length > 0) return c.json({ success: false, message: 'NIS sudah terdaftar!' }, 400);
     const newStudent = await db.insert(students).values({ nisn: String(nisn).trim(), fullName: String(fullName).trim(), classId: parseInt(classId) }).returning();
-    return c.json({ success: true, data: newStudent[0] });
-  } catch (err) { return c.json({ success: false }, 500); }
+    return c.json({ success: true, message: 'Data siswa berhasil ditambahkan!', data: newStudent[0] });
+  } catch (err) { 
+    console.error('Error POST /api/students:', err);
+    return c.json({ success: false, message: 'Gagal menambahkan data siswa' }, 500); 
+  }
 });
 
 app.put('/api/students/:id', checkAdmin, async (c) => {
@@ -84,8 +87,12 @@ app.put('/api/students/:id', checkAdmin, async (c) => {
     const id = parseInt(c.req.param('id'));
     const { nisn, fullName, classId } = await c.req.json();
     const updated = await db.update(students).set({ nisn: String(nisn).trim(), fullName: String(fullName).trim(), classId: parseInt(classId) }).where(eq(students.id, id)).returning();
-    return c.json({ success: true, data: updated[0] });
-  } catch (err) { return c.json({ success: false }, 500); }
+    if (updated.length === 0) return c.json({ success: false, message: 'Data siswa tidak ditemukan!' }, 404);
+    return c.json({ success: true, message: 'Data siswa berhasil diperbarui!', data: updated[0] });
+  } catch (err) { 
+    console.error('Error PUT /api/students:', err);
+    return c.json({ success: false, message: 'Gagal memperbarui data siswa' }, 500); 
+  }
 });
 
 app.delete('/api/students/:id', checkAdmin, async (c) => {
@@ -93,8 +100,11 @@ app.delete('/api/students/:id', checkAdmin, async (c) => {
     const id = parseInt(c.req.param('id'));
     await db.delete(attendances).where(eq(attendances.studentId, id));
     await db.delete(students).where(eq(students.id, id));
-    return c.json({ success: true });
-  } catch (err) { return c.json({ success: false }, 500); }
+    return c.json({ success: true, message: 'Data siswa berhasil dihapus!' });
+  } catch (err) { 
+    console.error('Error DELETE /api/students:', err);
+    return c.json({ success: false, message: 'Gagal menghapus data siswa' }, 500); 
+  }
 });
 
 app.get('/api/attendance', checkAdmin, async (c) => {
