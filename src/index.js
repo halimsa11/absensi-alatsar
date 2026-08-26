@@ -249,7 +249,7 @@ app.post('/api/ortu/rekap', async (c) => {
   }
 });
 
-serve({ fetch: app.fetch, port: 3000 }, (info) => {
+serve({ fetch: app.fetch, port: process.env.PORT || 3001 }, (info) => {
   console.log(`Server menyala di http://127.0.0.1:${info.port}`);
 });
 export default app;

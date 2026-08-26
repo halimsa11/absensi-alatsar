@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Staf - Admin</title>
+  <link rel="icon" href="logo.png" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="toast.js"></script>
@@ -36,7 +37,7 @@
   </div>
 
   <script>
-    const getBaseUrl = () => window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? `${window.location.protocol}//${window.location.hostname}:3000` : '';
+    const getBaseUrl = () => '';
     if (localStorage.getItem('stafToken')) window.location.href = 'admin-siswa.html';
 
     document.getElementById('formLoginAdmin').addEventListener('submit', async (e) => {
