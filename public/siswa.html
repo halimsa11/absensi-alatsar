@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,16 +10,20 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="toast.js"></script>
 </head>
+
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col justify-between">
   <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-50 border-b border-emerald-800">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
       <div class="flex items-center gap-3">
         <img src="logo.png" onerror="this.style.display='none'" alt="Logo" class="w-10 h-10 rounded-xl bg-white p-1">
         <div>
-          <h1 class="text-base font-bold flex items-center gap-2"><i data-lucide="user-check" class="w-5 h-5 text-emerald-300"></i> Portal Siswa</h1>
+          <h1 class="text-base font-bold flex items-center gap-2"><i data-lucide="user-check"
+              class="w-5 h-5 text-emerald-300"></i> Portal Siswa</h1>
         </div>
       </div>
-      <button onclick="logoutSantri()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5"><i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout</button>
+      <button onclick="logoutSantri()"
+        class="text-xs bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5"><i
+          data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout</button>
     </div>
   </header>
 
@@ -32,7 +37,8 @@
     <div id="alertBox" class="hidden p-4 rounded-2xl text-sm font-medium shadow-sm"></div>
 
     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80">
-      <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2"><i data-lucide="calendar-check" class="w-5 h-5 text-emerald-700"></i> Input Kehadiran</h3>
+      <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2"><i data-lucide="calendar-check"
+          class="w-5 h-5 text-emerald-700"></i> Input Kehadiran</h3>
       <form id="formAbsensi" class="space-y-4">
         <div>
           <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Keterangan</label>
@@ -42,7 +48,9 @@
             <option value="Alfa">Alfa</option>
           </select>
         </div>
-        <button type="submit" id="btnKirim" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2 text-sm"><i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)</button>
+        <button type="submit" id="btnKirim"
+          class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2 text-sm"><i
+            data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)</button>
       </form>
     </div>
   </main>
@@ -74,10 +82,10 @@
       lucide.createIcons();
     }
 
-    function logoutSantri() { 
+    function logoutSantri() {
       sessionStorage.setItem('flashToast', JSON.stringify({ message: 'Anda telah berhasil logout dari Portal Siswa.', type: 'info' }));
-      localStorage.clear(); 
-      window.location.href = 'login-siswa.html'; 
+      localStorage.clear();
+      window.location.href = 'login-siswa.html';
     }
 
     function cekBatasWaktu() {
@@ -90,17 +98,17 @@
       if (!currentSantri.id) return;
       try {
         const d = new Date();
-        const tStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const tStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const res = await fetch(`${getBaseUrl()}/api/students/check-attendance?studentId=${currentSantri.id}&date=${tStr}`);
         const result = await res.json();
-        if (result.success && result.data) lockForm(`😊 Anda sudah absen hari ini (${result.data.status}).`, true);
+        if (result.success && result.data) lockForm(`Anda sudah absen hari ini (${result.data.status}).`, true);
       } catch (err) { console.log(err); }
     }
 
     function getLokasiGps() {
       return new Promise((res, rej) => {
         if (!navigator.geolocation) rej('GPS tidak didukung.');
-        else navigator.geolocation.getCurrentPosition(p => res({ lat: p.coords.latitude, lon: p.coords.longitude }), 
+        else navigator.geolocation.getCurrentPosition(p => res({ lat: p.coords.latitude, lon: p.coords.longitude }),
           e => rej(e.code === e.PERMISSION_DENIED ? 'Akses lokasi ditolak!' : 'Gagal deteksi GPS.'), { enableHighAccuracy: true, timeout: 10000 });
       });
     }
@@ -119,21 +127,21 @@
           body: JSON.stringify({ studentId: currentSantri.id, status, latitude: coords.lat, longitude: coords.lon })
         });
         const result = await res.json();
-        if (res.ok && result.success) { 
-          showAlert(`😊 ${result.message}`, true); 
+        if (res.ok && result.success) {
+          showAlert(`😊 ${result.message}`, true);
           showToast(result.message, 'success');
-          setTimeout(() => lockForm(result.message, true), 500); 
-        } else { 
-          showAlert(`😟 ${result.message || 'Presensi gagal'}`, false); 
+          setTimeout(() => lockForm(result.message, true), 500);
+        } else {
+          showAlert(`😟 ${result.message || 'Presensi gagal'}`, false);
           showToast(result.message || 'Presensi gagal', 'error');
-          btn.disabled = false; 
+          btn.disabled = false;
           btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
           lucide.createIcons();
         }
-      } catch (err) { 
-        showAlert(`😟 ${err}`, false); 
+      } catch (err) {
+        showAlert(`😟 ${err}`, false);
         showToast(err, 'error');
-        btn.disabled = false; 
+        btn.disabled = false;
         btn.innerHTML = '<i data-lucide="map-pin" class="w-4 h-4"></i> Kirim Absensi (Cek Lokasi)';
         lucide.createIcons();
       }
@@ -144,4 +152,5 @@
     lucide.createIcons();
   </script>
 </body>
+
 </html>
