@@ -127,16 +127,24 @@ app.get('/api/attendance', checkAdmin, async (c) => {
 // ==========================================
 // 2. API PUBLIK (SANTRI & WALI MURID)
 // ==========================================
-app.get('/api/students/check', async (c) => {
+app.post('/api/students/login', async (c) => {
   try {
-    const nisParam = c.req.query('nis');
-    if (!nisParam) return c.json({ success: false, message: 'NIS wajib diisi' }, 400);
+    const { nis, password } = await c.req.json();
+    if (!nis || !password) return c.json({ success: false, message: 'NIS dan Password wajib diisi' }, 400);
+    
     const result = await db.select({
-      id: students.id, nisn: students.nisn, fullName: students.fullName, classId: students.classId, className: classes.name,
-    }).from(students).leftJoin(classes, eq(students.classId, classes.id)).where(eq(students.nisn, String(nisParam).trim())).limit(1);
+      id: students.id, nisn: students.nisn, fullName: students.fullName, classId: students.classId, className: classes.name, password: students.password
+    }).from(students).leftJoin(classes, eq(students.classId, classes.id)).where(eq(students.nisn, String(nis).trim())).limit(1);
     
     if (result.length === 0) return c.json({ success: false, message: 'NIS tidak ditemukan' }, 404);
-    return c.json({ success: true, data: result[0] });
+    if (result[0].password !== password) return c.json({ success: false, message: 'Password salah' }, 401);
+
+    const token = await sign({ role: 'siswa', studentId: result[0].id, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) }, JWT_SECRET);
+    
+    // Hilangkan password dari data yang dikembalikan ke frontend
+    const { password: _, ...studentData } = result[0];
+
+    return c.json({ success: true, message: 'Login berhasil', token, data: studentData });
   } catch (err) { return c.json({ success: false }, 500); }
 });
 
