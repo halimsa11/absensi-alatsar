@@ -19,24 +19,42 @@
           <img src="logo.png" onerror="this.style.display='none'" alt="Logo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white p-1 object-contain">
           <h1 class="text-base sm:text-lg font-bold tracking-tight">Admin Dashboard</h1>
         </div>
-        <!-- Tombol Logout khusus Mobile di pojok kanan atas baris pertama -->
-        <button onclick="logout()" class="sm:hidden bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
-        </button>
+        <!-- Tombol Menu Utama & Logout khusus Mobile -->
+        <div class="sm:hidden flex gap-2">
+          <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="home" class="w-3.5 h-3.5"></i> Home
+          </a>
+          <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+          </button>
+        </div>
       </div>
 
       <!-- Menu Navigasi & Logout Desktop -->
       <div class="flex items-center justify-between w-full sm:w-auto gap-4 pt-2 sm:pt-0 border-t sm:border-0 border-emerald-800/60">
-        <div class="flex gap-4 text-sm">
-          <a href="admin-siswa.html" onclick="sessionStorage.setItem('flashToast', JSON.stringify({message: 'Beralih ke Kelola Data Siswa', type: 'info'}))" class="font-bold text-emerald-200 hover:text-white transition pb-0.5">Kelola Siswa</a>
+        <div class="flex gap-4 text-sm" id="navLinks">
+          <a href="admin-siswa.html" id="linkKelolaSiswa" onclick="sessionStorage.setItem('flashToast', JSON.stringify({message: 'Beralih ke Kelola Data Siswa', type: 'info'}))" class="font-bold text-emerald-200 hover:text-white transition pb-0.5">Kelola Siswa</a>
           <a href="admin-rekap.html" class="font-bold text-white border-b-2 border-emerald-400 pb-0.5">Rekap Absensi</a>
         </div>
-        <button onclick="logout()" class="hidden sm:flex bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl text-xs font-bold items-center gap-2 transition shadow-sm">
-          <i data-lucide="log-out" class="w-4 h-4"></i> Logout
-        </button>
+        <div class="hidden sm:flex gap-2">
+          <a href="index.html" class="bg-emerald-800 hover:bg-emerald-700 text-emerald-50 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-sm border border-emerald-700">
+            <i data-lucide="home" class="w-4 h-4"></i> Menu Utama
+          </a>
+          <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-sm">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+          </button>
+        </div>
       </div>
     </div>
   </header>
+
+  <script>
+    const roleCheck = localStorage.getItem('stafRole');
+    if (roleCheck === 'admin') {
+      const linkKelola = document.getElementById('linkKelolaSiswa');
+      if (linkKelola) linkKelola.style.display = 'none';
+    }
+  </script>
 
   <main class="max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-6">
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -69,6 +87,7 @@
         <table class="w-full text-left text-sm">
           <thead class="bg-slate-100/80 text-slate-600 border-b">
             <tr>
+              <th class="p-4 font-bold w-12 text-center">No</th>
               <th class="p-4 font-bold">Waktu Masuk (WIB)</th>
               <th class="p-4 font-bold">NIS</th>
               <th class="p-4 font-bold">Nama Lengkap</th>
@@ -90,6 +109,7 @@
     function logout() { 
       sessionStorage.setItem('flashToast', JSON.stringify({ message: 'Anda telah berhasil logout.', type: 'info' }));
       localStorage.removeItem('stafToken'); 
+      localStorage.removeItem('stafRole');
       window.location.href = 'login-staf.html'; 
     }
 
@@ -115,9 +135,9 @@
         }
 
         if(dataTampil.length === 0) {
-          rows = `<tr><td colspan="5" class="p-6 text-center text-slate-500">Belum ada data presensi yang sesuai.</td></tr>`;
+          rows = `<tr><td colspan="6" class="p-6 text-center text-slate-500">Belum ada data presensi yang sesuai.</td></tr>`;
         } else {
-          dataTampil.forEach(r => {
+          dataTampil.forEach((r, idx) => {
             let wibTime = '-';
             if (r.checkInTime) {
                const dt = new Date(r.checkInTime);
@@ -139,26 +159,35 @@
             } else if (statusClean === 'alfa') {
               badgeColor = 'bg-rose-100 text-rose-800';
               statusText = 'Alfa';
+            } else if (statusClean === 'izin') {
+              badgeColor = 'bg-sky-100 text-sky-800';
+              statusText = 'Izin';
             }
 
-            rows += `<tr class="hover:bg-slate-50 transition">
-              <td class="p-4 text-slate-500 font-medium">${wibTime}</td>
-              <td class="p-4 font-medium text-slate-900">${r.nisn}</td>
-              <td class="p-4 font-bold text-slate-800">${r.studentName}</td>
-              <td class="p-4 text-slate-600">${teksKelas}</td>
-              <td class="p-4"><span class="${badgeColor} px-3 py-1.5 text-xs font-bold rounded-full">${statusText}</span></td>
-            </tr>`;
+            rows += `
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-4 text-center text-slate-500">${idx + 1}</td>
+                <td class="p-4 font-medium text-slate-900">${wibTime}</td>
+                <td class="p-4 text-slate-600">${r.nisn || '-'}</td>
+                <td class="p-4 text-slate-800">${r.studentName || '-'}</td>
+                <td class="p-4 text-slate-600">${teksKelas}</td>
+                <td class="p-4">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${badgeColor}">
+                    ${statusText}
+                  </span>
+                </td>
+              </tr>
+            `;
           });
         }
         document.getElementById('tabelRekap').innerHTML = rows;
       } catch (err) {
-        console.error('Error memuat data:', err);
-        showToast('Gagal memuat rekap presensi dari server', 'error');
+        showToast('Gagal memuat rekap absensi', 'error');
       }
     }
 
-    checkFlashToast('Masuk ke Halaman Rekap Absensi');
     loadRekap();
+    checkFlashToast('Selamat datang di dashboard admin');
     lucide.createIcons();
   </script>
 </body>

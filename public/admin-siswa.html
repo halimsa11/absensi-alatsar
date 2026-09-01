@@ -19,10 +19,15 @@
           <img src="logo.png" onerror="this.style.display='none'" alt="Logo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white p-1 object-contain">
           <h1 class="text-base sm:text-lg font-bold tracking-tight">Admin Dashboard</h1>
         </div>
-        <!-- Tombol Logout khusus Mobile di pojok kanan atas baris pertama -->
-        <button onclick="logout()" class="sm:hidden bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
-        </button>
+        <!-- Tombol Menu Utama & Logout khusus Mobile -->
+        <div class="sm:hidden flex gap-2">
+          <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="home" class="w-3.5 h-3.5"></i> Home
+          </a>
+          <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+          </button>
+        </div>
       </div>
 
       <!-- Menu Navigasi & Logout Desktop -->
@@ -31,12 +36,24 @@
           <a href="admin-siswa.html" class="font-bold text-white border-b-2 border-emerald-400 pb-0.5">Kelola Siswa</a>
           <a href="admin-rekap.html" onclick="sessionStorage.setItem('flashToast', JSON.stringify({message: 'Beralih ke Rekap Absensi', type: 'info'}))" class="font-bold text-emerald-200 hover:text-white transition pb-0.5">Rekap Absensi</a>
         </div>
-        <button onclick="logout()" class="hidden sm:flex bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl text-xs font-bold items-center gap-2 transition shadow-sm">
-          <i data-lucide="log-out" class="w-4 h-4"></i> Logout
-        </button>
+        <div class="hidden sm:flex gap-2">
+          <a href="index.html" class="bg-emerald-800 hover:bg-emerald-700 text-emerald-50 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-sm border border-emerald-700">
+            <i data-lucide="home" class="w-4 h-4"></i> Menu Utama
+          </a>
+          <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-sm">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+          </button>
+        </div>
       </div>
     </div>
   </header>
+
+  <script>
+    const roleCheck = localStorage.getItem('stafRole');
+    if (roleCheck === 'admin') {
+      window.location.href = 'admin-rekap.html';
+    }
+  </script>
 
   <main class="max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-6">
     

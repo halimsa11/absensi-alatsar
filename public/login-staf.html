@@ -20,7 +20,11 @@
 
     <form id="formLoginAdmin" class="space-y-4">
       <div>
-        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Password Akses</label>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Username</label>
+        <input type="text" id="username" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none transition text-sm font-medium" placeholder="Masukkan username">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Password</label>
         <input type="password" id="password" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none transition text-sm font-medium" placeholder="••••••••">
       </div>
       
@@ -38,7 +42,11 @@
 
   <script>
     const getBaseUrl = () => '';
-    if (localStorage.getItem('stafToken')) window.location.href = 'admin-siswa.html';
+    const token = localStorage.getItem('stafToken');
+    const role = localStorage.getItem('stafRole');
+    if (token) {
+      window.location.href = role === 'super_admin' ? 'admin-siswa.html' : 'admin-rekap.html';
+    }
 
     document.getElementById('formLoginAdmin').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -50,15 +58,24 @@
         const res = await fetch(`${getBaseUrl()}/api/staf/login`, {
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: document.getElementById('password').value })
+          body: JSON.stringify({ 
+            username: document.getElementById('username').value.trim(),
+            password: document.getElementById('password').value 
+          })
         });
         const result = await res.json();
         if (res.ok && result.success) {
           localStorage.setItem('stafToken', result.token);
-          sessionStorage.setItem('flashToast', JSON.stringify({ message: 'Login berhasil! Selamat datang Admin.', type: 'success' }));
-          window.location.href = 'admin-siswa.html';
+          localStorage.setItem('stafRole', result.role);
+          sessionStorage.setItem('flashToast', JSON.stringify({ message: 'Login berhasil!', type: 'success' }));
+          
+          if (result.role === 'super_admin') {
+            window.location.href = 'admin-siswa.html';
+          } else {
+            window.location.href = 'admin-rekap.html';
+          }
         } else { 
-          showToast(result.message || 'Password salah!', 'error'); 
+          showToast(result.message || 'Kredensial salah!', 'error'); 
           btn.disabled = false; 
           btn.innerText = 'Masuk Dashboard'; 
         }
@@ -69,7 +86,7 @@
       }
     });
 
-    checkFlashToast('Silakan masukkan password Admin untuk masuk');
+    checkFlashToast('Silakan masukkan username dan password');
     lucide.createIcons();
   </script>
 </body>

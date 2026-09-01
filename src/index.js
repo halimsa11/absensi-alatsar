@@ -47,14 +47,19 @@ const getTodayDateStr = () => {
 // ==========================================
 app.post('/api/staf/login', async (c) => {
   try {
-    const { password } = await c.req.json();
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const { username, password } = await c.req.json();
+    
+    // Default credentials for Super Admin
+    const isSuperAdmin = username === "shafi'i_ikhsan" && password === 'al_atsar';
+    // Default credentials for Admin
+    const isAdmin = username === 'admin' && password === 'admin123';
 
-    if (password === adminPassword || password === 'staf123') {
-      const token = await sign({ role: 'admin', exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) }, JWT_SECRET);
-      return c.json({ success: true, message: 'Login berhasil', token });
+    if (isSuperAdmin || isAdmin) {
+      const role = isSuperAdmin ? 'super_admin' : 'admin';
+      const token = await sign({ role, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) }, JWT_SECRET);
+      return c.json({ success: true, message: 'Login berhasil', token, role });
     }
-    return c.json({ success: false, message: 'Password salah!' }, 401);
+    return c.json({ success: false, message: 'Username atau Password salah!' }, 401);
   } catch (err) {
     return c.json({ success: false, message: 'Request tidak valid' }, 400);
   }
