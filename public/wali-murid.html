@@ -128,21 +128,6 @@
     let globalDataRekap = [];
     let currentNis = '';
 
-    // Cek token: kalau sesi wali murid masih ada, langsung tampilkan rekap
-    (function cekTokenWali() {
-      const session = localStorage.getItem('waliSession');
-      if (session) {
-        try {
-          const data = JSON.parse(session);
-          currentNis = data.nis;
-          // Langsung load data tanpa perlu input NIS lagi
-          loadDataOrtu(currentNis, data.studentName, data.className);
-        } catch (e) {
-          localStorage.removeItem('waliSession');
-        }
-      }
-    })();
-
     // Login wali: simpan NIS ke session lalu load data
     async function loginWali() {
       const nis = document.getElementById('nis').value.trim();
@@ -286,9 +271,12 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Menu Utama: kembali ke index.html TANPA hapus session
+    // Menu Utama: balik ke tampilan awal form NIS TANPA hapus session
     function kembaliMenuUtama() {
-      window.location.href = 'wali-murid.html';
+      document.getElementById('resultArea').classList.add('hidden');
+      document.getElementById('loginCard').classList.remove('hidden');
+      document.getElementById('headerButtons').classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     document.getElementById('nis').addEventListener('keypress', function (e) {
