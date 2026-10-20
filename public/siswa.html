@@ -21,9 +21,14 @@
               class="w-5 h-5 text-emerald-300"></i> Portal Siswa</h1>
         </div>
       </div>
-      <button onclick="logoutSantri()"
-        class="text-xs bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5"><i
-          data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout</button>
+      <div class="flex items-center gap-2">
+        <button onclick="kembaliMenuUtama()"
+          class="text-xs bg-slate-600 hover:bg-slate-700 text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5"><i
+            data-lucide="home" class="w-3.5 h-3.5"></i> Menu Utama</button>
+        <button onclick="logoutSantri()"
+          class="text-xs bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5"><i
+            data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout</button>
+      </div>
     </div>
   </header>
 
@@ -84,8 +89,16 @@
 
     function logoutSantri() {
       sessionStorage.setItem('flashToast', JSON.stringify({ message: 'Anda telah berhasil logout dari Portal Siswa.', type: 'info' }));
-      localStorage.clear();
+      // Hapus token dan session → harus login NIS lagi
+      localStorage.removeItem('santriToken');
+      localStorage.removeItem('santriSession');
+      localStorage.removeItem('siswaSession');
       window.location.href = 'login-siswa.html';
+    }
+
+    // Kembali ke Menu Utama TANPA hapus token → nanti bisa balik tanpa login lagi
+    function kembaliMenuUtama() {
+      window.location.href = 'index.html';
     }
 
     function cekBatasWaktu() {
