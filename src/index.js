@@ -47,19 +47,28 @@ const getTodayDateStr = () => {
 // ==========================================
 app.post('/api/staf/login', async (c) => {
   try {
-    const { username, password } = await c.req.json();
+    const { role, password } = await c.req.json();
     
-    // Default credentials for Super Admin
-    const isSuperAdmin = username === "shafi'i_ikhsan" && password === 'al_atsar';
-    // Default credentials for Admin
-    const isAdmin = username === 'admin' && password === 'admin123';
+    // Password untuk masing-masing role
+    const SUPER_ADMIN_PASSWORD = '@Alatsarsolo';
+    const ADMIN_PASSWORD = 'staf_alatsar123';
 
-    if (isSuperAdmin || isAdmin) {
-      const role = isSuperAdmin ? 'super_admin' : 'admin';
-      const token = await sign({ role, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) }, JWT_SECRET);
-      return c.json({ success: true, message: 'Login berhasil', token, role });
+    let isValid = false;
+    let assignedRole = '';
+
+    if (role === 'super_admin' && password === SUPER_ADMIN_PASSWORD) {
+      isValid = true;
+      assignedRole = 'super_admin';
+    } else if (role === 'admin' && password === ADMIN_PASSWORD) {
+      isValid = true;
+      assignedRole = 'admin';
     }
-    return c.json({ success: false, message: 'Username atau Password salah!' }, 401);
+
+    if (isValid) {
+      const token = await sign({ role: assignedRole, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) }, JWT_SECRET);
+      return c.json({ success: true, message: 'Login berhasil', token, role: assignedRole });
+    }
+    return c.json({ success: false, message: 'Password salah!' }, 401);
   } catch (err) {
     return c.json({ success: false, message: 'Request tidak valid' }, 400);
   }

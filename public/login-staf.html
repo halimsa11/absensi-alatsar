@@ -8,27 +8,100 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="toast.js"></script>
+  <style>
+    /* Custom radio card styling */
+    .role-card {
+      transition: all 0.2s ease;
+    }
+    .role-card:hover {
+      border-color: #059669;
+      background-color: #f0fdf4;
+    }
+    .role-card.active {
+      border-color: #059669;
+      background-color: #ecfdf5;
+      box-shadow: 0 0 0 2px #059669;
+    }
+    .role-card.active .role-icon {
+      background-color: #059669;
+      color: white;
+    }
+    .role-card.active .role-check {
+      display: flex;
+    }
+    .role-check {
+      display: none;
+    }
+    /* Password toggle */
+    .pw-toggle {
+      transition: color 0.15s ease;
+    }
+    .pw-toggle:hover {
+      color: #059669;
+    }
+  </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
   <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
     
+    <!-- Header -->
     <div class="text-center">
       <img src="logo.png" onerror="this.style.display='none'" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-50 p-2 shadow-sm border border-emerald-100 object-contain">
       <h1 class="text-2xl font-bold text-slate-800">Login Admin</h1>
       <p class="text-sm text-slate-500 mt-1">Sistem Absensi Al-Atsar</p>
     </div>
 
-    <form id="formLoginAdmin" class="space-y-4">
+    <form id="formLoginAdmin" class="space-y-5">
+      
+      <!-- Role Selection -->
       <div>
-        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Username</label>
-        <input type="text" id="username" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none transition text-sm font-medium" placeholder="Masukkan username">
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-3">Masuk Sebagai</label>
+        <div class="grid grid-cols-2 gap-3">
+          
+          <!-- Super Admin Card -->
+          <label class="role-card active relative cursor-pointer border-2 border-slate-200 rounded-2xl p-4 text-center block" data-role="super_admin">
+            <input type="radio" name="role" value="super_admin" class="sr-only" checked>
+            <div class="role-check absolute top-2 right-2 items-center justify-center w-5 h-5 bg-emerald-600 rounded-full">
+              <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="role-icon w-10 h-10 mx-auto mb-2 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <p class="text-sm font-bold text-slate-700">Super Admin</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Akses penuh</p>
+          </label>
+
+          <!-- Admin Card -->
+          <label class="role-card relative cursor-pointer border-2 border-slate-200 rounded-2xl p-4 text-center block" data-role="admin">
+            <input type="radio" name="role" value="admin" class="sr-only">
+            <div class="role-check absolute top-2 right-2 items-center justify-center w-5 h-5 bg-emerald-600 rounded-full">
+              <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="role-icon w-10 h-10 mx-auto mb-2 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center">
+              <i data-lucide="user-cog" class="w-5 h-5"></i>
+            </div>
+            <p class="text-sm font-bold text-slate-700">Admin</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Akses terbatas</p>
+          </label>
+        </div>
       </div>
+
+      <!-- Password Field -->
       <div>
         <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Password</label>
-        <input type="password" id="password" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none transition text-sm font-medium" placeholder="••••••••">
+        <div class="relative">
+          <input type="password" id="password" required class="w-full px-4 py-3.5 pr-12 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none transition text-sm font-medium" placeholder="Masukkan password">
+          <button type="button" id="togglePw" class="pw-toggle absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+            <i data-lucide="eye" class="w-4 h-4" id="iconEye"></i>
+            <i data-lucide="eye-off" class="w-4 h-4 hidden" id="iconEyeOff"></i>
+          </button>
+        </div>
       </div>
       
-      <button type="submit" id="btnSubmit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-3.5 rounded-xl transition shadow-sm text-sm">Masuk Dashboard</button>
+      <button type="submit" id="btnSubmit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-3.5 rounded-xl transition shadow-sm text-sm flex items-center justify-center gap-2">
+        <i data-lucide="log-in" class="w-4 h-4"></i>
+        Masuk Dashboard
+      </button>
     </form>
 
     <!-- Tombol Kembali ke Menu Utama -->
@@ -48,20 +121,43 @@
       window.location.href = role === 'super_admin' ? 'admin-siswa.html' : 'admin-rekap.html';
     }
 
+    // Role card selection logic
+    const roleCards = document.querySelectorAll('.role-card');
+    roleCards.forEach(card => {
+      card.addEventListener('click', () => {
+        roleCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        card.querySelector('input[type="radio"]').checked = true;
+      });
+    });
+
+    // Toggle password visibility
+    const togglePw = document.getElementById('togglePw');
+    const pwInput = document.getElementById('password');
+    const iconEye = document.getElementById('iconEye');
+    const iconEyeOff = document.getElementById('iconEyeOff');
+    togglePw.addEventListener('click', () => {
+      const isPassword = pwInput.type === 'password';
+      pwInput.type = isPassword ? 'text' : 'password';
+      iconEye.classList.toggle('hidden', isPassword);
+      iconEyeOff.classList.toggle('hidden', !isPassword);
+    });
+
+    // Form submit
     document.getElementById('formLoginAdmin').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('btnSubmit');
       btn.disabled = true; 
-      btn.innerText = 'Memverifikasi...';
+      btn.innerHTML = '<svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" class="opacity-75"></path></svg> Memverifikasi...';
+
+      const selectedRole = document.querySelector('input[name="role"]:checked').value;
+      const password = document.getElementById('password').value;
 
       try {
         const res = await fetch(`${getBaseUrl()}/api/staf/login`, {
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            username: document.getElementById('username').value.trim(),
-            password: document.getElementById('password').value 
-          })
+          body: JSON.stringify({ role: selectedRole, password })
         });
         const result = await res.json();
         if (res.ok && result.success) {
@@ -75,18 +171,20 @@
             window.location.href = 'admin-rekap.html';
           }
         } else { 
-          showToast(result.message || 'Kredensial salah!', 'error'); 
+          showToast(result.message || 'Password salah!', 'error'); 
           btn.disabled = false; 
-          btn.innerText = 'Masuk Dashboard'; 
+          btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> Masuk Dashboard';
+          lucide.createIcons();
         }
       } catch (err) { 
         showToast('Terjadi kesalahan koneksi server', 'error'); 
         btn.disabled = false; 
-        btn.innerText = 'Masuk Dashboard'; 
+        btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> Masuk Dashboard';
+        lucide.createIcons();
       }
     });
 
-    checkFlashToast('Silakan masukkan username dan password');
+    checkFlashToast('Silakan pilih role dan masukkan password');
     lucide.createIcons();
   </script>
 </body>
